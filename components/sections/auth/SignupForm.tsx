@@ -8,6 +8,9 @@ import { PhoneInput } from 'react-international-phone';
 import 'react-international-phone/style.css';
 import { parsePhoneNumber, isValidPhoneNumber } from 'libphonenumber-js';
 import { Hourglass } from 'react-loader-spinner';
+import toast from 'react-hot-toast';
+import '@/styles/signup-form.css';
+import { logger } from '@/utils/logger';
 
 type TabType = 'thaiStudent' | 'internationalStudent' | 'thaiProfessional' | 'internationalProfessional';
 
@@ -43,12 +46,12 @@ export default function SignupForm() {
         // Validate file type
         const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
         if (!allowedTypes.includes(file.type)) {
-            alert(locale === 'th' ? 'รองรับเฉพาะไฟล์ PDF, JPG, PNG' : 'Only PDF, JPG, PNG files are allowed');
+            toast.error(locale === 'th' ? 'รองรับเฉพาะไฟล์ PDF, JPG, PNG' : 'Only PDF, JPG, PNG files are allowed');
             return;
         }
         // Validate file size (10MB max)
         if (file.size > 10 * 1024 * 1024) {
-            alert(locale === 'th' ? 'ไฟล์ใหญ่เกินไป (สูงสุด 10MB)' : 'File too large (max 10MB)');
+            toast.error(locale === 'th' ? 'ไฟล์ใหญ่เกินไป (สูงสุด 10MB)' : 'File too large (max 10MB)');
             return;
         }
         setStudentDocument(file);
@@ -67,28 +70,28 @@ export default function SignupForm() {
 
         try {
             if (!firstName || !lastName || !email || !password || !confirmPassword) {
-                alert(locale === 'th' ? 'กรุณากรอกข้อมูลให้ครบถ้วน' : 'Please fill all required fields');
+                toast.error(locale === 'th' ? 'กรุณากรอกข้อมูลให้ครบถ้วน' : 'Please fill all required fields');
                 setIsLoading(false);
                 return;
             }
             if (phone && !isValidPhoneNumber(phone)) {
-                alert(locale === 'th' ? 'เบอร์โทรศัพท์ไม่ถูกต้อง' : 'Invalid phone number format');
+                toast.error(locale === 'th' ? 'เบอร์โทรศัพท์ไม่ถูกต้อง' : 'Invalid phone number format');
                 setIsLoading(false);
                 return;
             }
             if (password !== confirmPassword) {
-                alert(locale === 'th' ? 'รหัสผ่านไม่ตรงกัน' : 'Passwords do not match');
+                toast.error(locale === 'th' ? 'รหัสผ่านไม่ตรงกัน' : 'Passwords do not match');
                 setIsLoading(false);
                 return;
             }
             if (!agreeTerms) {
-                alert(locale === 'th' ? 'กรุณายอมรับข้อกำหนดการใช้งาน' : 'Please agree to terms');
+                toast.error(locale === 'th' ? 'กรุณายอมรับข้อกำหนดการใช้งาน' : 'Please agree to terms');
                 setIsLoading(false);
                 return;
             }
             if (activeTab === 'thaiStudent' || activeTab === 'thaiProfessional') {
                 if (!idCard) {
-                    alert(locale === 'th' ? 'กรุณากรอกเลขบัตรประชาชน' : 'Please enter Thai ID card');
+                    toast.error(locale === 'th' ? 'กรุณากรอกเลขบัตรประชาชน' : 'Please enter Thai ID card');
                     setIsLoading(false);
                     return;
                 }
@@ -99,7 +102,7 @@ export default function SignupForm() {
                 //     return;
                 // }
             } else if (!country) {
-                alert(locale === 'th' ? 'กรุณาระบุประเทศ' : 'Please enter country');
+                toast.error(locale === 'th' ? 'กรุณาระบุประเทศ' : 'Please enter country');
                 setIsLoading(false);
                 return;
             }
@@ -107,15 +110,12 @@ export default function SignupForm() {
             // Validate student document for students
             const isStudent = activeTab === 'thaiStudent' || activeTab === 'internationalStudent';
             if (isStudent && !studentDocument) {
-                alert(locale === 'th' ? 'กรุณาเลือกเอกสารยืนยันความเป็นนักศึกษา' : 'Please select student verification document');
+                toast.error(locale === 'th' ? 'กรุณาเลือกเอกสารยืนยันความเป็นนักศึกษา' : 'Please select student verification document');
                 setIsLoading(false);
                 return;
             }
 
             // API Call with FormData (file will be uploaded by backend)
-            const formData = new FormData();
-            formData.append('firstName', firstName);
-            formData.append('lastName', lastName);
             const formDataToSend = new FormData();
             formDataToSend.append('firstName', firstName);
             formDataToSend.append('lastName', lastName);
@@ -146,7 +146,7 @@ export default function SignupForm() {
             const data = await response.json();
 
             if (!response.ok) {
-                alert(data.error || 'Registration failed');
+                toast.error(data.error || 'Registration failed');
                 setIsLoading(false);
                 return;
             }
@@ -171,8 +171,8 @@ export default function SignupForm() {
                 router.push(`/${locale}`);
             }
         } catch (error) {
-            console.error('Signup error:', error);
-            alert('Something went wrong. Please try again.');
+            logger.error('Signup error', error, { component: 'SignupForm' });
+            toast.error('Something went wrong. Please try again.');
         } finally {
             setIsLoading(false);
         }
@@ -195,54 +195,11 @@ export default function SignupForm() {
         borderRadius: '8px',
         outline: 'none'
     };
-
-    const phoneInputStyle = `
-        /* react-international-phone custom styles */
-        .react-international-phone-input-container {
-            display: flex;
-            align-items: center;
-            width: 100%;
-        }
-        .react-international-phone-country-selector-dropdown {
-            max-height: 250px;
-            overflow-y: auto;
-            z-index: 1000;
-        }
-        .react-international-phone-input {
-            flex: 1;
-        }
-        
-        /* Account Type Card Animation */
-        .account-type-card {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-        }
-        .account-type-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 24px rgba(0,0,0,0.08);
-            border-color: #1a237e !important;
-        }
-        .account-type-card:active {
-            transform: translateY(0);
-        }
-        
-        /* Fade In Animation */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .step-content {
-            animation: fadeIn 0.4s ease-out forwards;
-        }
-    `;
-
-    const PhoneInputAny = PhoneInput as any;
-    const HourglassAny = Hourglass as any;
+    // Note: PhoneInput and Hourglass have incomplete type definitions
+    // Using @ts-expect-error comments where needed instead of 'as any' casts
 
     return (
         <>
-            <style dangerouslySetInnerHTML={{ __html: phoneInputStyle }} />
             <div style={{
                 background: '#fff',
                 borderRadius: '16px',
@@ -268,7 +225,7 @@ export default function SignupForm() {
                         flexDirection: 'column',
                         gap: '20px'
                     }}>
-                        <HourglassAny
+                        <Hourglass
                             visible={true}
                             height="80"
                             width="80"
@@ -582,8 +539,7 @@ export default function SignupForm() {
                                 padding: '12px 14px',
                                 background: '#fff'
                             }}>
-                                {/* @ts-ignore */}
-                                <PhoneInputAny
+                                <PhoneInput
                                     defaultCountry="th"
                                     value={phone}
                                     onChange={(phone: string) => setPhone(phone)}

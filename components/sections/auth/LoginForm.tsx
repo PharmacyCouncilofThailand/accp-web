@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useTranslations, useLocale } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import { logger } from '@/utils/logger';
 
 export default function LoginForm() {
     const t = useTranslations('login');
@@ -60,7 +61,7 @@ export default function LoginForm() {
                 return;
             }
             
-            // Login Success
+            // Login Success - pass token to login (stored based on rememberMe)
             login({
                 firstName: data.user.firstName,
                 lastName: data.user.lastName,
@@ -69,12 +70,25 @@ export default function LoginForm() {
                 isThai: data.user.isThai,
                 delegateType: data.user.delegateType,
                 idCard: data.user.idCard
-            });
+            }, data.token);
+            
+            // Handle Remember Me - use localStorage for persistent, sessionStorage for temporary
+            if (!rememberMe) {
+                // Move token to sessionStorage instead of localStorage (will be cleared on browser close)
+                const token = localStorage.getItem('accp_token');
+                const user = localStorage.getItem('accp_user');
+                if (token && user) {
+                    sessionStorage.setItem('accp_token', token);
+                    sessionStorage.setItem('accp_user', user);
+                    localStorage.removeItem('accp_token');
+                    localStorage.removeItem('accp_user');
+                }
+            }
             
             // Redirect
             router.push(`/${locale}`);
         } catch (err) {
-            console.error('Login error:', err);
+            logger.error('Login error', err, { component: 'LoginForm' });
             setError(locale === 'th' ? 'เข้าสู่ระบบไม่สำเร็จ กรุณาลองใหม่อีกครั้ง' : 'Login failed. Please try again.');
         } finally {
             setIsLoading(false);

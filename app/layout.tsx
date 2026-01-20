@@ -18,6 +18,7 @@ import "../styles/header-menu-fix.css"
 
 import type { Metadata } from "next"
 import { Figtree, Space_Grotesk, Noto_Sans_Thai } from "next/font/google"
+import { Toaster } from 'react-hot-toast'
 
 const figtree = Figtree({
 	weight: ['300', '400', '500', '600', '700', '800', '900'],
@@ -52,8 +53,28 @@ export default function RootLayout({
 	return (
 		<html>
 			<body className={`${figtree.variable} ${grotesk.variable} ${notoSansThai.variable}`}>
+				<Toaster 
+					position="top-right"
+					toastOptions={{
+						duration: 4000,
+						style: {
+							background: '#1f2937',
+							color: '#fff',
+							padding: '12px 16px',
+							borderRadius: '8px',
+							fontSize: '14px',
+						},
+						success: {
+							style: { background: '#059669' },
+						},
+						error: {
+							style: { background: '#dc2626' },
+						},
+					}}
+				/>
 				{children}
 			</body>
 		</html>
 	)
 }
+

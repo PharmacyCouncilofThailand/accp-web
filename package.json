@@ -11,7 +11,6 @@
   },
   "dependencies": {
     "aos": "^2.3.4",
-    "bcryptjs": "^3.0.3",
     "country-flag-icons": "^1.6.4",
     "gsap": "^3.12.5",
     "libphonenumber-js": "^1.12.34",
@@ -20,6 +19,7 @@
     "react": "19.2.3",
     "react-countup": "^6.5.3",
     "react-dom": "19.2.3",
+    "react-hot-toast": "^2.6.0",
     "react-international-phone": "^4.6.1",
     "react-loader-spinner": "^8.0.0",
     "react-modal-video": "^2.0.2",
@@ -34,7 +34,6 @@
   },
   "devDependencies": {
     "@types/aos": "^3.0.7",
-    "@types/bcryptjs": "^2.4.6",
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
