@@ -11,7 +11,7 @@ import "../styles/vendor/slick-slider.css"
 import "../styles/vendor/nice-select.css"
 import "../styles/vendor/odometer.css"
 import "../styles/main.css"
-import "../styles/responsive-fixes.css"
+
 import "../styles/theme-enhancements.css"
 import "../styles/hero-image-fix.css"
 import "../styles/header-menu-fix.css"

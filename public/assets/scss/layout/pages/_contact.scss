@@ -424,6 +424,10 @@
 		background: rgba(255, 255, 255, 0.10);
 		padding: 24px;
 
+		@include respond-to('sm-down') {
+			padding: 20px;
+		}
+
 		h3 {
 			color: var(--ztc-text-text-1);
 			font-family: var(--grotesk);
@@ -450,6 +454,10 @@
 				padding: 16px;
 				margin-top: 16px;
 
+				@include respond-to('sm-down') {
+					font-size: 16px;
+				}
+
 				&::placeholder {
 					color: var(--ztc-text-text-1);
 					font-family: var(--grotesk);
@@ -475,6 +483,10 @@
 				padding: 16px;
 				height: 140px;
 				margin-top: 16px;
+
+				@include respond-to('sm-down') {
+					font-size: 16px;
+				}
 
 				&::placeholder {
 					color: var(--ztc-text-text-1);

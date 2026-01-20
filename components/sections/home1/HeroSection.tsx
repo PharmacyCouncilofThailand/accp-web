@@ -44,9 +44,10 @@ export default function HeroSection() {
 
     return (
         <>
-            <style dangerouslySetInnerHTML={{ __html: `
+            <style dangerouslySetInnerHTML={{
+                __html: `
                 /* Mobile Responsive Fixes */
-                @media (max-width: 991px) {
+                @media (max-width: 1399px) {
                     .hero1-section-area {
                         min-height: 100vh; /* Full screen height */
                         padding-top: 100px;
@@ -102,13 +103,56 @@ export default function HeroSection() {
                         flex-wrap: wrap;
                         gap: 15px;
                     }
+
+                    /* Timer Responsive Fixes */
+                    .timer {
+                        position: relative !important;
+                        top: 0 !important;
+                        right: auto !important;
+                        width: 100% !important;
+                        display: flex !important;
+                        justify-content: center !important;
+                        margin-top: 40px !important;
+                        flex-wrap: wrap !important;
+                        gap: 15px !important;
+                    }
+
+                    .timer .time-box {
+                        margin: 0 !important;
+                    }
+
+                    .timer .space14 {
+                        display: none !important;
+                    }
+                }
+
+                /* Large Screen Scaling (PC 1600px+) */
+                @media (min-width: 1600px) {
+                    .hero1-header h1 {
+                        font-size: 100px !important;
+                        margin-bottom: 24px !important;
+                    }
+                    .hero1-header h2 {
+                        font-size: 64px !important;
+                        margin-bottom: 32px !important;
+                    }
+                    .hero1-header p {
+                        font-size: 22px !important;
+                        line-height: 1.6 !important;
+                        max-width: 80%;
+                    }
+                    .btn-area1 .vl-btn1, 
+                    .btn-area1 .vl-btn2 {
+                        padding: 18px 36px !important;
+                        font-size: 18px !important;
+                    }
                 }
             `}} />
             <div className="hero1-section-area">
 
                 <div className="container">
                     <div className="row">
-                        <div className="col-lg-6">
+                        <div className="col-xxl-6">
                             <div className="hero1-header heading1">
                                 <h5 data-aos="fade-left" data-aos-duration={800}>
                                     {t('hero.subtitle')}
@@ -131,7 +175,7 @@ export default function HeroSection() {
                             </div>
                         </div>
 
-                        <div className="col-lg-1">
+                        <div className="col-xxl-1">
                             <Countdown />
                         </div>
                     </div>

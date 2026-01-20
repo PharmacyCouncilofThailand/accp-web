@@ -7,6 +7,10 @@
 	position: relative;
 	margin-bottom: -130px;
 
+	@include respond-to('md-down') {
+		padding: 50px 0;
+	}
+
 	.cta1-main-boxarea {
 		background: var(--ztc-bg-bg-3);
 		border-radius: 8px;
@@ -160,6 +164,10 @@
 	z-index: 2;
 	position: relative;
 	margin-bottom: -130px;
+
+	@include respond-to('md-down') {
+		padding: 50px 0;
+	}
 
 	.cta1-main-boxarea {
 		background: var(--ztc-bg-bg-5);

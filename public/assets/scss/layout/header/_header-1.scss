@@ -1,5 +1,43 @@
 @use "../../utils/" as *;
 
+// Mobile Header Space Adjustment (Ported from responsive-fixes.css)
+.inner-page-header {
+  @include respond-to('md-down') {
+    padding-top: 120px;
+    padding-bottom: 60px;
+
+    .heading1 {
+      h1 {
+        font-size: 32px;
+        line-height: 40px;
+      }
+
+      a {
+        font-size: 14px;
+        line-height: 20px;
+      }
+    }
+  }
+
+  @include respond-to('sm-down') {
+    padding-top: 100px;
+    padding-bottom: 40px;
+
+    .heading1 {
+      h1 {
+        font-size: 28px;
+        line-height: 36px;
+      }
+
+      a {
+        font-size: 12px;
+        line-height: 18px;
+        word-break: break-word;
+      }
+    }
+  }
+}
+
 /*============= HEADER CSS AREA ===============*/
 
 // HOMEPAGE1 HEADER STARTS //
@@ -162,7 +200,7 @@ html {
               padding: 0 20px;
             }
 
-            &:hover > a {
+            &:hover>a {
               transition: all 0.4s;
               color: var(--ztc-text-text-4) !important;
             }
@@ -202,13 +240,13 @@ html {
               li.main-small-menu {
                 position: relative;
 
-                &:hover > a {
+                &:hover>a {
                   transition: all 0.4s;
                   padding-left: 25px;
                   color: var(--ztc-text-text-4);
                 }
 
-                &:hover > a::after {
+                &:hover>a::after {
                   background: var(--ztc-text-text-4);
                   transition: all 0.4s;
                   visibility: visible;
@@ -288,7 +326,9 @@ html {
 }
 
 /*============= HEADER CSS AREA ENDS ===============*/
-/* Fix menu overflow - make all items fit in one row */
+/*============= HEADER CSS AREA ENDS ===============*/
+
+// Refactored Responsive Styles
 .header-area.homepage1 {
   .header-elements {
     .main-menu {
@@ -297,12 +337,25 @@ html {
         flex-wrap: nowrap;
         align-items: center;
 
-        > li {
+        >li {
           white-space: nowrap;
 
-          > a {
-            font-size: 14px !important;
-            padding: 0 12px !important;
+          >a {
+            // Default Large Screen
+            font-size: 16px;
+            padding: 0 16px;
+
+            @include respond-to('xl') {
+              // 1200px - 1400px
+              font-size: 14px;
+              padding: 0 12px;
+            }
+
+            @include respond-to('lg') {
+              // 992px - 1200px
+              font-size: 13px;
+              padding: 0 8px;
+            }
           }
         }
       }
@@ -312,7 +365,15 @@ html {
       flex-shrink: 0;
 
       img {
-        height: 80px !important;
+        height: 100px;
+
+        @include respond-to('xl') {
+          height: 80px;
+        }
+
+        @include respond-to('lg') {
+          height: 70px;
+        }
       }
     }
 
@@ -322,63 +383,33 @@ html {
       .vl-btn1 {
         font-size: 14px;
         padding: 12px 16px;
-      }
-    }
-  }
-}
 
-/* For larger screens, increase font size slightly */
-@media (min-width: 1400px) {
-  .header-area.homepage1 {
-    .header-elements {
-      .main-menu {
-        ul {
-          > li {
-            > a {
-              font-size: 16px !important;
-              padding: 0 16px !important;
-            }
-          }
-        }
-      }
-
-      .site-logo {
-        img {
-          height: 100px !important;
-        }
-      }
-    }
-  }
-}
-
-/* Medium screens adjustment */
-@media (min-width: 992px) and (max-width: 1399px) {
-  .header-area.homepage1 {
-    .header-elements {
-      .main-menu {
-        ul {
-          > li {
-            > a {
-              font-size: 13px !important;
-              padding: 0 8px !important;
-            }
-          }
-        }
-      }
-
-      .site-logo {
-        img {
-          height: 70px !important;
-        }
-      }
-
-      .btn-area {
-        .vl-btn1 {
+        @include respond-to('lg') {
           font-size: 12px;
           padding: 10px 12px;
         }
       }
     }
+  }
+
+  // Mobile Header Fixed Position
+  @include respond-to('xl-down') {
+    &.mobile-header.mobile-haeder1 {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 999;
+      background: var(--ztc-bg-bg-2); // Using variable
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+  }
+}
+
+// Global Body Padding for Mobile Fixed Header
+@include respond-to('xl-down') {
+  body {
+    padding-top: 80px;
   }
 }
 
@@ -387,29 +418,30 @@ html {
   .header-elements {
     .main-menu {
       ul {
-        > li {
+        >li {
+
           /* Disable hover-based dropdown */
           &:hover {
             ul.dropdown-padding {
-              visibility: hidden !important;
-              opacity: 0 !important;
+              visibility: hidden;
+              opacity: 0;
             }
           }
 
           /* Show dropdown only when has dropdown-open class (clicked) */
           &.dropdown-open {
             ul.dropdown-padding {
-              visibility: visible !important;
-              opacity: 1 !important;
-              z-index: 9 !important;
-              top: 50px !important;
-              position: absolute !important;
-              transition: all 0.3s ease-in-out !important;
-              display: block !important;
+              visibility: visible;
+              opacity: 1;
+              z-index: 9;
+              top: 50px;
+              position: absolute;
+              transition: all 0.3s ease-in-out;
+              display: block;
             }
 
-            > a {
-              color: #ffba00 !important;
+            >a {
+              color: #ffba00;
             }
           }
         }

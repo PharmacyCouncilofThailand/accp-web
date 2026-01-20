@@ -105,7 +105,7 @@ export default function Header1({ scroll, isMobileMenu, handleMobileMenu, isSear
                 }
             `}</style>
             <header>
-                <div className={`header-area homepage1 header header-sticky d-none d-lg-block ${scroll ? 'sticky' : ''}`} id="header" style={headerBgWhite ? { background: '#fff', boxShadow: '0 2px 10px rgba(0,0,0,0.1)' } : {}}>
+                <div className={`header-area homepage1 header header-sticky d-none d-xxl-block ${scroll ? 'sticky' : ''}`} id="header" style={headerBgWhite ? { background: '#fff', boxShadow: '0 2px 10px rgba(0,0,0,0.1)' } : {}}>
                     <div className="container-fluid">
                         <div className="row">
                             <div className="col-lg-12">
@@ -115,9 +115,9 @@ export default function Header1({ scroll, isMobileMenu, handleMobileMenu, isSear
                                             <img
                                                 src={scroll ? "/assets/img/logo/ACCP-BANGKOK-2026-04.png" : "/assets/img/logo/ACCP-2026-Logo-White.png"}
                                                 alt="ACCP 2026"
-                                                style={{ 
-                                                    height: scroll ? '55px' : '150px', 
-                                                    width: 'auto', 
+                                                style={{
+                                                    height: scroll ? '55px' : '150px',
+                                                    width: 'auto',
                                                     marginLeft: '0',
                                                     marginTop: scroll ? '0' : '-40px',
                                                     marginBottom: scroll ? '0' : '-40px',
@@ -220,7 +220,7 @@ export default function Header1({ scroll, isMobileMenu, handleMobileMenu, isSear
 
                                     <div className="btn-area" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginRight: '15px' }}>
                                         {/* Language Switcher */}
-                                        <div className="d-none d-lg-flex" style={{ alignItems: 'center' }}>
+                                        <div className="d-none d-xxl-flex" style={{ alignItems: 'center' }}>
                                             <div style={{
                                                 border: '1px solid #e0e0e0',
                                                 borderRadius: '24px',
@@ -326,7 +326,7 @@ export default function Header1({ scroll, isMobileMenu, handleMobileMenu, isSear
             </header>
 
             {/* Mobile Header - Outside of header tag for proper fixed positioning */}
-            <div className="mobile-header mobile-haeder1 d-block d-lg-none">
+            <div className="mobile-header mobile-haeder1 d-block d-xxl-none">
                 <div className="container-fluid">
                     <div className="col-12">
                         <div className="mobile-header-elements">
