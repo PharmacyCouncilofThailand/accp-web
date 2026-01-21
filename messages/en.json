@@ -8,7 +8,7 @@
     "programOverview": "Program Overview",
     "plenaryKeynotes": "Plenary & Keynotes",
     "symposia": "Symposia",
-    "oralPoster": "Oral & e-Poster",
+    "oralPoster": "Oral & Poster",
     "galaDinner": "Gala Dinner",
     "workshops": "Workshops",
     "callForAbstracts": "Call for Abstracts",
@@ -197,7 +197,7 @@
     "lunchNetworking": "Lunch & Networking",
     "symposiaA": "Parallel Symposia (Track A, B, C)",
     "oralSession1": "Oral presentations Session 1",
-    "posterDiscussion": "e-Poster Viewing & Discussion",
+    "posterDiscussion": "Poster Viewing & Discussion",
     "symposiaB": "Parallel Symposia (Track D, E, F)",
     "keynoteAI": "Keynote: AI in Medication Therapy Management",
     "oralSession2": "Oral presentations Session 2",
@@ -238,13 +238,13 @@
     "note": "Symposia sessions run in parallel. Please plan your schedule in advance to attend the sessions most relevant to your interests."
   },
   "oralPoster": {
-    "pageTitle": "Oral & e-Poster Presentations",
+    "pageTitle": "Oral & Poster Presentations",
     "description": "Research presentations by delegates",
     "oralSessions": "Oral Sessions",
-    "posterSessions": "e-Poster Sessions",
+    "posterSessions": "Poster Sessions",
     "guidelines": "Presentation Guidelines",
     "researchPresentations": "Research Presentations",
-    "oralAndPosterTitle": "Oral & e-Poster Sessions",
+    "oralAndPosterTitle": "Oral & Poster Sessions",
     "oralAndPosterDesc": "Discover cutting-edge research from clinical pharmacists and pharmaceutical scientists across Asia through our oral presentation and e-poster sessions."
   },
   "workshops": {

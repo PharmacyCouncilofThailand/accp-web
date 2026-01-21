@@ -211,7 +211,7 @@ export default function Header1({ scroll, isMobileMenu, handleMobileMenu, isSear
                                                 </a>
                                                 <ul className="dropdown-padding" style={getDropdownStyle('more')}>
                                                     <li><Link href={`/${locale}/sponsorship`}>{t('sponsorship')}</Link></li>
-                                                    <li><Link href={`/${locale}/gallery`}>{t('gallery')}</Link></li>
+                                                    {/* <li><Link href={`/${locale}/gallery`}>{t('gallery')}</Link></li> */}
                                                     <li><Link href={`/${locale}/contact`}>{t('contact')}</Link></li>
                                                 </ul>
                                             </li>
