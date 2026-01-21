@@ -20,7 +20,7 @@ export default function Footer1() {
 						{/* Logo & Description */}
 						<div className="col-lg-3 col-md-6">
 							<div className="footer-logo-area">
-								<img src="/assets/img/logo/footer-logo-new.png" alt="ACCP 2026" style={{ height: '60px', width: 'auto', display: 'block', margin: '0 auto' }} />
+								<img src="/assets/img/logo/footer-logo-new.png" alt="ACCP 2026" style={{ height: '60px', width: 'auto', display: 'block', margin: '0' }} />
 								<div style={{ height: '30px' }} />
 								<p>{t('footer.description')}</p>
 								<div className="space24" />

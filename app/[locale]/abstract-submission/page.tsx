@@ -486,12 +486,12 @@ export default function AbstractSubmission() {
                             padding: '40px',
                             width: '100%',
                             maxWidth: '500px',
-                            textAlign: 'center',
+                            textAlign: 'left',
                             boxShadow: '0 4px 24px rgba(0,0,0,0.2)'
                         }}>
-                            <div style={{ marginBottom: '24px' }}>
+                            <div style={{ marginBottom: '24px', textAlign: 'left' }}>
                                 <img src="/assets/img/logo/accp_logo_main.png" alt="ACCP 2026"
-                                    style={{ height: '80px', width: 'auto', margin: '0 auto' }} />
+                                    style={{ height: '80px', width: 'auto', display: 'block' }} />
                             </div>
                             <div style={{ fontSize: '48px', marginBottom: '24px' }}>✅</div>
                             <h3 style={{ fontSize: '22px', fontWeight: '700', color: '#1a1a1a', marginBottom: '16px' }}>
