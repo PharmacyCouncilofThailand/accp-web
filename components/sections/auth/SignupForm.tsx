@@ -501,7 +501,7 @@ export default function SignupForm() {
                                         {locale === 'th' ? 'ประเทศ' : 'Country'} <span style={{ color: '#e53935' }}>*</span>
                                     </label>
                                     <CountrySelect
-                                        onChange={(e: { name: string }) => setCountry(e.name || '')}
+                                        onChange={(e) => setCountry((e as { name?: string })?.name || '')}
                                         placeHolder={locale === 'th' ? 'เลือกประเทศ' : 'Select Country'}
                                     />
                                 </div>
