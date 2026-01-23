@@ -332,7 +332,7 @@ export default function Header1({ scroll, isMobileMenu, handleMobileMenu, isSear
                         <div className="mobile-header-elements">
                             <div className="mobile-logo">
                                 <Link href={`/${locale}`}>
-                                    <img src="/assets/img/logo/ACCP-2026-Logo-White.png" alt="ACCP 2026" style={{ height: '60px', width: 'auto' }} />
+                                    <img src="/assets/img/logo/ACCP-2026-Logo-White.png" alt="ACCP 2026" className="responsive-logo" />
                                 </Link>
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
