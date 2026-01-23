@@ -155,9 +155,9 @@ export default function Header1({ scroll, isMobileMenu, handleMobileMenu, isSear
                                                 </a>
                                                 <ul className="dropdown-padding" style={getDropdownStyle('program')}>
                                                     <li><Link href={`/${locale}/program`}>{t('programOverview')}</Link></li>
-                                                    <li><Link href={`/${locale}/program-plenary`}>{t('plenaryKeynotes')}</Link></li>
-                                                    <li><Link href={`/${locale}/program-symposia`}>{t('symposia')}</Link></li>
-                                                    <li><Link href={`/${locale}/program-oral-poster`}>{t('oralPoster')}</Link></li>
+                                                    {/*<li><Link href={`/${locale}/program-plenary`}>{t('plenaryKeynotes')}</Link></li>*/}
+                                                    {/* <li><Link href={`/${locale}/program-symposia`}>{t('symposia')}</Link></li>
+                                                    <li><Link href={`/${locale}/program-oral-poster`}>{t('oralPoster')}</Link></li>*/}
                                                     <li><Link href={`/${locale}/gala-dinner`}>{t('galaDinner')}</Link></li>
                                                     <li><Link href={`/${locale}/preconference-workshops`}>{t('workshops')}</Link></li>
                                                 </ul>

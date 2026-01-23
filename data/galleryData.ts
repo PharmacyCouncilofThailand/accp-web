@@ -3,18 +3,14 @@ export const galleryData = {
         title: "ACCP 2025 Highlights",
         subtitle: "Memorable moments from the 24th Asian Conference on Clinical Pharmacy in Seoul, Korea",
         images: [
-            { id: 1, src: "/assets/img/all-images/memory/memory-img1.png", alt: "ACCP 2025 Opening Ceremony", category: "ceremony" },
-            { id: 2, src: "/assets/img/all-images/memory/memory-img2.png", alt: "Keynote Session", category: "sessions" },
-            { id: 3, src: "/assets/img/all-images/memory/memory-img3.png", alt: "Poster Presentation", category: "presentations" },
-            { id: 4, src: "/assets/img/all-images/memory/memory-img4.png", alt: "Networking Event", category: "networking" },
-            { id: 5, src: "/assets/img/all-images/memory/memory-img5.png", alt: "Workshop Session", category: "workshops" },
-            { id: 6, src: "/assets/img/all-images/memory/memory-img6.png", alt: "Panel Discussion", category: "sessions" },
-            { id: 7, src: "/assets/img/all-images/memory/memory-img7.png", alt: "Award Ceremony", category: "ceremony" },
-            { id: 8, src: "/assets/img/all-images/memory/memory-img8.png", alt: "Group Photo", category: "networking" },
-            { id: 9, src: "/assets/img/all-images/memory/memory-img9.png", alt: "Plenary Session", category: "sessions" },
-            { id: 10, src: "/assets/img/all-images/memory/memory-img10.png", alt: "Coffee Break", category: "networking" },
-            { id: 11, src: "/assets/img/all-images/memory/memory-img11.png", alt: "Closing Ceremony", category: "ceremony" },
-            { id: 12, src: "/assets/img/all-images/memory/memory-img12.png", alt: "Exhibition Hall", category: "exhibition" },
+            { id: 1, src: "/assets/img/all-images/memory/memory-img1.jpg", alt: "ACCP 2025 Opening Ceremony", category: "ceremony" },
+            { id: 2, src: "/assets/img/all-images/memory/memory-img2.jpg", alt: "Keynote Session", category: "sessions" },
+            { id: 3, src: "/assets/img/all-images/memory/memory-img3.jpg", alt: "Poster Presentation", category: "presentations" },
+            { id: 4, src: "/assets/img/all-images/memory/memory-img4.jpg", alt: "Networking Event", category: "networking" },
+            { id: 5, src: "/assets/img/all-images/memory/memory-img5.jpg", alt: "Workshop Session", category: "workshops" },
+            { id: 6, src: "/assets/img/all-images/memory/memory-img6.jpg", alt: "Panel Discussion", category: "sessions" },
+            { id: 7, src: "/assets/img/all-images/memory/memory-img7.jpg", alt: "Award Ceremony", category: "ceremony" },
+           
         ]
     },
     venue: {

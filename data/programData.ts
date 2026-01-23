@@ -4,7 +4,10 @@ export const programDays = [
         dayKey: "day1",
         events: [
             { time: "13:00 - 13:30", titleKey: "workshopRegistration", type: "registration", icon: "fa-clipboard-check" },
-            { time: "13:30 - 16:30", titleKey: "workshopsI_IV", type: "workshop", icon: "fa-chalkboard-user" },
+            { time: "13:30 - 16:30", titleKey: "workshopScientificWriting", type: "workshop", icon: "fa-chalkboard-user" },
+            { time: "13:30 - 16:30", titleKey: "workshopAPOP", type: "workshop", icon: "fa-chalkboard-user" },
+            { time: "13:30 - 16:30", titleKey: "workshopTBA3", type: "workshop", icon: "fa-chalkboard-user" },
+            { time: "13:30 - 16:30", titleKey: "workshopTBA4", type: "workshop", icon: "fa-chalkboard-user" },
             { time: "16:30 - 18:30", titleKey: "accpBoardMeeting", type: "ceremony", icon: "fa-users-rectangle" },
             { time: "18:30 - 20:00", titleKey: "accpDinnerMeeting", type: "social", icon: "fa-utensils" },
         ]

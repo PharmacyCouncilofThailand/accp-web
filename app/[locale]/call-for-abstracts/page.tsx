@@ -110,7 +110,7 @@ export default function CallForAbstracts() {
                     </div>
 
 
-
+                    
                 </div>
             </Layout>
         </>

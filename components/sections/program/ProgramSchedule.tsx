@@ -25,7 +25,7 @@ export default function ProgramSchedule() {
             case 'poster': return { bg: '#F59E0B', light: '#FEF3C7' };
             case 'ceremony': return { bg: '#EC4899', light: '#FCE7F3' };
             case 'social': return { bg: '#EF4444', light: '#FEE2E2' };
-            case 'workshop': return { bg: '#06B6D4', light: '#CFFAFE' };
+            case 'workshop': return { bg: '#10B981', light: '#D1FAE5' };
             case 'registration': return { bg: '#6366F1', light: '#E0E7FF' };
             case 'break': return { bg: '#9CA3AF', light: '#F3F4F6' };
             default: return { bg: '#9CA3AF', light: '#F3F4F6' };
