@@ -145,7 +145,7 @@ export default function GallerySection() {
                     </div>
 
                     {/* Gallery Grid */}
-                    <div className="row g-4">
+                    <div className="row g-4 justify-content-center">
                         {galleryData[activeTab].images.map((image, index) => (
                             <div
                                 key={image.id}
@@ -242,7 +242,11 @@ export default function GallerySection() {
                         color: '#fff',
                         fontSize: '1.1rem',
                         fontWeight: '500',
-                        textAlign: 'center'
+                        textAlign: 'center',
+                        padding: '10px 20px',
+                        background: 'rgba(0,0,0,0.6)',
+                        borderRadius: '8px',
+                        backdropFilter: 'blur(10px)'
                     }}>
                         {lightboxImage.alt}
                     </div>
