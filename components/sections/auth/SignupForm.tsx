@@ -11,6 +11,8 @@ import { Hourglass } from 'react-loader-spinner';
 import toast from 'react-hot-toast';
 import '@/styles/signup-form.css';
 import { logger } from '@/utils/logger';
+import { CountrySelect } from 'react-country-state-city';
+import 'react-country-state-city/dist/react-country-state-city.css';
 
 type TabType = 'thaiStudent' | 'internationalStudent' | 'thaiProfessional' | 'internationalProfessional';
 
@@ -181,8 +183,8 @@ export default function SignupForm() {
     const tabs: { id: TabType; label: string; labelTh: string; desc: string; descTh: string }[] = [
         { id: 'thaiStudent', label: 'Thai Student', labelTh: 'นักศึกษาไทย', desc: 'For Thai Student', descTh: 'สำหรับนักศึกษาชาวไทย' },
         { id: 'internationalStudent', label: 'International Student', labelTh: 'นักศึกษาต่างชาติ', desc: 'For International Student', descTh: 'สำหรับนักศึกษาชาวต่างชาติ' },
-        { id: 'thaiProfessional', label: 'Thai Medical Professional', labelTh: 'บุคลากรทางการแพทย์ไทย', desc: 'For Thai Medical Professional', descTh: 'สำหรับบุคลากรทางการแพทย์ชาวไทย' },
-        { id: 'internationalProfessional', label: 'International Medical Professional', labelTh: 'บุคลากรทางการแพทย์ต่างชาติ', desc: 'For International Medical Professional', descTh: 'สำหรับบุคลากรทางการแพทย์ชาวต่างชาติ' }
+        { id: 'thaiProfessional', label: 'Thai Health Professional', labelTh: 'บุคลากรทางการแพทย์ไทย', desc: 'For Thai Health Professional', descTh: 'สำหรับบุคลากรทางการแพทย์ชาวไทย' },
+        { id: 'internationalProfessional', label: 'International Health Professional', labelTh: 'บุคลากรทางการแพทย์ต่างชาติ', desc: 'For International Health Professional', descTh: 'สำหรับบุคลากรทางการแพทย์ชาวต่างชาติ' }
     ];
 
     const isThai = activeTab === 'thaiStudent';
@@ -498,13 +500,9 @@ export default function SignupForm() {
                                     <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#333', marginBottom: '6px' }}>
                                         {locale === 'th' ? 'ประเทศ' : 'Country'} <span style={{ color: '#e53935' }}>*</span>
                                     </label>
-                                    <input
-                                        type="text"
-                                        value={country}
-                                        onChange={(e) => setCountry(e.target.value)}
-                                        placeholder={locale === 'th' ? 'กรอกชื่อประเทศ' : 'Enter country name'}
-                                        required
-                                        style={inputStyle}
+                                    <CountrySelect
+                                        onChange={(e) => setCountry((e as { name?: string })?.name || '')}
+                                        placeHolder={locale === 'th' ? 'เลือกประเทศ' : 'Select Country'}
                                     />
                                 </div>
                             </>

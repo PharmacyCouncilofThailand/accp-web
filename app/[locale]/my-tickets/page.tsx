@@ -3,53 +3,68 @@ import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import Layout from '@/components/layout/Layout';
 
-export default function MyTickets() {
+    import { useCheckoutWizard } from '@/hooks/checkout/useCheckoutWizard';
+    import { registrationPackages, workshopOptions, addOns } from '@/data/checkout';
+    import { useAuth } from '@/context/AuthContext';
+
+    export default function MyTickets() {
     const t = useTranslations('tickets');
     const tUser = useTranslations('userProfile');
+    const { checkoutData } = useCheckoutWizard();
+    const { user } = useAuth();
 
-    // Mock ticket data
-    const tickets = [
-        {
-            id: 'ACCP2026-REG-001234',
-            type: 'professionalRegistration',
-            category: 'earlyBird',
-            status: 'confirmed',
-            purchaseDate: '2026-02-15',
-            amount: '$450',
-            includes: [
-                'fullAccess',
-                'conferenceMaterials',
-                'coffeeLunch',
-                'certificate',
-                'galaDinner'
-            ],
-            qrCode: true
-        }
-    ];
+    // Determine if we have valid checkout data, otherwise fallback to default/empty or display a message
+    // For this prototype, we'll try to use checkoutData, if package is not selected, we might fallback or show nothing.
+    // However, to ensure the user sees *their* selection, we rely on checkoutData.
 
-    // Gala Dinner Ticket
-    const galaDinnerTicket = {
-        id: 'ACCP2026-GALA-001234',
+    const selectedPackage = registrationPackages.find(p => p.id === checkoutData.selectedPackage);
+    const hasGala = checkoutData.selectedAddOns.includes('gala');
+    const hasWorkshop = checkoutData.selectedAddOns.includes('workshop');
+
+    // Dynamic Ticket Data
+    const tickets = selectedPackage ? [{
+        id: `ACCP2026-REG-${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`, // content_chunk: Generate random ID
+        type: selectedPackage.id, // This matches the translation key 'packages.student' etc. ideally, or we use the ID
+        category: 'earlyBird', // Assuming early bird for now
+        status: 'confirmed',
+        purchaseDate: new Date().toISOString().split('T')[0],
+        amount: user?.country?.toLowerCase() === 'thailand' ? `฿${selectedPackage.priceTHB}` : `$${selectedPackage.priceUSD}`,
+        includes: [
+            'fullAccess',
+            'conferenceMaterials',
+            'coffeeLunch',
+            'certificate',
+            ...(hasGala ? ['galaDinner'] : [])
+        ],
+        qrCode: true
+    }] : [];
+
+    // Dynamic Gala Ticket
+    const galaDinnerTicket = hasGala ? {
+        id: `ACCP2026-GALA-${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`,
         eventName: 'galaDinnerEvent',
         status: 'confirmed',
         date: 'July 10, 2026',
         time: '19:00 - 22:00',
         venue: 'Centara Grand Ballroom',
         dressCode: 'formalAttire',
+        dietary: checkoutData.dietaryRequirement === 'other' ? checkoutData.dietaryOtherText : checkoutData.dietaryRequirement,
         qrCode: true
-    };
+    } : null;
 
-    const addons = [
-        {
-            id: 'ACCP2026-WS-001234',
-            type: 'preWorkshop',
-            name: 'Advanced Pharmacokinetics in Clinical Practice',
-            date: 'July 8, 2026',
-            time: '09:00 - 17:00',
-            status: 'confirmed',
-            amount: '$70'
-        }
-    ];
+    // Dynamic Workshop Data
+    const workshopAddon = addOns.find(a => a.id === 'workshop');
+    const selectedWorkshop = workshopOptions.find(w => w.value === checkoutData.selectedWorkshopTopic);
+    
+    const addons = hasWorkshop && selectedWorkshop ? [{
+        id: `ACCP2026-WS-${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`,
+        type: 'preWorkshop',
+        name: selectedWorkshop.label,
+        date: 'July 8, 2026',
+        time: '09:00 - 17:00',
+        status: 'confirmed',
+        amount: user?.country?.toLowerCase() === 'thailand' ? `฿${workshopAddon?.priceTHB}` : `$${workshopAddon?.priceUSD}`
+    }] : [];
 
     return (
         <Layout headerStyle={1} footerStyle={1} headerBgWhite={true}>
@@ -96,14 +111,7 @@ export default function MyTickets() {
                             <div className="ticket-layout-grid">
                                 {/* Left side - Ticket Details */}
                                 <div>
-                                    <h2 style={{
-                                        fontSize: '24px',
-                                        fontWeight: '700',
-                                        color: '#333',
-                                        marginBottom: '10px'
-                                    }}>
-                                        {t(ticket.type)}
-                                    </h2>
+
 
                                     <div style={{
                                         display: 'inline-block',
@@ -213,55 +221,64 @@ export default function MyTickets() {
                     ))}
 
                     {/* Gala Dinner Ticket */}
-                    <div className="ticket-card">
-                        <h2 style={{
-                            fontSize: '22px',
-                            fontWeight: '700',
-                            color: '#333',
-                            marginBottom: '25px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '12px'
-                        }}>
-                            <i className="fa-solid fa-champagne-glasses" style={{ color: '#C2185B' }} />
-                            {t(galaDinnerTicket.eventName)}
-                        </h2>
-
-                        <div className="gala-card">
-                            <div className="ticket-status-badge">
-                                {t(galaDinnerTicket.status)}
-                            </div>
-
-                            <h3 style={{
-                                fontSize: '18px',
+                    {galaDinnerTicket && (
+                        <div className="ticket-card">
+                            <h2 style={{
+                                fontSize: '22px',
                                 fontWeight: '700',
                                 color: '#333',
-                                marginBottom: '15px',
-                                paddingRight: '120px'
+                                marginBottom: '25px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '12px'
                             }}>
-                                An Elegant Evening of Fine Dining & Networking
-                            </h3>
+                                <i className="fa-solid fa-champagne-glasses" style={{ color: '#C2185B' }} />
+                                {t(galaDinnerTicket.eventName)}
+                            </h2>
 
-                            <div className="addon-details-flex">
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    <i className="fa-solid fa-calendar" style={{ color: '#C2185B' }} />
-                                    <span style={{ color: '#666' }}>{galaDinnerTicket.date}</span>
+                            <div className="gala-card">
+                                <div className="ticket-status-badge">
+                                    {t(galaDinnerTicket.status)}
                                 </div>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    <i className="fa-solid fa-clock" style={{ color: '#C2185B' }} />
-                                    <span style={{ color: '#666' }}>{galaDinnerTicket.time}</span>
-                                </div>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    <i className="fa-solid fa-location-dot" style={{ color: '#C2185B' }} />
-                                    <span style={{ color: '#666' }}>{galaDinnerTicket.venue}</span>
-                                </div>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    <i className="fa-solid fa-user-tie" style={{ color: '#C2185B' }} />
-                                    <span style={{ color: '#C2185B', fontWeight: '700' }}>{t(galaDinnerTicket.dressCode)}</span>
+
+                                <h3 style={{
+                                    fontSize: '18px',
+                                    fontWeight: '700',
+                                    color: '#333',
+                                    marginBottom: '15px',
+                                    paddingRight: '120px'
+                                }}>
+                                    An Elegant Evening of Fine Dining & Networking
+                                </h3>
+
+                                <div className="addon-details-flex">
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <i className="fa-solid fa-calendar" style={{ color: '#C2185B' }} />
+                                        <span style={{ color: '#666' }}>{galaDinnerTicket.date}</span>
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <i className="fa-solid fa-clock" style={{ color: '#C2185B' }} />
+                                        <span style={{ color: '#666' }}>{galaDinnerTicket.time}</span>
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <i className="fa-solid fa-location-dot" style={{ color: '#C2185B' }} />
+                                        <span style={{ color: '#666' }}>{galaDinnerTicket.venue}</span>
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <i className="fa-solid fa-user-tie" style={{ color: '#C2185B' }} />
+                                        <span style={{ color: '#C2185B', fontWeight: '700' }}>{t(galaDinnerTicket.dressCode)}</span>
+                                    </div>
+                                    {/* Dietary Info */}
+                                    {galaDinnerTicket.dietary && (
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px', width: '100%' }}>
+                                            <i className="fa-solid fa-utensils" style={{ color: '#C2185B' }} />
+                                            <span style={{ color: '#666' }}>Dietary: <strong>{galaDinnerTicket.dietary}</strong></span>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    )}
 
                     {/* Workshop Add-ons */}
                     {addons.length > 0 && (

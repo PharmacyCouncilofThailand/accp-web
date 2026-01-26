@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation';
@@ -19,47 +19,47 @@ import {
     authButtonStyles
 } from './headerStyles';
 
-export default function Header1({ scroll, isMobileMenu, handleMobileMenu, isSearch, handleSearch, headerBgWhite }: any) {
+interface HeaderProps {
+    scroll: boolean;
+    isMobileMenu: boolean;
+    handleMobileMenu: () => void;
+    isSearch: boolean;
+    handleSearch: () => void;
+    headerBgWhite?: boolean;
+}
+
+export default function Header1({ scroll, isMobileMenu, handleMobileMenu, isSearch, handleSearch, headerBgWhite }: HeaderProps) {
     const t = useTranslations('common');
     const locale = useLocale();
     const pathname = usePathname();
     const { isAuthenticated } = useAuth();
     const router = useRouter();
 
-    const handleLanguageChange = (checked: boolean) => {
+    const handleLanguageChange = useCallback((checked: boolean) => {
+        const segments = pathname.split('/');
+        const pathWithoutLocale = '/' + segments.slice(2).join('/') || '/';
         const nextLocale = checked ? 'en' : 'th';
-        router.push(switchLocale(nextLocale));
-    };
+        router.push(`/${nextLocale}${pathWithoutLocale}`);
+    }, [pathname, router]);
+
     const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
-    // Function to get the path without locale prefix
-    const getPathWithoutLocale = () => {
-        const segments = pathname.split('/');
-        return '/' + segments.slice(2).join('/') || '/';
-    }
-
-    // Function to switch locale
-    const switchLocale = (newLocale: string) => {
-        const pathWithoutLocale = getPathWithoutLocale();
-        return `/${newLocale}${pathWithoutLocale}`;
-    }
-
     // Function to check if link is active
-    const isActive = (path: string) => {
+    const isActive = useCallback((path: string) => {
         if (path === `/${locale}` || path === `/${locale}/`) {
             return pathname === `/${locale}` || pathname === `/${locale}/`;
         }
         return pathname.startsWith(path);
-    }
+    }, [locale, pathname]);
 
     // Toggle dropdown function
-    const toggleDropdown = (menuName: string, e: React.MouseEvent) => {
+    const toggleDropdown = useCallback((menuName: string, e: React.MouseEvent) => {
         e.preventDefault();
-        setOpenDropdown(openDropdown === menuName ? null : menuName);
-    }
+        setOpenDropdown(prev => prev === menuName ? null : menuName);
+    }, []);
 
     // Dropdown styles - completely override CSS hover
-    const getDropdownStyle = (menuName: string): React.CSSProperties => {
+    const getDropdownStyle = useCallback((menuName: string): React.CSSProperties => {
         const isOpen = openDropdown === menuName;
         return {
             visibility: isOpen ? 'visible' : 'hidden',
@@ -70,7 +70,7 @@ export default function Header1({ scroll, isMobileMenu, handleMobileMenu, isSear
             transition: 'all 0.3s ease-in-out',
             pointerEvents: isOpen ? 'auto' : 'none',
         };
-    };
+    }, [openDropdown]);
 
     // Check if current page should always show colored logo
     const pathWithoutLocale = getPathWithoutLocale();
@@ -89,6 +89,13 @@ export default function Header1({ scroll, isMobileMenu, handleMobileMenu, isSear
 
     // User requested: "header เป็นสีขาวให้พื้นหลังของปุ่ม toggle switch เปลี่ยนภาษา"
     // And: "พื้นหลังตัวย่อภาษาเป็น icon ธงภาษา" -> This likely means uncheckedIcon/checkedIcon should be flags
+
+    // Helper for link styles
+    const linkStyle = useCallback((path: string, dropdownKey?: string) => ({
+        color: isActive(path) || (dropdownKey && openDropdown === dropdownKey) ? '#FFBA00' : headerBgWhite ? '#333' : '#fff',
+        fontWeight: isActive(path) || (dropdownKey && openDropdown === dropdownKey) ? '600' : 'normal',
+        cursor: 'pointer'
+    }), [isActive, openDropdown, headerBgWhite]);
 
 
     return (
@@ -205,16 +212,29 @@ export default function Header1({ scroll, isMobileMenu, handleMobileMenu, isSear
                                                     <li><Link href={`/${locale}/travel-visa`}>{t('travelVisa')}</Link></li>
                                                 </ul>
                                             </li>
+                                            <li className={openDropdown === 'sponsorship' ? 'dropdown-open' : ''}>
+                                                <a
+                                                    href="#"
+                                                    onClick={(e) => toggleDropdown('sponsorship', e)}
+                                                    style={{ color: isActive(`/${locale}/sponsorship`) || openDropdown === 'sponsorship' ? '#FFBA00' : headerBgWhite ? '#333' : '#fff', fontWeight: isActive(`/${locale}/sponsorship`) ? '600' : 'normal', cursor: 'pointer' }}
+                                                >
+                                                    {t('sponsorship')} <i className={`fa-solid ${openDropdown === 'sponsorship' ? 'fa-angle-up' : 'fa-angle-down'}`} />
+                                                </a>
+                                                <ul className="dropdown-padding" style={getDropdownStyle('sponsorship')}>
+                                                    <li><Link href={`/${locale}/sponsorship/confirmed-sponsors`}>{t('confirmedSponsors')}</Link></li>
+                                                    <li><Link href={`/${locale}/sponsorship/sponsorship-prospectus`}>{t('sponsorshipProspectusMenu')}</Link></li>
+                                                    <li><Link href={`/${locale}/sponsorship/exhibition-floor-plan`}>{t('exhibitionFloorPlan')}</Link></li>
+                                                </ul>
+                                            </li>
                                             <li className={openDropdown === 'more' ? 'dropdown-open' : ''}>
                                                 <a
                                                     href="#"
                                                     onClick={(e) => toggleDropdown('more', e)}
-                                                    style={{ color: isActive(`/${locale}/sponsorship`) || isActive(`/${locale}/gallery`) || isActive(`/${locale}/contact`) || openDropdown === 'more' ? '#FFBA00' : headerBgWhite ? '#333' : '#fff', fontWeight: isActive(`/${locale}/sponsorship`) || isActive(`/${locale}/gallery`) || isActive(`/${locale}/contact`) ? '600' : 'normal', cursor: 'pointer' }}
+                                                    style={{ color: isActive(`/${locale}/gallery`) || isActive(`/${locale}/contact`) || openDropdown === 'more' ? '#FFBA00' : headerBgWhite ? '#333' : '#fff', fontWeight: isActive(`/${locale}/gallery`) || isActive(`/${locale}/contact`) ? '600' : 'normal', cursor: 'pointer' }}
                                                 >
                                                     {t('more')} <i className={`fa-solid ${openDropdown === 'more' ? 'fa-angle-up' : 'fa-angle-down'}`} />
                                                 </a>
                                                 <ul className="dropdown-padding" style={getDropdownStyle('more')}>
-                                                    <li><Link href={`/${locale}/sponsorship`}>{t('sponsorship')}</Link></li>
                                                     <li><Link href={`/${locale}/gallery`}>{t('gallery')}</Link></li>
                                                     <li><Link href={`/${locale}/contact`}>{t('contact')}</Link></li>
                                                 </ul>
@@ -224,7 +244,8 @@ export default function Header1({ scroll, isMobileMenu, handleMobileMenu, isSear
 
                                     <div className="btn-area" style={{ display: 'flex', alignItems: 'center', gap: '15px', marginRight: '0' }}>
                                         {/* Language Switcher */}
-                                        <div className="d-none d-xxl-flex" style={{ alignItems: 'center' }}>
+                                        {/* Language Switcher Hidden */}
+                                        {/* <div className="d-none d-xxl-flex" style={{ alignItems: 'center' }}>
                                             <div style={{
                                                 border: '1px solid #e0e0e0',
                                                 borderRadius: '24px',
@@ -305,7 +326,7 @@ export default function Header1({ scroll, isMobileMenu, handleMobileMenu, isSear
                                                     id="language-switch"
                                                 />
                                             </div>
-                                        </div>
+                                        </div> */}
 
                                         {isAuthenticated ? (
                                             <UserProfileDropdown />

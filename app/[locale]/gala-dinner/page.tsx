@@ -3,12 +3,17 @@ import Layout from "@/components/layout/Layout"
 import Link from "next/link"
 import { useTranslations, useLocale } from 'next-intl';
 import { galaHighlights, galaMenu } from '@/data/galaData';
+import { useAuth } from '@/context/AuthContext';
 
 export default function GalaDinner() {
     const tCommon = useTranslations('common');
     const tProgram = useTranslations('program');
     const t = useTranslations('galaDinner');
     const locale = useLocale();
+    const { user } = useAuth();
+
+    // Determine price based on user nationality
+    const ticketPrice = user?.isThai ? 'THB 2,200' : 'USD 75';
 
     return (
         <>
@@ -197,7 +202,7 @@ export default function GalaDinner() {
                                         <div className="content-area">
                                             <Link href="#">{t('ticketPrice')}</Link>
                                             <div className="space8" />
-                                            <p><strong style={{ fontSize: '20px', color: '#1a237e' }}>THB 2,500</strong><br />{t('priceDesc')}</p>
+                                            <p><strong style={{ fontSize: '20px', color: '#1a237e' }}>{ticketPrice}</strong><br />{t('priceDesc')}</p>
                                         </div>
                                     </div>
                                 </div>

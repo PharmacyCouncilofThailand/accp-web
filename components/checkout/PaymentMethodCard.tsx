@@ -20,90 +20,127 @@ export default function PaymentMethodCard({
   onSelect,
   processingTime
 }: PaymentMethodCardProps) {
+  const isFontAwesome = icon.includes('fa-');
+
   return (
     <div
       onClick={() => onSelect(id)}
+      className="payment-method-card-interactive" // Hook for potential global CSS or just distinct class
       style={{
-        aspectRatio: '1/1',
-        padding: '16px',
-        border: isSelected ? '3px solid #00C853' : '2px solid #e0e0e0',
-        borderRadius: '12px',
+        width: '100%',
+        minHeight: '180px',
+        height: '100%',
+        padding: '24px 20px',
+        border: isSelected ? '2px solid #00C853' : '1px solid #e0e0e0',
+        borderRadius: '16px',
         cursor: 'pointer',
-        backgroundColor: isSelected ? '#f0f9f6' : '#fff',
+        backgroundColor: isSelected ? '#f5fcf8' : '#fff',
         textAlign: 'center',
-        transition: 'all 0.3s ease',
+        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
         position: 'relative',
         boxShadow: isSelected 
-          ? '0 6px 20px rgba(0, 200, 83, 0.15)' 
-          : '0 2px 8px rgba(0, 0, 0, 0.05)',
+          ? '0 10px 25px -5px rgba(0, 200, 83, 0.15), 0 8px 10px -6px rgba(0, 200, 83, 0.1)' 
+          : '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        justifyContent: 'center'
+        transform: isSelected ? 'translateY(-2px)' : 'none'
+      }}
+      onMouseEnter={(e) => {
+        if (!isSelected) {
+          e.currentTarget.style.borderColor = '#b9e6ca';
+          e.currentTarget.style.transform = 'translateY(-2px)';
+          e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025)';
+        }
+      }}
+      onMouseLeave={(e) => {
+        if (!isSelected) {
+          e.currentTarget.style.borderColor = '#e0e0e0';
+          e.currentTarget.style.transform = 'none';
+          e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)';
+        }
       }}
     >
-      {/* Selected Indicator */}
-      {isSelected && (
-        <div style={{
-          position: 'absolute',
-          top: '8px',
-          right: '8px',
-          width: '24px',
-          height: '24px',
-          borderRadius: '50%',
-          background: 'linear-gradient(135deg, #00C853 0%, #69F0AE 100%)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: '#fff',
-          fontSize: '10px'
-        }}>
-          <i className="fa-solid fa-check" />
-        </div>
-      )}
-
-      {/* Icon */}
+      {/* Selection Checkmark */}
       <div style={{
-        fontSize: '36px',
-        marginBottom: '10px',
-        filter: isSelected ? 'none' : 'grayscale(50%)',
-        transition: 'filter 0.3s ease'
+        position: 'absolute',
+        top: '16px',
+        right: '16px',
+        width: '24px',
+        height: '24px',
+        borderRadius: '50%',
+        border: isSelected ? 'none' : '2px solid #ddd',
+        backgroundColor: isSelected ? '#00C853' : 'transparent',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        transition: 'all 0.2s ease'
       }}>
-        {icon}
+        {isSelected && <i className="fa-solid fa-check" style={{ color: '#fff', fontSize: '12px' }} />}
       </div>
 
-      {/* Title */}
-      <h4 style={{
-        margin: '0 0 6px 0',
-        fontSize: '14px',
-        fontWeight: '700',
-        color: isSelected ? '#00C853' : '#1a1a2e'
+      {/* Content Wrapper */}
+      <div style={{ 
+        flex: 1, 
+        display: 'flex', 
+        flexDirection: 'column', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        width: '100%',
+        marginBottom: '16px',
+        marginTop: '8px'
       }}>
-        {title}
-      </h4>
+        {/* Icon */}
+        <div style={{
+          fontSize: '32px',
+          marginBottom: '16px',
+          color: isSelected ? '#00C853' : '#64748b',
+          transition: 'color 0.2s ease',
+          height: '40px',
+          display: 'flex',
+          alignItems: 'center'
+        }}>
+          {isFontAwesome ? <i className={icon} /> : icon}
+        </div>
 
-      {/* Description */}
-      <p style={{
-        color: '#666',
-        fontSize: '11px',
-        margin: '0 0 8px 0',
-        lineHeight: 1.4
-      }}>
-        {description}
-      </p>
+        {/* Title */}
+        <h4 style={{
+          margin: '0 0 8px 0',
+          fontSize: '16px',
+          fontWeight: '700',
+          color: '#1a1a2e',
+          letterSpacing: '-0.3px'
+        }}>
+          {title}
+        </h4>
 
-      {/* Processing Time */}
+        {/* Description */}
+        <p style={{
+          color: '#64748b',
+          fontSize: '13px',
+          margin: 0,
+          lineHeight: 1.5,
+          maxWidth: '90%'
+        }}>
+          {description}
+        </p>
+      </div>
+
+      {/* Processing Time Badge */}
       {processingTime && (
         <div style={{
-          display: 'inline-block',
-          padding: '4px 8px',
-          backgroundColor: isSelected ? '#e8f5e9' : '#f5f5f5',
-          borderRadius: '4px',
-          fontSize: '10px',
-          color: isSelected ? '#00C853' : '#666',
-          fontWeight: '600'
+          marginTop: 'auto',
+          display: 'inline-flex',
+          alignItems: 'center',
+          padding: '6px 12px',
+          backgroundColor: isSelected ? '#e8f5e9' : '#f1f5f9',
+          borderRadius: '100px',
+          fontSize: '11px',
+          color: isSelected ? '#1b5e20' : '#475569',
+          fontWeight: '600',
+          letterSpacing: '0.3px'
         }}>
-          <i className="fa-solid fa-clock" style={{ marginRight: '4px' }} />
+          <i className="fa-solid fa-clock" style={{ marginRight: '6px', fontSize: '10px' }} />
           {processingTime}
         </div>
       )}

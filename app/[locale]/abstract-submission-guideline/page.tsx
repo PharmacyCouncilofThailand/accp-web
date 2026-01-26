@@ -82,7 +82,7 @@ export default function AbstractSubmissionGuideline() {
                                         <div className="info-table-container">
                                             <div className="info-row">
                                                 <div className="info-label">{t('presentationType')}</div>
-                                                <div className="info-value">☐ {t('posterPresentation')} / ☐ {t('oralPresentation')}</div>
+                                                <div className="info-value">{t('posterPresentation')} / {t('oralPresentation')}</div>
                                             </div>
                                             <div className="info-row">
                                                 <div className="info-label">{t('language')}</div>

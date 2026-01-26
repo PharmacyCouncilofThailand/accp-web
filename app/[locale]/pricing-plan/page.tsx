@@ -130,6 +130,7 @@ export default function PricingPlan() {
 											<h4 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '5px' }}>Gala Dinner: $75</h4>
 											<ul>
 												<li><img src="/assets/img/icons/check2.svg" alt="" />Networking Dinner</li>
+												<li><img src="/assets/img/icons/check2.svg" alt="" />10 July 2026</li>
 												<li><img src="/assets/img/icons/check2.svg" alt="" />Entertainment</li>
 											</ul>
 										</div>

@@ -1,6 +1,6 @@
 export const hotels = [
     {
-        name: "Centara Grand at CentralWorld",
+        name: "Centara Grand & Bangkok Convention Centre at CentralWorld",
         stars: 5,
         type: "Official Conference Hotel",
         distance: "0 min (venue)",

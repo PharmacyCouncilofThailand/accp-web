@@ -124,18 +124,15 @@ export default function SpeakersSection() {
                                                         borderRadius: '10px' // Optional: matches typical card rounded corners
                                                     }}
                                                 />
-                                                <ul>
-                                                    <li><Link href="/#"><i className="fa-brands fa-facebook-f" /></Link></li>
-                                                    <li><Link href="/#"><i className="fa-brands fa-linkedin-in" /></Link></li>
-                                                    <li><Link href="/#"><i className="fa-brands fa-instagram" /></Link></li>
-                                                    <li><Link href="/#" className="m-0"><i className="fa-brands fa-youtube" /></Link></li>
-                                                </ul>
+
                                             </div>
                                             <div className="space20" />
                                             <div className="text-area">
                                                 <Link href="/speakers">{speaker.firstName} {speaker.lastName}</Link>
-                                                <div className="space16" />
-                                                <p>{speaker.position || speaker.organization || 'Speaker'}</p>
+                                                <div className="space8" />
+                                                <p>{speaker.position || 'Speaker'}</p>
+                                                <p style={{ color: '#888', fontSize: '14px' }}>{speaker.organization || 'Organization TBA'}</p>
+                                                <p style={{ color: '#888', fontSize: '14px' }}>Country TBA</p>
                                             </div>
                                         </SwiperSlide>
                                     ))}
