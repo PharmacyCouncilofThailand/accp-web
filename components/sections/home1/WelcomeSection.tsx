@@ -21,7 +21,8 @@ const welcomeStyles = {
         boxShadow: '0 10px 40px rgba(0, 0, 0, 0.08)',
         textAlign: 'center' as const,
         transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-        cursor: 'pointer'
+        cursor: 'pointer',
+        height: '100%'
     },
     cardName: {
         fontSize: '18px',
@@ -88,6 +89,14 @@ export default function WelcomeSection() {
             position: "Pharmacy Council of Thailand",
             positionTh: "สภาเภสัชกรรม",
             image: "/assets/img/all-images/team/team-img3.png"
+        },
+        {
+            name: "Committee Member 4",
+            nameTh: "กรรมการท่านที่ 4",
+            titleKey: 'welcome.committeeMember',
+            position: "Organization TBA",
+            positionTh: "องค์กร TBA",
+            image: "/assets/img/all-images/team/team-img1.png"
         }
     ];
 
@@ -102,7 +111,7 @@ export default function WelcomeSection() {
                 {/* Profile Cards */}
                 <div className="row justify-content-center g-4">
                     {organizers.map((person, index) => (
-                        <div key={index} className="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay={index * 100}>
+                        <div key={index} className="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay={index * 100}>
                             <div style={welcomeStyles.card}
                                 onMouseEnter={(e) => {
                                     e.currentTarget.style.transform = 'translateY(-10px)';

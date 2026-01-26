@@ -183,8 +183,8 @@ export default function SignupForm() {
     const tabs: { id: TabType; label: string; labelTh: string; desc: string; descTh: string }[] = [
         { id: 'thaiStudent', label: 'Thai Student', labelTh: 'นักศึกษาไทย', desc: 'For Thai Student', descTh: 'สำหรับนักศึกษาชาวไทย' },
         { id: 'internationalStudent', label: 'International Student', labelTh: 'นักศึกษาต่างชาติ', desc: 'For International Student', descTh: 'สำหรับนักศึกษาชาวต่างชาติ' },
-        { id: 'thaiProfessional', label: 'Thai Medical Professional', labelTh: 'บุคลากรทางการแพทย์ไทย', desc: 'For Thai Medical Professional', descTh: 'สำหรับบุคลากรทางการแพทย์ชาวไทย' },
-        { id: 'internationalProfessional', label: 'International Medical Professional', labelTh: 'บุคลากรทางการแพทย์ต่างชาติ', desc: 'For International Medical Professional', descTh: 'สำหรับบุคลากรทางการแพทย์ชาวต่างชาติ' }
+        { id: 'thaiProfessional', label: 'Thai Health Professional', labelTh: 'บุคลากรทางการแพทย์ไทย', desc: 'For Thai Health Professional', descTh: 'สำหรับบุคลากรทางการแพทย์ชาวไทย' },
+        { id: 'internationalProfessional', label: 'International Health Professional', labelTh: 'บุคลากรทางการแพทย์ต่างชาติ', desc: 'For International Health Professional', descTh: 'สำหรับบุคลากรทางการแพทย์ชาวต่างชาติ' }
     ];
 
     const isThai = activeTab === 'thaiStudent';

@@ -72,12 +72,7 @@ export default function Section4() {
 									<SwiperSlide key={index} className="team-widget-boxarea">
 										<div className="img1 image-anime">
 											<img src={`/assets/img/all-images/team/${speaker.img}.png`} alt="" />
-											<ul>
-												<li><Link href="/#"><i className="fa-brands fa-facebook-f" /></Link></li>
-												<li><Link href="/#"><i className="fa-brands fa-linkedin-in" /></Link></li>
-												<li><Link href="/#"><i className="fa-brands fa-instagram" /></Link></li>
-												<li><Link href="/#" className="m-0"><i className="fa-brands fa-youtube" /></Link></li>
-											</ul>
+
 										</div>
 										<div className="space20" />
 										<div className="text-area">

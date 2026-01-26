@@ -12,8 +12,8 @@ export default function Home() {
         <>
             <Layout headerStyle={1} footerStyle={1}>
                 <HeroSection />
-                <WelcomeSection />
-                <SpeakersSection />
+                {/* <WelcomeSection /> */}
+                {/* <SpeakersSection /> */}
                 <MemoriesSection />
                 <MapSection />
                 <SponsorsList />
