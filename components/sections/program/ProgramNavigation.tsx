@@ -4,7 +4,7 @@ import { useTranslations } from 'next-intl';
 
 export default function ProgramNavigation() {
     const t = useTranslations('program');
-    const tCommon = useTranslations('common');
+    const tCommon = useTranslations('common');  
 
     const navItems = [
         { href: '/program-plenary', labelKey: 'plenaryKeynotes', icon: 'fa-microphone', color: '#8B5CF6', bgColor: '#EDE9FE', gradient: 'linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%)' },

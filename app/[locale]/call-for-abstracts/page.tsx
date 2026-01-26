@@ -80,7 +80,7 @@ export default function CallForAbstracts() {
                     </AbstractExample>
 
 
-
+                    
                 </div>
             </Layout>
         </>

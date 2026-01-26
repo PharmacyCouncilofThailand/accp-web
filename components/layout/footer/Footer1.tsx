@@ -60,12 +60,12 @@ export default function Footer1() {
 								<h3>{t('common.gallery')}</h3>
 								<div className="space12" />
 								<div className="row">
-									{[1, 2, 3, 4, 5, 6].map((num) => (
+									{[1, 2, 3, 4, 5].map((num) => (
 										<div key={num} className="col-lg-4 col-md-4 col-4">
 											<div className="img1">
-												<img src={`/assets/img/all-images/footer/footer-img${num}.png`} alt="" />
+												<img src={`/assets/img/all-images/memory/memory${num}.jpg`} alt="" style={{ width: '100%', height: '80px', objectFit: 'cover' }} />
 												<div className="icons">
-													<Link href={`/${locale}/gallery`}><i className="fa-brands fa-instagram" /></Link>
+													<Link href={`/${locale}/gallery`}><i className="fa-solid fa-arrow-right" /></Link>
 												</div>
 											</div>
 										</div>

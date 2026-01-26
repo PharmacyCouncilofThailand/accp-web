@@ -72,6 +72,12 @@ export default function Header1({ scroll, isMobileMenu, handleMobileMenu, isSear
         };
     }, [openDropdown]);
 
+    // Check if current page should always show colored logo
+    // Check if current page should always show colored logo
+    const segments = pathname.split('/');
+    const pathWithoutLocale = '/' + segments.slice(2).join('/') || '/';
+    const shouldShowColoredLogo = pathWithoutLocale === '/my-tickets' || pathWithoutLocale === '/abstract-status';
+
     // Calculate IsHeaderWhite based on scroll or headerBgWhite prop
     // This prop seems to handle the visual state of the header
     const isHeaderWhite = scroll || headerBgWhite;
@@ -120,14 +126,14 @@ export default function Header1({ scroll, isMobileMenu, handleMobileMenu, isSear
                                     <div className="site-logo">
                                         <Link href={`/${locale}`}>
                                             <img
-                                                src={scroll ? "/assets/img/logo/ACCP-BANGKOK-2026-04.png" : "/assets/img/logo/ACCP-2026-Logo-White.png"}
+                                                src={(scroll || shouldShowColoredLogo) ? "/assets/img/logo/ACCP-BANGKOK-2026-04.png" : "/assets/img/logo/ACCP-2026-Logo-White.png"}
                                                 alt="ACCP 2026"
                                                 style={{
-                                                    height: scroll ? '55px' : '150px',
+                                                    height: (scroll || shouldShowColoredLogo) ? '55px' : '150px',
                                                     width: 'auto',
                                                     marginLeft: '0',
-                                                    marginTop: scroll ? '0' : '-40px',
-                                                    marginBottom: scroll ? '0' : '-40px',
+                                                    marginTop: (scroll || shouldShowColoredLogo) ? '0' : '-40px',
+                                                    marginBottom: (scroll || shouldShowColoredLogo) ? '0' : '-40px',
                                                     position: 'relative',
                                                     zIndex: 100,
                                                     transition: 'all 0.3s ease'

@@ -85,27 +85,7 @@ export default function Gallery() {
                                         }}>
                                             {t('subtitle')}
                                         </p>
-                                        <div className="space20" />
-                                        <div style={{ 
-                                            display: 'flex', 
-                                            justifyContent: 'center', 
-                                            alignItems: 'center', 
-                                            flexWrap: 'wrap', 
-                                            gap: '8px',
-                                            lineHeight: '1.5'
-                                        }}>
-                                            <Link href="/" style={{ color: 'rgba(255,255,255,0.7)', whiteSpace: 'nowrap' }}>
-                                                {tCommon('home')}
-                                            </Link> 
-                                            <i className="fa-solid fa-angle-right" style={{ fontSize: '12px', opacity: 0.7 }} />
-                                            <span style={{ color: 'rgba(255,255,255,0.7)', whiteSpace: 'nowrap' }}> 
-                                                {tCommon('sponsorship')} & {tCommon('gallery')}
-                                            </span>
-                                            <i className="fa-solid fa-angle-right" style={{ fontSize: '12px', opacity: 0.7 }} />
-                                            <span style={{ color: '#FFBA00', whiteSpace: 'nowrap' }}> 
-                                                {tCommon('gallery')}
-                                            </span>
-                                        </div>
+
                                     </div>
                                 </div>
                             </div>
