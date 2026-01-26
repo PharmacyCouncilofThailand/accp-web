@@ -1,12 +1,17 @@
 'use client'
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import Link from 'next/link'
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import UserProfileDropdown from './header/UserProfileDropdown';
 
-export default function MobileMenu({ isMobileMenu, handleMobileMenu }: any) {
+interface MobileMenuProps {
+    isMobileMenu: boolean;
+    handleMobileMenu: () => void;
+}
+
+export default function MobileMenu({ isMobileMenu, handleMobileMenu }: MobileMenuProps) {
     const [isAccordion, setIsAccordion] = useState<number | null>(null)
     const t = useTranslations('common');
     const tContact = useTranslations('contact');
@@ -15,14 +20,14 @@ export default function MobileMenu({ isMobileMenu, handleMobileMenu }: any) {
     const { isAuthenticated } = useAuth();
 
     // Function to get the path without locale prefix
-    const getPathWithoutLocale = () => {
+    const getPathWithoutLocale = useCallback(() => {
         const segments = pathname.split('/');
         return '/' + segments.slice(2).join('/') || '/';
-    }
+    }, [pathname]);
 
-    const handleAccordion = (key: number) => {
+    const handleAccordion = useCallback((key: number) => {
         setIsAccordion(prevState => prevState === key ? null : key)
-    }
+    }, []);
 
     return (
         <>
@@ -78,18 +83,20 @@ export default function MobileMenu({ isMobileMenu, handleMobileMenu }: any) {
                             </ul>
                         </li>
                         <li className="has-sub hash-has-sub"><span className={`submenu-button ${isAccordion == 6 ? "submenu-opened" : ""}`} onClick={() => handleAccordion(6)}><em /></span>
-                            <Link href={`/${locale}/sponsorship`} className="hash-nav">{t('sponsorship')} & {t('gallery')}</Link>
+                            <Link href={`/${locale}/sponsorship`} className="hash-nav">{t('sponsorship')}</Link>
                             <ul className={`sub-menu ${isAccordion == 6 ? "open-sub" : ""}`} style={{ display: `${isAccordion == 6 ? "block" : "none"}` }}>
-                                <li className="hash-has-sub"><Link href={`/${locale}/sponsorship`} className="hash-nav">{t('sponsorship')}</Link></li>
-                                <li className="hash-has-sub"><Link href={`/${locale}/gallery`} className="hash-nav">{t('gallery')}</Link></li>
+                                <li className="hash-has-sub"><Link href={`/${locale}/sponsorship/confirmed-sponsors`} className="hash-nav">{t('confirmedSponsors')}</Link></li>
+                                <li className="hash-has-sub"><Link href={`/${locale}/sponsorship/sponsorship-prospectus`} className="hash-nav">{t('sponsorshipProspectusMenu')}</Link></li>
+                                <li className="hash-has-sub"><Link href={`/${locale}/sponsorship/exhibition-floor-plan`} className="hash-nav">{t('exhibitionFloorPlan')}</Link></li>
                             </ul>
                         </li>
+                        <li className="hash-has-sub"><Link href={`/${locale}/gallery`} className="hash-nav">{t('gallery')}</Link></li>
 
                     </ul>
 
                     <div className="allmobilesection">
-                        {/* Language Switcher */}
-                        <div style={{
+                        {/* Language Switcher Hidden */}
+                        {/* <div style={{
                             display: 'flex',
                             justifyContent: 'center',
                             gap: '4px',
@@ -138,7 +145,7 @@ export default function MobileMenu({ isMobileMenu, handleMobileMenu }: any) {
                             >
                                 EN
                             </Link>
-                        </div>
+                        </div> */}
 
                         {isAuthenticated ? (
                             <div style={{ padding: '20px 0' }}>

@@ -7,7 +7,7 @@ export default function AbstractTimeline() {
     const timelineItems = [
         {
             label: t('openingDate'),
-            date: '15 January 2026',
+            date: '4 February 2026',
             icon: 'fa-calendar-check',
             bgColor: '#e8f5e9',
             borderColor: '#4caf50',

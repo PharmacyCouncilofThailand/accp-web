@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Layout from "@/components/layout/Layout"
 import Link from "next/link"
 import { useTranslations } from 'next-intl'
@@ -66,8 +66,8 @@ export default function AbstractSubmission() {
         country: string;
     }>>([])
 
-    const addCoAuthor = () => {
-        setCoAuthors([...coAuthors, {
+    const addCoAuthor = useCallback(() => {
+        setCoAuthors(prev => [...prev, {
             id: `coauthor-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
             firstName: '',
             lastName: '',
@@ -75,17 +75,17 @@ export default function AbstractSubmission() {
             institution: '',
             country: ''
         }])
-    }
+    }, [])
 
-    const removeCoAuthor = (id: string) => {
-        setCoAuthors(coAuthors.filter((author) => author.id !== id))
-    }
+    const removeCoAuthor = useCallback((id: string) => {
+        setCoAuthors(prev => prev.filter((author) => author.id !== id))
+    }, [])
 
-    const handleCoAuthorChange = (id: string, field: string, value: string) => {
-        setCoAuthors(coAuthors.map(author =>
+    const handleCoAuthorChange = useCallback((id: string, field: string, value: string) => {
+        setCoAuthors(prev => prev.map(author =>
             author.id === id ? { ...author, [field]: value } : author
         ))
-    }
+    }, [])
 
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')

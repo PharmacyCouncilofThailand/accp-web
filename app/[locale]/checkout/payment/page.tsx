@@ -7,7 +7,9 @@ import { useAuth } from '@/context/AuthContext'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import { useCheckoutWizard } from '@/hooks/checkout/useCheckoutWizard'
-import { registrationPackages, addOns } from '@/data/checkout'
+import { registrationPackages, addOns, workshopOptions } from '@/data/checkout'
+import { formatCurrency } from "@/utils/currency"
+import OrderSummary from '@/components/checkout/OrderSummary'
 
 export default function Payment() {
 	const t = useTranslations('payment');
@@ -35,6 +37,37 @@ export default function Payment() {
 
 	// Use data from hook
 	const amount = totalAmount.toString();
+  
+  // Prepare OrderSummary props
+  const orderPackageItem = {
+    id: checkoutData.selectedPackage || 'professional',
+    name: tCheckout(`packages.${checkoutData.selectedPackage || 'professional'}`),
+    price: packagePrice
+  };
+
+  const orderAddOns = checkoutData.selectedAddOns.map(addOnId => {
+    const addon = addOns.find(a => a.id === addOnId);
+    if (!addon) return null;
+
+    let details = '';
+    if (addOnId === 'workshop' && checkoutData.selectedWorkshopTopic) {
+      const option = workshopOptions.find(o => o.value === checkoutData.selectedWorkshopTopic);
+      if (option) details = option.label;
+    } else if (addOnId === 'gala' && checkoutData.dietaryRequirement) {
+      if (checkoutData.dietaryRequirement === 'other' && checkoutData.dietaryOtherText) {
+        details = checkoutData.dietaryOtherText;
+      } else {
+        details = tCheckout(`dietaryOptions.${checkoutData.dietaryRequirement}`);
+      }
+    }
+
+    return {
+      id: addOnId,
+      name: tCheckout(`addOns.${addOnId}`),
+      price: isThaiPayment ? addon.priceTHB : addon.priceUSD,
+      details
+    };
+  }).filter((item): item is { id: string; name: string; price: number; details: string } => item !== null);
 	const packageType = checkoutData.selectedPackage || 'professional';
 	const orderNumber = `ACCP2026-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
 
@@ -290,49 +323,7 @@ export default function Payment() {
 									</Link>
 								</div>
 
-								{/* Payment Method Selection */}
-								<div style={{ marginBottom: '30px' }}>
-									<h3 style={{ marginBottom: '20px', fontSize: '20px', fontWeight: '600' }}>
-										{t('selectPaymentMethod')}
-									</h3>
-									<div className="checkout-grid-2" style={{ gap: '30px' }}>
-										<div
-											onClick={() => setPaymentMethod('qr')}
-											className="payment-method-card"
-											style={{
-												border: paymentMethod === 'qr' ? '3px solid #00C853' : '2px solid #ddd',
-												backgroundColor: paymentMethod === 'qr' ? '#f0f9f6' : '#fff',
-											}}
-										>
-											<div className="payment-method-icon">📱</div>
-											<h4 className="payment-method-title">{t('qrPayment')}</h4>
-											<p className="payment-method-desc">{t('qrPaymentDesc')}</p>
-											{paymentMethod === 'qr' && (
-												<div className="payment-selected-badge">
-													<i className="fa-solid fa-check" /> Selected
-												</div>
-											)}
-										</div>
 
-										<div
-											onClick={() => setPaymentMethod('card')}
-											className="payment-method-card"
-											style={{
-												border: paymentMethod === 'card' ? '3px solid #00C853' : '2px solid #ddd',
-												backgroundColor: paymentMethod === 'card' ? '#f0f9f6' : '#fff',
-											}}
-										>
-											<div className="payment-method-icon">💳</div>
-											<h4 className="payment-method-title">{t('cardPayment')}</h4>
-											<p className="payment-method-desc">{t('cardPaymentDesc')}</p>
-											{paymentMethod === 'card' && (
-												<div className="payment-selected-badge">
-													<i className="fa-solid fa-check" /> Selected
-												</div>
-											)}
-										</div>
-									</div>
-								</div>
 
 								{/* QR Payment */}
 								{paymentMethod === 'qr' && (
@@ -580,56 +571,28 @@ export default function Payment() {
 
 							{/* Right Column - Order Summary */}
 							<div className="col-lg-4">
-								<div style={{
-									position: 'sticky',
-									top: '20px',
-									padding: '25px',
-									border: '2px solid #00C853',
-									borderRadius: '12px',
-									backgroundColor: '#fff'
-								}}>
-									<h3 style={{ marginBottom: '20px', fontSize: '18px', fontWeight: '600' }}>
-										<i className="fa-solid fa-receipt" style={{ marginRight: '10px' }}></i>
-										{t('orderSummary')}
-									</h3>
-
-									<div style={{ marginBottom: '20px', paddingBottom: '20px', borderBottom: '1px solid #eee' }}>
-										<p style={{ margin: '0 0 10px 0', fontSize: '14px', color: '#666' }}>
-											{tCheckout(`packages.${packageType}`)}
-										</p>
-									</div>
-
-									<div style={{
-										padding: '20px',
-										backgroundColor: '#f0f9f6',
-										borderRadius: '10px',
-										textAlign: 'center',
-										border: '2px solid #00C853'
-									}}>
-										<p style={{ margin: '0 0 10px 0', fontSize: '13px', color: '#666', textTransform: 'uppercase' }}>
-											{t('totalAmount')}
-										</p>
-										<p style={{ margin: 0, fontSize: '32px', fontWeight: 'bold', color: '#00C853' }}>
-											{currencySymbol}{amount}
-										</p>
-									</div>
-
-									{isProcessing && (
-										<div style={{
-											marginTop: '20px',
-											padding: '15px',
-											backgroundColor: '#fff3cd',
-											borderRadius: '8px',
-											fontSize: '13px',
-											color: '#856404',
-											textAlign: 'center'
-										}}>
-											<i className="fa-solid fa-info-circle" style={{ marginRight: '8px' }}></i>
-											{t('processingTime')}
-										</div>
-									)}
-								</div>
+                <OrderSummary
+                  packageItem={orderPackageItem}
+                  addOns={orderAddOns}
+                  isThai={isThaiPayment}
+                />
+                
+                {isProcessing && (
+                  <div style={{
+                    marginTop: '20px',
+                    padding: '15px',
+                    backgroundColor: '#fff3cd',
+                    borderRadius: '8px',
+                    fontSize: '13px',
+                    color: '#856404',
+                    textAlign: 'center'
+                  }}>
+                    <i className="fa-solid fa-info-circle" style={{ marginRight: '8px' }}></i>
+                    {t('processingTime')}
+                  </div>
+                )}
 							</div>
+
 						</div>
 					</div>
 				</div>
