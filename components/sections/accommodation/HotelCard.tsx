@@ -4,6 +4,7 @@ interface HotelProps {
     name: string;
     distance: string;
     features: string[];
+    image?: string;
 }
 
 // Extract styles to constants to avoid recreating objects on each render
@@ -49,7 +50,15 @@ function HotelCard({ hotel }: { hotel: HotelProps }) {
                     <div className="row align-items-center" style={ROW_STYLE}>
                         <div className="col-md-3">
                             <div style={HOTEL_IMAGE_STYLE}>
-                                <i className="fa-solid fa-hotel" style={ICON_STYLE} />
+                                {hotel.image ? (
+                                    <img 
+                                        src={hotel.image} 
+                                        alt={hotel.name} 
+                                        style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '12px' }} 
+                                    />
+                                ) : (
+                                    <i className="fa-solid fa-hotel" style={ICON_STYLE} />
+                                )}
                             </div>
                         </div>
                         <div className="col-md-6">

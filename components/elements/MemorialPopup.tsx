@@ -4,17 +4,19 @@ import Image from 'next/image'
 
 import { useLocale } from 'next-intl'
 
+// Global variable to track if popup has been shown in the current session (JS context)
+let hasShownSessionPopup = false
+
 export default function MemorialPopup() {
     const locale = useLocale()
     const [isVisible, setIsVisible] = useState(false)
 
     useEffect(() => {
-        // Show popup on mount
-        // Optional: Check sessionStorage if we want to show it only once per session
-        // const hasSeenPopup = sessionStorage.getItem('hasSeenMemorialPopup')
-        // if (!hasSeenPopup) {
-        setIsVisible(true)
-        // }
+        // Show popup on mount only if it hasn't been shown in this JS session
+        if (!hasShownSessionPopup) {
+            setIsVisible(true)
+            hasShownSessionPopup = true
+        }
     }, [])
 
     const handleClose = () => {
@@ -50,7 +52,7 @@ export default function MemorialPopup() {
             }}>
                 <div style={{ position: 'relative', width: '100%', height: 'auto' }}>
                     <Image
-                        src="/assets/img/memorial-popup.png"
+                        src="/assets/img/memorial-popup-new.jpg"
                         alt="Memorial Popup"
                         width={1200}
                         height={675}

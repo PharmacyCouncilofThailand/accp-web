@@ -6,7 +6,7 @@ export const hotels = [
         distance: "0 min (venue)",
         priceRange: "THB 4,500 - 6,500/night",
         features: ["Direct access to venue", "Breakfast included", "Free WiFi", "Fitness center", "Sky bar"],
-        image: "/assets/img/hotels/centara-grand.jpg",
+        image: "/assets/img/centara-grand.png",
         bookingLink: "#",
         special: true
     },

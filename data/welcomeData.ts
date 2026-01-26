@@ -4,7 +4,7 @@ export const welcomeMessages = [
         name: "Prof. Dr. Suwimol Sapcharoen",
         title: "President, Thai Clinical Pharmacy Association",
         role: "Host Organization",
-        image: "/assets/img/all-images/team/team-img1.png",
+        image: "/assets/img/all-images/team/team-img1.jpg",
         message: `On behalf of the Thai Clinical Pharmacy Association, it is my great honor and pleasure to welcome you to the 25th Asian Conference on Clinical Pharmacy (ACCP 2026) in Bangkok, Thailand.
 
 Thailand is proud to host this prestigious event, bringing together clinical pharmacy professionals from across Asia and around the world. Our theme, "Borderless Pharmacy Practice: The Collaboration for Sustainability and Cultural Integration," reflects our commitment to fostering international collaboration and advancing clinical pharmacy practice.
@@ -34,7 +34,7 @@ Thank you for your continued support of ACCP. Together, we will continue to elev
         name: "Assoc. Prof. Dr. Nattiya Kapol",
         title: "Chair, ACCP 2026 Organizing Committee",
         role: "Organizing Chair",
-        image: "/assets/img/all-images/team/team-img3.png",
+        image: "/assets/img/all-images/team/team-img3.jpg",
         message: `Dear Distinguished Guests and Participants,
 
 On behalf of the ACCP 2026 Organizing Committee, I am delighted to invite you to join us for an exceptional conference experience in the heart of Bangkok.

@@ -75,8 +75,8 @@ export default function SpeakersSection() {
     // Fallback data if no speakers from API
     const displaySpeakers = speakers.length > 0 ? speakers : [
         { id: 1, firstName: "Kendra", lastName: "Cremin", position: "Business Consultant", photoUrl: "/assets/img/all-images/team/team-img2.png" },
-        { id: 2, firstName: "Dennis", lastName: "Jacobson", position: "Finance Consultant", photoUrl: "/assets/img/all-images/team/team-img1.png" },
-        { id: 3, firstName: "Patricia", lastName: "Wilkinson", position: "HR Consultant", photoUrl: "/assets/img/all-images/team/team-img3.png" },
+        { id: 2, firstName: "Dennis", lastName: "Jacobson", position: "Finance Consultant", photoUrl: "/assets/img/all-images/team/team-img1.jpg" },
+        { id: 3, firstName: "Patricia", lastName: "Wilkinson", position: "HR Consultant", photoUrl: "/assets/img/all-images/team/team-img3.jpg" },
     ];
 
     // Helper to get reliable image URL from Google Drive via our proxy
