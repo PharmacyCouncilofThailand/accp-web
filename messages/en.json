@@ -7,7 +7,7 @@
     "program": "Program",
     "programOverview": "Program Overview",
     "plenaryKeynotes": "Plenary & Keynotes",
-    "symposia": "Symposia",
+    "symposia": "Symposium",
     "oralPoster": "Oral & Poster",
     "galaDinner": "Gala Dinner",
     "workshops": "Workshops",
@@ -50,7 +50,7 @@
     "speakers": "Speakers",
     "loading": "Loading...",
     "backToHome": "Back to Home",
-    "confirmedSponsors": "Confirmed Sponsors/Exhibitors",
+    "confirmedSponsors": "Sponsors/Exhibitors",
     "sponsorshipProspectusMenu": "Sponsorship Prospectus",
     "exhibitionFloorPlan": "Exhibition Floor Plan"
   },
@@ -64,7 +64,10 @@
     "title": "Welcome Messages",
     "conferenceChair": "Conference Chair",
     "scientificChair": "Scientific Committee Chair",
-    "organizingChair": "Organizing Committee Chair"
+    "organizingChair": "Organizing Committee Chair",
+    "hostOrg": "Host Organization",
+    "accpPresident": "ACCP President",
+    "committeeMember": "Committee Member"
   },
   "about": {
     "pageTitle": "About Event",
@@ -349,7 +352,7 @@
     "description": "Partner with ACCP 2026",
     "whySponsor": "Why Sponsor?",
     "packages": "Sponsorship Packages",
-    "confirmedSponsors": "Confirmed Sponsors/Exhibitors",
+    "confirmedSponsors": "Sponsors/Exhibitors",
     "sponsorshipProspectusMenu": "Sponsorship Prospectus",
     "exhibitionFloorPlan": "Exhibition Floor Plan",
     "platinum": "Platinum Sponsor",

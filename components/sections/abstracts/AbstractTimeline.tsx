@@ -17,7 +17,7 @@ export default function AbstractTimeline() {
         },
         {
             label: t('deadline'),
-            date: '15 March 2026',
+            date: '15 May 2026',
             icon: 'fa-calendar-xmark',
             bgColor: '#ffebee',
             borderColor: '#f44336',

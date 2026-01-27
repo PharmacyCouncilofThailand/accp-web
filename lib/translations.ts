@@ -10,7 +10,7 @@ export const translations = {
         program: { th: 'โปรแกรม', en: 'Program' },
         programOverview: { th: 'ภาพรวมโปรแกรม', en: 'Program Overview' },
         plenaryKeynotes: { th: 'การบรรยายหลัก', en: 'Plenary & Keynotes' },
-        symposia: { th: 'ซิมโพเซีย', en: 'Symposia' },
+        symposia: { th: 'ซิมโพเซีย', en: 'Symposium' },
         oralPoster: { th: 'การนำเสนอปากเปล่าและโปสเตอร์', en: 'Oral & e-Poster' },
         galaDinner: { th: 'งานเลี้ยงกาล่าดินเนอร์', en: 'Gala Dinner' },
         workshops: { th: 'เวิร์คช็อป', en: 'Workshops' },

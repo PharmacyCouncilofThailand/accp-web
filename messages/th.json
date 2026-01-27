@@ -50,7 +50,7 @@
         "speakers": "วิทยากร",
         "loading": "กำลังโหลด...",
         "backToHome": "กลับหน้าหลัก",
-        "confirmedSponsors": "Confirmed Sponsors/Exhibitors",
+        "confirmedSponsors": "Sponsors/Exhibitors",
         "sponsorshipProspectusMenu": "Sponsorship Prospectus",
         "exhibitionFloorPlan": "Exhibition Floor Plan"
     },
@@ -64,7 +64,10 @@
         "title": "สารต้อนรับ",
         "conferenceChair": "ประธานการประชุม",
         "scientificChair": "ประธานฝ่ายวิชาการ",
-        "organizingChair": "ประธานฝ่ายจัดงาน"
+        "organizingChair": "ประธานฝ่ายจัดงาน",
+        "hostOrg": "Host Organization",
+        "accpPresident": "ACCP President",
+        "committeeMember": "Committee Member"
     },
     "about": {
         "pageTitle": "เกี่ยวกับการประชุม",
@@ -349,7 +352,7 @@
         "description": "ร่วมเป็นพันธมิตรกับ ACCP 2026",
         "whySponsor": "ทำไมต้องสนับสนุน?",
         "packages": "แพ็คเกจการสนับสนุน",
-        "confirmedSponsors": "Confirmed Sponsors/Exhibitors",
+        "confirmedSponsors": "Sponsors/Exhibitors",
         "sponsorshipProspectusMenu": "Sponsorship Prospectus",
         "exhibitionFloorPlan": "Exhibition Floor Plan",
         "platinum": "ผู้สนับสนุนระดับแพลตินัม",
