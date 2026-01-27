@@ -17,8 +17,8 @@ export default function RegistrationImportantDates() {
                     </div>
                 </div>
                 <div className="row">
-                    <div className="col-lg-4 col-md-6">
-                        <div className="pricing-boxarea" style={{ backgroundColor: '#e8f5e9' }}>
+                    <div className="col-lg-4 col-md-6" style={{ marginBottom: '20px' }}>
+                        <div className="pricing-boxarea" style={{ backgroundColor: '#e8f5e9', height: '100%' }}>
                             <h5 style={{ color: '#2e7d32' }}>🟢 {t('earlyBird')}</h5>
                             <div className="space20" />
                             <h3>{t('dateRangeEarly')}</h3>
@@ -26,8 +26,8 @@ export default function RegistrationImportantDates() {
                             <p>{t('saveUpTo')}</p>
                         </div>
                     </div>
-                    <div className="col-lg-4 col-md-6">
-                        <div className="pricing-boxarea" style={{ backgroundColor: '#fff3e0' }}>
+                    <div className="col-lg-4 col-md-6" style={{ marginBottom: '20px' }}>
+                        <div className="pricing-boxarea" style={{ backgroundColor: '#fff3e0', height: '100%' }}>
                             <h5 style={{ color: '#ef6c00' }}>🟠 {t('regular')}</h5>
                             <div className="space20" />
                             <h3>{t('dateRangeRegular')}</h3>
@@ -35,8 +35,8 @@ export default function RegistrationImportantDates() {
                             <p>{t('standardRates')}</p>
                         </div>
                     </div>
-                    <div className="col-lg-4 col-md-6">
-                        <div className="pricing-boxarea" style={{ backgroundColor: '#ffebee' }}>
+                    <div className="col-lg-4 col-md-6" style={{ marginBottom: '20px' }}>
+                        <div className="pricing-boxarea" style={{ backgroundColor: '#ffebee', height: '100%' }}>
                             <h5 style={{ color: '#c62828' }}>🔴 {t('registrationCloses')}</h5>
                             <div className="space20" />
                             <h3>{t('dateCloses')}</h3>

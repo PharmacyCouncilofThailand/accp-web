@@ -4,11 +4,11 @@ import { useTranslations } from 'next-intl';
 
 export default function ProgramNavigation() {
     const t = useTranslations('program');
-    const tCommon = useTranslations('common');
+    const tCommon = useTranslations('common');  
 
     const navItems = [
         { href: '/program-plenary', labelKey: 'plenaryKeynotes', icon: 'fa-microphone', color: '#8B5CF6', bgColor: '#EDE9FE', gradient: 'linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%)' },
-        { href: '/program-symposia', labelKey: 'symposia', icon: 'fa-users', color: '#3B82F6', bgColor: '#DBEAFE', gradient: 'linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%)' },
+        { href: '/program-symposium', labelKey: 'symposia', icon: 'fa-users', color: '#3B82F6', bgColor: '#DBEAFE', gradient: 'linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%)' },
         { href: '/program-oral-poster', labelKey: 'oralPoster', icon: 'fa-image', color: '#10B981', bgColor: '#D1FAE5', gradient: 'linear-gradient(135deg, #10B981 0%, #34D399 100%)' },
         { href: '/preconference-workshops', labelKey: 'workshops', icon: 'fa-chalkboard-user', color: '#F59E0B', bgColor: '#FEF3C7', gradient: 'linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%)' },
         { href: '/gala-dinner', labelKey: 'galaDinner', icon: 'fa-champagne-glasses', color: '#6633CC', bgColor: '#EDE4FF', gradient: 'linear-gradient(135deg, #6633CC 0%, #9966FF 100%)' },

@@ -8,6 +8,7 @@ import PracticalInfo from "@/components/sections/travel/PracticalInfo"
 import AirportInfo from "@/components/sections/travel/AirportInfo"
 import VisaInfo from "@/components/sections/travel/VisaInfo"
 import TransportationInfo from "@/components/sections/travel/TransportationInfo"
+import VenueLocationMaps from "@/components/sections/travel/VenueLocationMaps"
 import AdditionalInfo from "@/components/sections/travel/AdditionalInfo"
 import EmergencyNumbers from "@/components/sections/travel/EmergencyNumbers"
 
@@ -40,6 +41,7 @@ export default function TravelVisa() {
                     <AirportInfo />
                     <VisaInfo />
                     <TransportationInfo />
+                    <VenueLocationMaps />
                     <AdditionalInfo />
                     <EmergencyNumbers />
 

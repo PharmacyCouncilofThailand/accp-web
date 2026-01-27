@@ -47,9 +47,9 @@ export default function Section6() {
 	const t = (thText: string, enText: string) => language === 'th' ? thText : enText
 
 	const memories = [
-		{ img: "memory-img1", year: "2024", title: t("การประชุมวิชาการ", "Event Conferences") },
-		{ img: "memory-img2", year: "2024", title: t("การประชุมวิชาการ", "Event Conferences") },
-		{ img: "memory-img3", year: "2024", title: t("การประชุมวิชาการ", "Event Conferences") },
+		{ img: "memory-img1.jpg", year: "2024", title: t("การประชุมวิชาการ", "Event Conferences") },
+		{ img: "memory-img1.jpg", year: "2024", title: t("การประชุมวิชาการ", "Event Conferences") },
+		{ img: "memory-img1.jpg", year: "2024", title: t("การประชุมวิชาการ", "Event Conferences") },
 	]
 
 	return (

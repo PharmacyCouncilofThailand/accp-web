@@ -32994,7 +32994,7 @@ html {
 @media (min-width: 768px) {
   .ticket-status-badge {
     position: absolute;
-    top: 25px;
+    top: 15px;
     right: 40px;
     margin-bottom: 0;
     font-size: 14px;

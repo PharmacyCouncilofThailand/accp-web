@@ -17,7 +17,7 @@ const welcomeStyles = {
     card: {
         background: '#ffffff',
         borderRadius: '20px',
-        padding: '40px 30px',
+        padding: '40px 25px 35px',
         boxShadow: '0 10px 40px rgba(0, 0, 0, 0.08)',
         textAlign: 'center' as const,
         transition: 'transform 0.3s ease, box-shadow 0.3s ease',
@@ -25,40 +25,62 @@ const welcomeStyles = {
         height: '100%'
     },
     cardName: {
-        fontSize: '18px',
+        fontSize: '17px',
         fontWeight: '700',
         color: '#1a237e',
-        marginBottom: '24px',
-        minHeight: '48px',
+        marginBottom: '16px',
+        minHeight: '40px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        lineHeight: '1.3'
+    },
+    imageContainer: {
+        width: '220px',
+        height: '220px',
+        borderRadius: '50%',
+        background: 'linear-gradient(135deg, rgb(26, 35, 126) 0%, rgb(57, 73, 171) 100%)',
+        padding: '5px',
+        margin: '0 auto 40px',
+        position: 'relative' as const,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center'
     },
-    imageContainer: {
-        width: '150px',
-        height: '150px',
+    imageWrapper: {
+        width: '100%',
+        height: '100%',
         borderRadius: '50%',
         overflow: 'hidden',
-        margin: '0 auto 24px',
-        border: '4px solid #e8e8e8',
-        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.1)'
+        background: 'rgb(255, 255, 255)'
     },
     image: {
         width: '100%',
         height: '100%',
-        objectFit: 'cover' as const
+        objectFit: 'cover' as const,
+        objectPosition: 'center 28%'
     },
-    roleTitle: {
-        fontSize: '16px',
-        fontWeight: '600',
-        fontStyle: 'italic' as const,
-        color: '#000000',
-        marginBottom: '8px'
+    roleBadge: {
+        position: 'absolute' as const,
+        bottom: '-10px',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        background: '#FFC107',
+        color: '#1a237e',
+        padding: '8px 24px',
+        borderRadius: '30px',
+        fontWeight: '700',
+        fontSize: '14px',
+        boxShadow: '0 4px 10px rgba(0,0,0,0.15)',
+        whiteSpace: 'nowrap' as const,
+        zIndex: 2
     },
+    // Removed roleTitle as it will be in the badge
     rolePosition: {
         fontSize: '14px',
-        color: '#000000',
-        margin: 0
+        color: '#666666',
+        margin: 0,
+        lineHeight: '1.5'
     }
 } as const;
 
@@ -67,28 +89,28 @@ export default function WelcomeSection() {
 
     const organizers = [
         {
-            name: "Prof. Dr. Somchai Sawangjaroen",
-            nameTh: "ศ.ดร.สมชาย สว่างเจริญ",
-            titleKey: 'welcome.conferenceChair',
-            position: "Faculty of Pharmacy, Chulalongkorn University",
-            positionTh: "คณะเภสัชศาสตร์ จุฬาลงกรณ์มหาวิทยาลัย",
-            image: "/assets/img/all-images/team/team-img1.png"
+            name: "Prof. Dr. Suwimol Sapcharoen",
+            nameTh: "ศ.ดร.สุวิมล ทรัพย์เจริญ",
+            titleKey: 'welcome.hostOrg',
+            position: "President, Thai Clinical Pharmacy Association",
+            positionTh: "นายกสมาคมเภสัชกรรมคลินิกไทย",
+            image: "/assets/img/all-images/team/team-img1.jpg"
         },
         {
-            name: "Assoc. Prof. Dr. Patcharee Sriworakun",
-            nameTh: "รศ.ดร.พัชรี ศรีวรกุล",
-            titleKey: 'welcome.scientificChair',
-            position: "Faculty of Pharmacy, Mahidol University",
-            positionTh: "คณะเภสัชศาสตร์ มหาวิทยาลัยมหิดล",
+            name: "Prof. Dr. Kenji Yamamoto",
+            nameTh: "ศ.ดร.เคนจิ ยามาโมโตะ",
+            titleKey: 'welcome.accpPresident',
+            position: "President, Asian Conference on Clinical Pharmacy",
+            positionTh: "ประธานการประชุมเภสัชกรรมคลินิกแห่งเอเชีย",
             image: "/assets/img/all-images/team/team-img2.png"
         },
         {
-            name: "Dr. Nattawut Leelarungrayub",
-            nameTh: "ดร.ณัฐวุฒิ ลีลารุ่งเรือง",
+            name: "Assoc. Prof. Dr. Nattiya Kapol",
+            nameTh: "รศ.ดร.ณัฏฐิยา คาพล",
             titleKey: 'welcome.organizingChair',
-            position: "Pharmacy Council of Thailand",
-            positionTh: "สภาเภสัชกรรม",
-            image: "/assets/img/all-images/team/team-img3.png"
+            position: "Chair, ACCP 2026 Organizing Committee",
+            positionTh: "ประธานคณะกรรมการจัดงาน ACCP 2026",
+            image: "/assets/img/all-images/team/team-img3.jpg"
         },
         {
             name: "Committee Member 4",
@@ -96,7 +118,7 @@ export default function WelcomeSection() {
             titleKey: 'welcome.committeeMember',
             position: "Organization TBA",
             positionTh: "องค์กร TBA",
-            image: "/assets/img/all-images/team/team-img1.png"
+            image: "/assets/img/all-images/team/team-img1.jpg" // Using img1 as placeholder
         }
     ];
 
@@ -121,20 +143,24 @@ export default function WelcomeSection() {
                                     e.currentTarget.style.transform = 'translateY(0)';
                                     e.currentTarget.style.boxShadow = '0 10px 40px rgba(0, 0, 0, 0.08)';
                                 }}>
+                                {/* Photo & Badge */}
+                                <div style={welcomeStyles.imageContainer}>
+                                    <div style={welcomeStyles.imageWrapper}>
+                                        <img
+                                            src={person.image}
+                                            alt={person.name}
+                                            style={welcomeStyles.image}
+                                        />
+                                    </div>
+                                    <div style={welcomeStyles.roleBadge}>
+                                        {t(person.titleKey)}
+                                    </div>
+                                </div>
+
                                 {/* Name */}
                                 <h4 style={welcomeStyles.cardName}>{person.name}</h4>
 
-                                {/* Photo */}
-                                <div style={welcomeStyles.imageContainer}>
-                                    <img
-                                        src={person.image}
-                                        alt={person.name}
-                                        style={welcomeStyles.image}
-                                    />
-                                </div>
-
-                                {/* Title & Position */}
-                                <p style={welcomeStyles.roleTitle}>{t(person.titleKey)}</p>
+                                {/* Position */}
                                 <p style={welcomeStyles.rolePosition}>{person.position}</p>
                             </div>
                         </div>

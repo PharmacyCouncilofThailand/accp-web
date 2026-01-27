@@ -145,160 +145,31 @@ export default function GallerySection() {
                     </div>
 
                     {/* Gallery Grid */}
-                    <div className="row g-4">
+                    <div className="masonry-gallery-grid">
                         {galleryData[activeTab].images.map((image, index) => (
                             <div
                                 key={image.id}
-                                className={index % 5 === 0 || index % 5 === 3 ? 'col-lg-6 col-md-6' : 'col-lg-4 col-md-6'}
+                                className={`gallery-item item-${index}`}
+                                onClick={() => openLightbox(image.src, image.alt)}
                             >
-                                <div
-                                    onClick={() => openLightbox(image.src, image.alt)}
-                                    style={{
-                                        position: 'relative',
-                                        borderRadius: '16px',
-                                        overflow: 'hidden',
-                                        cursor: 'pointer',
-                                        height: index % 5 === 0 || index % 5 === 3 ? '350px' : '280px',
-                                        boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
-                                        transition: 'all 0.4s ease'
-                                    }}
-                                    className="gallery-item"
-                                >
+                                <div className="image-wrapper">
                                     <img
                                         src={image.src}
                                         alt={image.alt}
-                                        style={{
-                                            width: '100%',
-                                            height: '100%',
-                                            objectFit: 'cover',
-                                            transition: 'transform 0.5s ease'
-                                        }}
                                     />
-                                    {/* Overlay */}
-                                    <div style={{
-                                        position: 'absolute',
-                                        top: 0,
-                                        left: 0,
-                                        right: 0,
-                                        bottom: 0,
-                                        background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 50%)',
-                                        opacity: 0,
-                                        transition: 'opacity 0.3s ease',
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        justifyContent: 'flex-end',
-                                        padding: '20px'
-                                    }} className="gallery-overlay">
-                                        <span style={{
-                                            color: '#FFBA00',
-                                            fontSize: '12px',
-                                            textTransform: 'uppercase',
-                                            letterSpacing: '1px',
-                                            marginBottom: '5px'
-                                        }}>
-                                            {image.category}
-                                        </span>
-                                        <span style={{
-                                            color: '#fff',
-                                            fontSize: '1.1rem',
-                                            fontWeight: '600'
-                                        }}>
-                                            {image.alt}
-                                        </span>
-                                    </div>
-                                    {/* Zoom Icon */}
-                                    <div style={{
-                                        position: 'absolute',
-                                        top: '50%',
-                                        left: '50%',
-                                        transform: 'translate(-50%, -50%)',
-                                        width: '60px',
-                                        height: '60px',
-                                        background: 'rgba(255,186,0,0.9)',
-                                        borderRadius: '50%',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        opacity: 0,
-                                        transition: 'opacity 0.3s ease'
-                                    }} className="zoom-icon">
-                                        <i className="fa-solid fa-magnifying-glass-plus" style={{ color: '#fff', fontSize: '24px' }}></i>
+                                    <div className="overlay">
+                                        <span className="location-name">{image.alt}</span>
                                     </div>
                                 </div>
                             </div>
                         ))}
                     </div>
 
-                    {/* Video Section for ACCP 2025 */}
-                    {activeTab === 'accp2025' && (
-                        <div style={{ marginTop: '60px' }}>
-                            <div className="text-center" style={{ marginBottom: '40px' }}>
-                                <h3 style={{
-                                    fontSize: '2rem',
-                                    fontWeight: '700',
-                                    color: '#1a1a2e',
-                                    marginBottom: '15px'
-                                }}>
-                                    <i className="fa-solid fa-video" style={{ color: '#7B2D8E', marginRight: '15px' }}></i>
-                                    {t('videoTitle')}
-                                </h3>
-                                <p style={{ color: '#666' }}>
-                                    {t('videoDesc')}
-                                </p>
-                            </div>
-                            <div style={{
-                                borderRadius: '20px',
-                                overflow: 'hidden',
-                                boxShadow: '0 20px 50px rgba(0,0,0,0.15)',
-                                background: '#000',
-                                aspectRatio: '16/9',
-                                maxWidth: '900px',
-                                margin: '0 auto',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                position: 'relative'
-                            }}>
-                                <img
-                                    src="/assets/img/all-images/memory/memory-img1.png"
-                                    alt="Video Thumbnail"
-                                    style={{
-                                        width: '100%',
-                                        height: '100%',
-                                        objectFit: 'cover',
-                                        opacity: 0.6
-                                    }}
-                                />
-                                <div style={{
-                                    position: 'absolute',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    alignItems: 'center',
-                                    gap: '15px'
-                                }}>
-                                    <div style={{
-                                        width: '80px',
-                                        height: '80px',
-                                        background: 'linear-gradient(135deg, #FFBA00, #FF8C00)',
-                                        borderRadius: '50%',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        cursor: 'pointer',
-                                        boxShadow: '0 10px 30px rgba(255,186,0,0.4)',
-                                        transition: 'transform 0.3s ease'
-                                    }}>
-                                        <i className="fa-solid fa-play" style={{ color: '#fff', fontSize: '28px', marginLeft: '5px' }}></i>
-                                    </div>
-                                    <span style={{ color: '#fff', fontWeight: '600', fontSize: '1.1rem' }}>
-                                        {t('comingSoon')}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    )}
+                   
                 </div>
             </section>
+
+            
 
             {/* Lightbox Modal */}
             {lightboxOpen && (
@@ -357,27 +228,130 @@ export default function GallerySection() {
                         color: '#fff',
                         fontSize: '1.1rem',
                         fontWeight: '500',
-                        textAlign: 'center'
+                        textAlign: 'center',
+                        padding: '10px 20px',
+                        background: 'rgba(0,0,0,0.6)',
+                        borderRadius: '8px',
+                        backdropFilter: 'blur(10px)'
                     }}>
                         {lightboxImage.alt}
                     </div>
                 </div>
             )}
-
             {/* Custom Styles */}
             <style jsx global>{`
-                .gallery-item:hover {
+                /* Standard Gallery Hover */
+                .gallery-item-standard:hover {
                     transform: translateY(-10px);
                     box-shadow: 0 20px 40px rgba(0,0,0,0.2) !important;
                 }
-                .gallery-item:hover img {
+                .gallery-item-standard:hover img {
                     transform: scale(1.1);
                 }
-                .gallery-item:hover .gallery-overlay {
-                    opacity: 1 !important;
+
+                /* Masonry Grid */
+                .masonry-gallery-grid {
+                    display: grid;
+                    grid-template-columns: repeat(3, 1fr);
+                    /* First 2 rows fixed for the hero item layout, subsequent rows are 300px */
+                    grid-template-rows: 300px 300px; 
+                    grid-auto-rows: 300px;
+                    gap: 24px;
+                    max-width: 1200px;
+                    margin: 0 auto;
                 }
-                .gallery-item:hover .zoom-icon {
-                    opacity: 1 !important;
+
+                .gallery-item {
+                    position: relative;
+                    border-radius: 20px;
+                    overflow: hidden;
+                    cursor: pointer;
+                    box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+                    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+                }
+
+                .image-wrapper {
+                    width: 100%;
+                    height: 100%;
+                    position: relative;
+                }
+
+                .image-wrapper img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+                }
+
+                /* Hover Effects */
+                .gallery-item:hover {
+                    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+                    transform: translateY(-5px);
+                }
+
+                .gallery-item:hover img {
+                    transform: scale(1.05);
+                }
+
+                /* Overlay */
+                .overlay {
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    width: 100%;
+                    padding: 30px 20px;
+                    background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+                    opacity: 0;
+                    transform: translateY(20px);
+                    transition: all 0.4s ease;
+                }
+
+                .gallery-item:hover .overlay {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+
+                .location-name {
+                    color: white;
+                    font-size: 1.1rem;
+                    font-weight: 600;
+                    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                    letter-spacing: 0.5px;
+                }
+
+                /* Grid Placement Logic (Desktop) */
+                .item-0 {
+                    grid-column: span 2;
+                    grid-row: span 2;
+                }
+                /* Other items auto-flow */
+
+                /* Responsive Design */
+                @media (max-width: 991px) {
+                    .masonry-gallery-grid {
+                        grid-template-columns: repeat(2, 1fr);
+                        grid-template-rows: auto;
+                        grid-auto-rows: 280px;
+                    }
+                    .item-0 {
+                        grid-column: span 2;
+                        grid-row: span 2;
+                    }
+                }
+
+                @media (max-width: 767px) {
+                    .masonry-gallery-grid {
+                        grid-template-columns: 1fr;
+                        gap: 16px;
+                    }
+                    .item-0 {
+                        grid-column: span 1;
+                        grid-row: span 1;
+                        height: 350px !important;
+                    }
+                    .gallery-item {
+                        height: 280px;
+                    }
                 }
             `}</style>
         </>

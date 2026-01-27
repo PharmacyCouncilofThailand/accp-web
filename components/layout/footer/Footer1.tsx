@@ -24,12 +24,7 @@ export default function Footer1() {
 								<div style={{ height: '30px' }} />
 								<p>{t('footer.description')}</p>
 								<div className="space24" />
-								<ul>
-									<li><Link href="https://facebook.com/accp2026" target="_blank"><i className="fa-brands fa-facebook-f" style={{ color: '#1877F2' }} /></Link></li>
-									<li><Link href="https://instagram.com/accp2026" target="_blank"><i className="fa-brands fa-instagram" style={{ color: '#E4405F' }} /></Link></li>
-									<li><Link href="https://linkedin.com/company/accp2026" target="_blank"><i className="fa-brands fa-linkedin-in" style={{ color: '#0A66C2' }} /></Link></li>
-									<li><Link href="https://twitter.com/accp2026" target="_blank" className="m-0"><i className="fa-brands fa-x-twitter" style={{ color: '#000000' }} /></Link></li>
-								</ul>
+
 							</div>
 						</div>
 
@@ -53,7 +48,7 @@ export default function Footer1() {
 								<h3>{t('common.contactUs')}</h3>
 								<ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
 									<li style={{ marginBottom: '12px' }}><Link href="mailto:accpbangkok2026@gmail.com" style={{ display: 'flex', alignItems: 'center' }}><i className="fa-solid fa-envelope" style={{ width: '20px', marginRight: '10px', color: '#EA4335' }} />accpbangkok2026@gmail.com</Link></li>
-									<li style={{ marginBottom: '12px' }}><Link href="https://facebook.com/accpbangkok2026" target="_blank" style={{ display: 'flex', alignItems: 'center' }}><i className="fa-brands fa-facebook-f" style={{ width: '20px', marginRight: '10px', color: '#1877F2' }} />accpbangkok2026</Link></li>
+									<li style={{ marginBottom: '12px' }}><Link href="https://www.facebook.com/profile.php?id=61584025641109" target="_blank" style={{ display: 'flex', alignItems: 'center' }}><i className="fa-brands fa-facebook-f" style={{ width: '20px', marginRight: '10px', color: '#1877F2' }} />accpbangkok2026</Link></li>
 									<li><Link href="https://instagram.com/accpbangkok2026" target="_blank" style={{ display: 'flex', alignItems: 'center' }}><i className="fa-brands fa-instagram" style={{ width: '20px', marginRight: '10px', color: '#E4405F' }} />accpbangkok2026</Link></li>
 								</ul>
 							</div>
@@ -65,12 +60,12 @@ export default function Footer1() {
 								<h3>{t('common.gallery')}</h3>
 								<div className="space12" />
 								<div className="row">
-									{[1, 2, 3, 4, 5, 6].map((num) => (
+									{[1, 2, 3, 4, 5].map((num) => (
 										<div key={num} className="col-lg-4 col-md-4 col-4">
 											<div className="img1">
-												<img src={`/assets/img/all-images/footer/footer-img${num}.png`} alt="" />
+												<img src={`/assets/img/all-images/memory/memory${num}.jpg`} alt="" style={{ width: '100%', height: '80px', objectFit: 'cover' }} />
 												<div className="icons">
-													<Link href={`/${locale}/gallery`}><i className="fa-brands fa-instagram" /></Link>
+													<Link href={`/${locale}/gallery`}><i className="fa-solid fa-arrow-right" /></Link>
 												</div>
 											</div>
 										</div>

@@ -1,6 +1,6 @@
 'use client'
 import AOS from 'aos'
-import { useEffect, useState } from "react"
+import { useEffect, useState, useMemo, useCallback } from "react"
 import AddClassBody from '../elements/AddClassBody'
 import BackToTop from '../elements/BackToTop'
 
@@ -21,12 +21,18 @@ export default function Layout({ headerStyle, footerStyle, breadcrumbTitle, chil
 	const [scroll, setScroll] = useState<boolean>(false)
 	// Mobile Menu
 	const [isMobileMenu, setMobileMenu] = useState<boolean>(false)
-	const handleMobileMenu = (): void => setMobileMenu(!isMobileMenu)
+	const handleMobileMenu = useCallback((): void => setMobileMenu(prev => !prev), [])
 	const [isSearch, setSearch] = useState<boolean>(false)
-	const handleSearch = (): void => setSearch(!isSearch)
+	const handleSearch = useCallback((): void => setSearch(prev => !prev), [])
 
 	useEffect(() => {
-		AOS.init()
+		// Initialize AOS only once
+		AOS.init({
+			once: true, // Animation happens only once
+			duration: 800,
+			easing: 'ease-in-out',
+		})
+
 		const handleScroll = (): void => {
 			const scrollCheck: boolean = window.scrollY > 100
 			if (scrollCheck !== scroll) {
@@ -34,7 +40,8 @@ export default function Layout({ headerStyle, footerStyle, breadcrumbTitle, chil
 			}
 		}
 
-		document.addEventListener("scroll", handleScroll)
+		// Use passive listener for better scroll performance
+		document.addEventListener("scroll", handleScroll, { passive: true })
 
 		return () => {
 			document.removeEventListener("scroll", handleScroll)

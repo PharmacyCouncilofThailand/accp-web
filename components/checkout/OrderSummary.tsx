@@ -1,5 +1,6 @@
 'use client'
 import React from 'react'
+import { useTranslations } from 'next-intl'
 
 interface OrderItem {
   id: string
@@ -23,6 +24,7 @@ export default function OrderSummary({
   discount = 0,
   onRemoveAddOn
 }: OrderSummaryProps) {
+  const t = useTranslations('checkout')
   const currency = isThai ? '฿' : '$'
   const currencyLabel = isThai ? 'บาท' : 'USD'
 
@@ -61,7 +63,7 @@ export default function OrderSummary({
           color: '#1a1a2e',
           margin: 0
         }}>
-          Order Summary
+          {t('orderSummary')}
         </h3>
       </div>
 
@@ -80,7 +82,7 @@ export default function OrderSummary({
               color: '#1a1a2e',
               marginBottom: '4px'
             }}>
-              {packageItem.name}
+              {t(`packages.${packageItem.id}`) || packageItem.name} 
             </div>
             <div style={{
               fontSize: '12px',
@@ -88,7 +90,7 @@ export default function OrderSummary({
               fontWeight: '600'
             }}>
               <i className="fa-solid fa-badge-check" style={{ marginRight: '4px' }} />
-              Registration Package
+              {t('registrationPackage')}
             </div>
           </div>
           <div style={{
@@ -116,7 +118,7 @@ export default function OrderSummary({
             textTransform: 'uppercase',
             letterSpacing: '0.5px'
           }}>
-            Add-ons
+            {t('addOnsTitle')}
           </div>
           {addOns.map((addon) => (
             <div
@@ -136,7 +138,7 @@ export default function OrderSummary({
                   fontSize: '14px',
                   color: '#333'
                 }}>
-                  {addon.name}
+                  {t(`addOns.${addon.id}`)}
                 </div>
                 {addon.details && (
                   <div style={{
@@ -191,7 +193,7 @@ export default function OrderSummary({
         paddingTop: '16px',
         borderTop: '1px solid #f0f0f0'
       }}>
-        <span style={{ fontSize: '14px', color: '#666' }}>Subtotal</span>
+        <span style={{ fontSize: '14px', color: '#666' }}>{t('subtotal')}</span>
         <span style={{ fontSize: '15px', fontWeight: '600', color: '#333' }}>
           {currency}{subtotal.toLocaleString()}
         </span>
@@ -206,7 +208,7 @@ export default function OrderSummary({
         }}>
           <span style={{ fontSize: '14px', color: '#00C853', fontWeight: '600' }}>
             <i className="fa-solid fa-tag" style={{ marginRight: '6px' }} />
-            Discount ({discount}%)
+            {t('discount')} ({discount}%)
           </span>
           <span style={{ fontSize: '15px', fontWeight: '600', color: '#00C853' }}>
             -{currency}{discountAmount.toLocaleString()}
@@ -235,7 +237,7 @@ export default function OrderSummary({
               textTransform: 'uppercase',
               letterSpacing: '0.5px'
             }}>
-              Total Amount
+              {t('totalAmount')}
             </div>
             <div style={{
               fontSize: '32px',
@@ -275,7 +277,7 @@ export default function OrderSummary({
           color: '#00C853',
           marginRight: '6px'
         }} />
-        Secure payment powered by SSL encryption
+        {t('securePaymentFooter')}
       </div>
     </div>
   )

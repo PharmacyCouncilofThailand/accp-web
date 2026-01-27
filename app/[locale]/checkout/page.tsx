@@ -171,9 +171,18 @@ export default function Registration() {
               {/* Main Content */}
               <div className="col-lg-8">
                 {/* Section 1: Personal Information */}
-                <div className="checkout-card">
-
-
+                <div style={{
+                  backgroundColor: '#fff',
+                  borderRadius: '16px',
+                  padding: '24px',
+                  marginBottom: '24px',
+                  boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
+                  border: '1px solid #eee'
+                }}>
+                  <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '20px', color: '#1a1a2e' }}>
+                    {t("personalInformation")}
+                  </h3>
+                  
                   <div className="row">
                     <div className="col-md-6">
                       <FormInput
@@ -239,264 +248,259 @@ export default function Registration() {
                 </div>
 
                 {/* Section 2: Package (Locked) */}
-                <div className="checkout-card">
+                <div style={{
+                  backgroundColor: '#fff',
+                  borderRadius: '16px',
+                  padding: '24px',
+                  marginBottom: '24px',
+                  border: '2px solid #00C853',
+                  boxShadow: '0 4px 15px rgba(0, 200, 83, 0.05)',
+                  position: 'relative',
+                  overflow: 'hidden'
+                }}>
+                  <div style={{
+                    position: 'absolute',
+                    top: 0,
+                    right: 0,
+                    padding: '6px 12px',
+                    backgroundColor: '#00C85315',
+                    color: '#00C853',
+                    fontSize: '11px',
+                    fontWeight: '700',
+                    borderBottomLeftRadius: '12px'
+                  }}>
+                    {t("selected")}
+                  </div>
 
-
-                  {/* Locked Package Display */}
-                  <div className="checkout-package-locked">
-                    <div className="checkout-package-info">
-                      <i className="fa-solid fa-lock checkout-package-icon" />
-                      <div className="checkout-package-text">
-                        <h3>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                      <div style={{
+                        width: '48px',
+                        height: '48px',
+                        borderRadius: '12px',
+                        backgroundColor: '#00C853',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: '#fff',
+                        fontSize: '20px'
+                      }}>
+                        <i className="fa-solid fa-lock" />
+                      </div>
+                      <div>
+                        <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#1a1a2e', marginBottom: '4px' }}>
                           {t(`packages.${checkoutData.selectedPackage}`)}
                         </h3>
-                        <p>
-                          Package locked based on your registration type
+                        <p style={{ fontSize: '13px', color: '#666', margin: 0 }}>
+                          {t("packageLocked")}
                         </p>
                       </div>
                     </div>
-                    <div className="checkout-package-price-box">
+                    
+                    <div style={{ textAlign: 'right' }}>
                       {currentPackage?.originalPriceUSD && (
-                        <div className="checkout-package-original-price">
-                          {formatCurrency(isThai ? (currentPackage.originalPriceTHB || 0) : (currentPackage.originalPriceUSD || 0), locale)}
+                        <div style={{ fontSize: '13px', color: '#999', textDecoration: 'line-through', marginBottom: '2px' }}>
+                           {formatCurrency(isThai ? (currentPackage.originalPriceTHB || 0) : (currentPackage.originalPriceUSD || 0), locale)}
                         </div>
                       )}
-                      <div className="checkout-package-current-price">
+                      <div style={{ fontSize: '24px', fontWeight: '800', color: '#00C853' }}>
                         {formatCurrency(isThai ? (currentPackage?.priceTHB || 0) : (currentPackage?.priceUSD || 0), locale)}
                       </div>
                     </div>
                   </div>
+                </div>
 
-                  {/* Add-ons */}
-                  <h3 style={{ fontSize: "16px", fontWeight: "600", marginBottom: "12px" }}>
-                    {t("addOnsTitle")} <span style={{ fontSize: "14px", fontWeight: "400", color: "#666" }}>(Optional)</span>
-                  </h3>
+                {/* Section 3: Add-ons */}
+                <div style={{ marginBottom: '20px' }}>
+                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+                      <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#1a1a2e', margin: 0 }}>
+                        {t("addOnsTitle")}
+                      </h3>
+                      <span style={{ fontSize: '13px', color: '#666', backgroundColor: '#eee', padding: '4px 8px', borderRadius: '4px' }}>{t("optional")}</span>
+                   </div>
+
                   {addOns.map((addon) => (
                     <label
                       key={addon.id}
                       style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        padding: "12px",
-                        marginBottom: "10px",
-                        border: checkoutData.selectedAddOns.includes(addon.id) ? "2px solid #00C853" : "2px solid #e0e0e0",
-                        borderRadius: "8px",
+                        display: "block",
+                        padding: "24px",
+                        marginBottom: "16px",
+                        border: checkoutData.selectedAddOns.includes(addon.id) ? "2px solid #00C853" : "1px solid #e0e0e0",
+                        borderRadius: "16px",
                         cursor: "pointer",
-                        backgroundColor: checkoutData.selectedAddOns.includes(addon.id) ? "#f0f9f6" : "#fff",
-                        transition: "all 0.3s ease"
+                        backgroundColor: checkoutData.selectedAddOns.includes(addon.id) ? "#f5fcf8" : "#fff",
+                        transition: "all 0.3s ease",
+                        position: 'relative'
                       }}
                     >
-                      <div style={{ display: "flex", alignItems: "center", width: "100%" }}>
-                        <input
-                          type="checkbox"
-                          checked={checkoutData.selectedAddOns.includes(addon.id)}
-                          onChange={(e) => {
-                            const newAddOns = e.target.checked
-                              ? [...checkoutData.selectedAddOns, addon.id]
-                              : checkoutData.selectedAddOns.filter(id => id !== addon.id);
+                      <div style={{ display: "flex", alignItems: "flex-start", width: "100%" }}>
+                        <div style={{ paddingTop: '4px' }}>
+                           <input
+                              type="checkbox"
+                              checked={checkoutData.selectedAddOns.includes(addon.id)}
+                              onChange={(e) => {
+                                const newAddOns = e.target.checked
+                                  ? [...checkoutData.selectedAddOns, addon.id]
+                                  : checkoutData.selectedAddOns.filter(id => id !== addon.id);
 
-                            // Clear workshop topic if unchecked
-                            const updates: Partial<typeof checkoutData> = { selectedAddOns: newAddOns };
-                            if (addon.id === 'workshop' && !e.target.checked) {
-                              updates.selectedWorkshopTopic = '';
-                            }
-                            if (addon.id === 'gala' && !e.target.checked) {
-                              updates.dietaryRequirement = 'none';
-                            }
-                            updateCheckoutData(updates);
-                          }}
-                          style={{ marginRight: "12px", width: "18px", height: "18px" }}
-                        />
-                        <div style={{ flex: 1 }}>
-                          <div style={{ fontWeight: "600", fontSize: "15px" }}>{t(`addOns.${addon.id}`)}</div>
+                                const updates: Partial<typeof checkoutData> = { selectedAddOns: newAddOns };
+                                if (addon.id === 'workshop' && !e.target.checked) updates.selectedWorkshopTopic = '';
+                                if (addon.id === 'gala' && !e.target.checked) updates.dietaryRequirement = 'none';
+                                updateCheckoutData(updates);
+                              }}
+                              style={{ width: "20px", height: "20px", accentColor: '#00C853', cursor: 'pointer' }}
+                            />
                         </div>
-                        <div style={{ fontSize: "16px", fontWeight: "700", color: "#00C853" }}>
-                          {formatCurrency(isThai ? addon.priceTHB : addon.priceUSD, locale)}
-                        </div>
-                      </div>
+                        
+                        <div style={{ flex: 1, paddingLeft: '16px' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                             <div style={{ fontWeight: "700", fontSize: "16px", color: '#1a1a2e' }}>{t(`addOns.${addon.id}`)}</div>
+                             <div style={{ fontSize: "18px", fontWeight: "700", color: "#00C853" }}>
+                                {formatCurrency(isThai ? addon.priceTHB : addon.priceUSD, locale)}
+                             </div>
+                          </div>
+                          
+                          {/* Workshop Sub-options */}
+                          {addon.id === 'workshop' && checkoutData.selectedAddOns.includes('workshop') && (
+                            <div style={{ marginTop: '20px' }}>
+                              <div style={{ 
+                                display: 'grid', 
+                                gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
+                                gap: '12px' 
+                              }}>
+                                {workshopOptions.map(option => (
+                                  <div
+                                    key={option.value}
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      if(!option.isFull) updateCheckoutData({ selectedWorkshopTopic: option.value });
+                                    }}
+                                    style={{
+                                      padding: '16px',
+                                      cursor: option.isFull ? 'not-allowed' : 'pointer',
+                                      backgroundColor: '#fff',
+                                      border: checkoutData.selectedWorkshopTopic === option.value ? '2px solid #00C853' : '1px solid #e0e0e0',
+                                      borderRadius: '12px',
+                                      transition: 'all 0.2s ease',
+                                      opacity: option.isFull ? 0.7 : 1,
+                                      position: 'relative'
+                                    }}
+                                  >
+                                    <div style={{ display: 'flex', gap: '12px' }}>
+                                       <div style={{
+                                          width: '20px',
+                                          height: '20px',
+                                          borderRadius: '50%',
+                                          border: checkoutData.selectedWorkshopTopic === option.value ? '6px solid #00C853' : '2px solid #ddd',
+                                          flexShrink: 0,
+                                          marginTop: '2px'
+                                       }} />
+                                       <div>
+                                          <div style={{ fontSize: '14px', fontWeight: '600', color: '#333', marginBottom: '4px', lineHeight: 1.4 }}>
+                                            {option.label}
+                                          </div>
+                                          <div style={{ fontSize: '12px', color: '#666' }}>
+                                            <i className="fa-solid fa-user-group" style={{ marginRight: '6px' }} />
+                                            {option.count ? `${option.count}/50` : '0/50'}
+                                          </div>
+                                       </div>
+                                    </div>
+                                    
+                                    {option.isFull && (
+                                      <div style={{
+                                        position: 'absolute',
+                                        top: '12px',
+                                        right: '12px',
+                                        // backgroundColor: '#ffebee',
+                                        color: '#d32f2f',
+                                        fontSize: '10px',
+                                        fontWeight: '700',
+                                        // padding: '2px 6px',
+                                        // borderRadius: '4px'
+                                      }}>
+                                    {t("full")}
+                                      </div>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                              {errors.workshop && (
+                                <p style={{ color: '#d32f2f', fontSize: '13px', marginTop: '8px', fontWeight: '500' }}>
+                                  <i className="fa-solid fa-circle-exclamation" style={{ marginRight: '6px' }} />
+                                  {errors.workshop}
+                                </p>
+                              )}
+                            </div>
+                          )}
 
-                      {/* Workshop Sub-options */}
-                      {addon.id === 'workshop' && checkoutData.selectedAddOns.includes('workshop') && (
-                        <div style={{
-                          marginLeft: '30px',
-                          marginTop: '8px',
-                          borderLeft: '2px solid #e0e0e0',
-                          paddingLeft: '16px',
-                          display: 'grid',
-                          gap: '10px'
-                        }} className="checkout-grid-2">
-                          {workshopOptions.map(option => (
-                            <label key={option.value} style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'space-between',
-                              padding: '12px',
-                              cursor: option.isFull ? 'not-allowed' : 'pointer',
-                              backgroundColor: option.isFull ? '#fcfcfc' : (checkoutData.selectedWorkshopTopic === option.value ? '#e8f5e9' : '#fff'),
-                              border: checkoutData.selectedWorkshopTopic === option.value ? '2px solid #00C853' : '1px solid #e0e0e0',
-                              borderRadius: '8px',
-                              transition: 'all 0.2s ease',
-                              boxShadow: '0 2px 4px rgba(0,0,0,0.02)',
-                              opacity: option.isFull ? 0.8 : 1,
-                              width: "100%"
-                            }} className="checkout-option-label">
-                              <div style={{ display: 'flex', alignItems: 'center' }}>
-                                <input
-                                  type="radio"
-                                  name="workshopTopic"
-                                  value={option.value}
-                                  checked={checkoutData.selectedWorkshopTopic === option.value}
-                                  onChange={(e) => updateCheckoutData({ selectedWorkshopTopic: e.target.value })}
-                                  style={{ display: 'none' }}
-                                  disabled={option.isFull}
-                                />
-                                <div style={{ marginRight: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '20px', height: '20px' }}>
-                                  {checkoutData.selectedWorkshopTopic === option.value ? (
-                                    <i className="fa-solid fa-circle-check" style={{ color: '#00C853', fontSize: '20px' }} />
-                                  ) : (
-                                    <div style={{
-                                      width: '18px',
-                                      height: '18px',
-                                      borderRadius: '50%',
-                                      border: '2px solid #ddd',
-                                      backgroundColor: option.isFull ? '#e0e0e0' : 'transparent'
-                                    }} />
-                                  )}
-                                </div>
-                                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                  <span style={{ fontSize: '13px', color: '#333', fontWeight: checkoutData.selectedWorkshopTopic === option.value ? '600' : '500' }}>
-                                    {option.label}
-                                  </span>
-                                  {/* Participant Count */}
-                                  <span style={{ fontSize: '11px', color: '#888', marginTop: '2px' }}>
-                                    <i className="fa-solid fa-user-group" style={{ fontSize: '10px', marginRight: '4px' }} />
-                                    {option.count ? `${option.count}/50` : '0/50'}
-                                  </span>
-                                </div>
+                          {/* Gala Dinner Sub-options */}
+                          {addon.id === 'gala' && checkoutData.selectedAddOns.includes('gala') && (
+                            <div style={{ marginTop: '20px' }}>
+                              <p style={{ fontSize: '13px', fontWeight: '600', color: '#666', marginBottom: '12px' }}>{t("selectDietary")}</p>
+                              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
+                                {[
+                                  { value: 'vegetarian', label: t("dietaryOptions.vegetarian") },
+                                  { value: 'vegan', label: t("dietaryOptions.vegan") },
+                                  { value: 'halal', label: t("dietaryOptions.halal") },
+                                  { value: 'other', label: t("dietaryOptions.other") }
+                                ].map(option => (
+                                  <div
+                                    key={option.value}
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      updateCheckoutData({
+                                        dietaryRequirement: option.value,
+                                        dietaryOtherText: option.value !== 'other' ? '' : checkoutData.dietaryOtherText
+                                      });
+                                    }}
+                                    style={{
+                                      padding: '12px 16px',
+                                      cursor: 'pointer',
+                                      backgroundColor: '#fff',
+                                      border: checkoutData.dietaryRequirement === option.value ? '2px solid #00C853' : '1px solid #e0e0e0',
+                                      borderRadius: '10px',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: '10px'
+                                    }}
+                                  >
+                                     <div style={{
+                                        width: '18px',
+                                        height: '18px',
+                                        borderRadius: '50%',
+                                        border: checkoutData.dietaryRequirement === option.value ? '5px solid #00C853' : '2px solid #ddd',
+                                     }} />
+                                     <span style={{ fontSize: '14px', color: '#333' }}>{option.label}</span>
+                                  </div>
+                                ))}
                               </div>
 
-                              {/* Full Label (Right Side) */}
-                              {option.isFull && (
-                                <span style={{
-                                  fontSize: '11px',
-                                  color: '#d32f2f',
-                                  fontWeight: '700',
-                                  background: '#ffebee',
-                                  padding: '2px 8px',
-                                  borderRadius: '12px',
-                                  whiteSpace: 'nowrap'
-                                }}>
-                                  Full / เต็มแล้ว
-                                </span>
-                              )}
-                            </label>
-                          ))}
-                          {errors.workshop && (
-                            <div style={{
-                              color: '#d32f2f',
-                              fontSize: '13px',
-                              marginTop: '8px',
-                              marginLeft: '30px',
-                              fontWeight: '600'
-                            }}>
-                              {errors.workshop}
-                            </div>
-                          )}
-                        </div>
-                      )}
-
-                      {/* Gala Dinner Sub-options */}
-                      {addon.id === 'gala' && checkoutData.selectedAddOns.includes('gala') && (
-                        <div style={{
-                          marginLeft: '30px',
-                          marginTop: '8px',
-                          borderLeft: '2px solid #e0e0e0',
-                          paddingLeft: '16px'
-                        }}>
-                          <div style={{ fontSize: '12px', color: '#666', marginBottom: '10px' }}>
-                            Optional
-                          </div>
-                          <div style={{
-                            display: 'grid',
-                            gap: '10px'
-                          }} className="checkout-grid-2">
-                            {[
-                              { value: 'vegetarian', label: t("dietaryOptions.vegetarian") },
-                              { value: 'vegan', label: t("dietaryOptions.vegan") },
-                              { value: 'halal', label: t("dietaryOptions.halal") },
-                              { value: 'other', label: t("dietaryOptions.other") }
-                            ].map(option => (
-                              <label key={option.value} style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                padding: '12px',
-                                cursor: 'pointer',
-                                backgroundColor: checkoutData.dietaryRequirement === option.value ? '#e8f5e9' : '#fff',
-                                border: checkoutData.dietaryRequirement === option.value ? '2px solid #00C853' : '1px solid #e0e0e0',
-                                borderRadius: '8px',
-                                transition: 'all 0.2s ease',
-                                boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
-                              }} className="checkout-option-label">
-                                <input
-                                  type="radio"
-                                  name="dietaryRequirement"
-                                  value={option.value}
-                                  checked={checkoutData.dietaryRequirement === option.value}
-                                  onChange={(e) => {
-                                    updateCheckoutData({
-                                      dietaryRequirement: e.target.value,
-                                      dietaryOtherText: e.target.value !== 'other' ? '' : checkoutData.dietaryOtherText
-                                    });
-                                  }}
-                                  style={{ display: 'none' }}
-                                />
-                                <div style={{ marginRight: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '20px', height: '20px' }}>
-                                  {checkoutData.dietaryRequirement === option.value ? (
-                                    <i className="fa-solid fa-circle-check" style={{ color: '#00C853', fontSize: '20px' }} />
-                                  ) : (
-                                    <div style={{
-                                      width: '18px',
-                                      height: '18px',
-                                      borderRadius: '50%',
-                                      border: '2px solid #ddd',
-                                      backgroundColor: 'transparent'
-                                    }} />
-                                  )}
+                              {checkoutData.dietaryRequirement === 'other' && (
+                                <div style={{ marginTop: '12px' }}>
+                                  <input
+                                    type="text"
+                                    placeholder={t("pleaseSpecify")}
+                                    value={checkoutData.dietaryOtherText}
+                                    onChange={(e) => updateCheckoutData({ dietaryOtherText: e.target.value })}
+                                    style={{
+                                      width: '100%',
+                                      padding: '12px 16px',
+                                      border: '1px solid #e0e0e0',
+                                      borderRadius: '10px',
+                                      fontSize: '14px',
+                                      outline: 'none'
+                                    }}
+                                  />
                                 </div>
-                                <span style={{ fontSize: '13px', color: '#333', fontWeight: checkoutData.dietaryRequirement === option.value ? '600' : '500' }}>
-                                  {option.label}
-                                </span>
-                              </label>
-                            ))}
-                          </div>
-
-                          {/* Other text input */}
-                          {checkoutData.dietaryRequirement === 'other' && (
-                            <div style={{ marginTop: '12px' }}>
-                              <input
-                                type="text"
-                                placeholder="Special requirements"
-                                value={checkoutData.dietaryOtherText}
-                                onChange={(e) => updateCheckoutData({ dietaryOtherText: e.target.value })}
-                                style={{
-                                  width: '100%',
-                                  padding: '12px',
-                                  border: '1px solid #e0e0e0',
-                                  borderRadius: '8px',
-                                  fontSize: '14px',
-                                  boxSizing: 'border-box',
-                                  backgroundColor: '#fff'
-                                }}
-                              />
+                              )}
                             </div>
                           )}
                         </div>
-                      )}
+                      </div>
                     </label>
                   ))}
                 </div>
-
-
 
               </div>
 
@@ -521,21 +525,21 @@ export default function Registration() {
                     <div className="checkout-grid-2">
                       <PaymentMethodCard
                         id="qr"
-                        title="QR Payment"
-                        description="Scan to pay with mobile banking"
-                        icon="📱"
+                        title={t("qrPayment")}
+                        description={t("qrPaymentDesc")}
+                        icon="fa-solid fa-mobile-screen-button"
                         isSelected={checkoutData.paymentMethod === "qr"}
                         onSelect={(id) => updateCheckoutData({ paymentMethod: id as 'qr' | 'card' })}
-                        processingTime="Instant"
+                        processingTime={t("instant")}
                       />
                       <PaymentMethodCard
                         id="card"
-                        title="Credit Card"
-                        description="Pay securely with your card"
-                        icon="💳"
+                        title={t("cardPayment")}
+                        description={t("cardPaymentDesc")}
+                        icon="fa-regular fa-credit-card"
                         isSelected={checkoutData.paymentMethod === "card"}
                         onSelect={(id) => updateCheckoutData({ paymentMethod: id as 'qr' | 'card' })}
-                        processingTime="2-3 minutes"
+                        processingTime={t("processingTimeCard")}
                       />
                     </div>
                   </div>

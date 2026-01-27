@@ -2,6 +2,7 @@
 import Layout from "@/components/layout/Layout"
 import Link from "next/link"
 import { useTranslations, useLocale } from 'next-intl';
+import SponsorshipProspectus from '@/components/sections/sponsorship/SponsorshipProspectus';
 import SponsorsList from '@/components/sections/sponsorship/SponsorsList';
 
 export default function Sponsorship() {
@@ -26,6 +27,7 @@ export default function Sponsorship() {
                     </div>
                 </div>
 
+                <SponsorshipProspectus />
                 <SponsorsList />
             </div>
         </Layout>
