@@ -1,16 +1,14 @@
-export const galleryData = {
+    export const galleryData = {
     accp2025: {
         title: "ACCP 2025 Highlights",
         subtitle: "Memorable moments from the 24th Asian Conference on Clinical Pharmacy in Seoul, Korea",
         images: [
             { id: 1, src: "/assets/img/all-images/memory/memory-img1.jpg", alt: "ACCP 2025 in Bali indonesia", category: "ceremony" },
             { id: 2, src: "/assets/img/all-images/memory/memory-img2.jpg", alt: "ACCP 2025 in Bali indonesia", category: "ceremony" },
-            { id: 3, src: "/assets/img/all-images/memory/memory-img3.jpg", alt: "ACCP 2025 in Bali indonesia", category: "ceremony" },
-            { id: 4, src: "/assets/img/all-images/memory/memory-img4.jpg", alt: "ACCP 2025 in Bali indonesia", category: "ceremony" },
-            { id: 5, src: "/assets/img/all-images/memory/memory-img5.jpg", alt: "ACCP 2025 in Bali indonesia", category: "ceremony" },
-            { id: 6, src: "/assets/img/all-images/memory/memory-img6.jpg", alt: "ACCP 2025 in Bali indonesia", category: "ceremony" },
-            { id: 7, src: "/assets/img/all-images/memory/memory-img7.jpg", alt: "ACCP 2025 in Bali indonesia", category: "ceremony" },
-           
+            { id: 3, src: "/assets/img/all-images/memory/memory-img4.jpg", alt: "ACCP 2025 in Bali indonesia", category: "ceremony" },
+            { id: 4, src: "/assets/img/all-images/memory/memory-img5.jpg", alt: "ACCP 2025 in Bali indonesia", category: "ceremony" },
+            { id: 5, src: "/assets/img/all-images/memory/memory-img6.jpg", alt: "ACCP 2025 in Bali indonesia", category: "ceremony" },
+            { id: 6, src: "/assets/img/all-images/memory/memory-img7.jpg", alt: "ACCP 2025 in Bali indonesia", category: "ceremony" },
         ]
     },
     venue: {

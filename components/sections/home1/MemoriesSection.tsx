@@ -15,7 +15,6 @@ interface MemoryItem {
 const MEMORIES_DATA: MemoryItem[] = [
     { img: 'memory1', year: '2025' },
     { img: 'memory2', year: '2025' },
-    { img: 'memory3', year: '2025' },
     { img: 'memory4', year: '2025' },
     { img: 'memory5', year: '2025' },
     { img: 'memory6', year: '2025' },
