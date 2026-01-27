@@ -86,7 +86,7 @@ export default function TransportationInfo() {
                                     Bangkok Train Map
                                 </h5>
                                 <img
-                                    src="/assets/img/BKK-train-map-01.png"
+                                    src="/assets/img/BKK-train-map-01.jpg"
                                     alt="Bangkok BTS and MRT Train Map"
                                     style={{
                                         maxWidth: '100%',
