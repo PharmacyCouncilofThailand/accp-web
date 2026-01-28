@@ -27,7 +27,7 @@ export default function AbstractTimeline() {
         },
         {
             label: t('notification'),
-            date: '10 April 2026',
+            date: '',
             icon: 'fa-envelope',
             bgColor: '#e3f2fd',
             borderColor: '#2196f3',

@@ -59,6 +59,7 @@ export default function RegistrationInternationalFees() {
                     price: t('galaPriceUSD'),
                     features: [
                         t('networkingDinner'),
+                        `10 ${locale === 'th' ? 'ก.ค. 2569' : 'July 2026'}`,
                         t('entertainment')
                     ]
                 }

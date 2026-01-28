@@ -1,33 +1,24 @@
 export const welcomeMessages = [
     {
-        id: 1,
-        name: "Prof. Dr. Suwimol Sapcharoen",
-        title: "President, Thai Clinical Pharmacy Association",
-        role: "Host Organization",
-        image: "/assets/img/all-images/team/team-img1.jpg",
-        message: `On behalf of the Thai Clinical Pharmacy Association, it is my great honor and pleasure to welcome you to the 25th Asian Conference on Clinical Pharmacy (ACCP 2026) in Bangkok, Thailand.
+        id: 'host',
+        name: 'Assoc. Prof. Dr. Wichai Santimaleeworagun',
+        title: 'President, The College of Pharmacotherapy of Thailand',
+        role: 'hostOrg',
+        image: '/assets/img/all-images/team/wichai_santimaleeworagun.png',
+        message: `Welcome to the 2026 Asian Conference on Clinical Pharmacy (ACCP 2026) in Bangkok, Thailand. Held under the theme “Borderless Pharmacy Practice: Collaboration for Sustainability and Cultural Integration,” ACCP 2026 brings together science, collaboration, and culture in a truly international setting. The conference features a comprehensive scientific program in clinical pharmacy and pharmacotherapy.
 
-Thailand is proud to host this prestigious event, bringing together clinical pharmacy professionals from across Asia and around the world. Our theme, "Borderless Pharmacy Practice: The Collaboration for Sustainability and Cultural Integration," reflects our commitment to fostering international collaboration and advancing clinical pharmacy practice.
-
-The city of Bangkok, known for its rich culture, warm hospitality, and world-class healthcare facilities, provides an ideal backdrop for this gathering of pharmacy professionals. We have prepared an exciting scientific program featuring renowned speakers, cutting-edge research presentations, and valuable networking opportunities.
-
-We look forward to welcoming you to Thailand and creating memorable experiences together as we shape the future of clinical pharmacy in Asia and beyond.`
+Topics span diverse disease states, innovative practices, digital health, and pharmaceutical education. Participants will engage with high-quality research through poster and oral presentations. The meeting offers opportunities to connect with leading clinical pharmacy professionals worldwide. It also fosters academic and research collaborations shaping the future of pharmacy practice. ACCP 2026 serves as a global platform for learning, sharing, and professional networking. The experience is enriched by Bangkok’s renowned warmth and hospitality. Attendees can enjoy Thailand’s rich culture, iconic attractions, and world-famous cuisine. Join us at ACCP 2026 and be part of a borderless community advancing clinical pharmacy.`
     },
     {
-        id: 2,
-        name: "Prof. Dr. Kenji Yamamoto",
-        title: "President, Asian Conference on Clinical Pharmacy",
+        id: 'accpPresident',
+        name: "HAZEL FAYE R. DOCUYANAN, RPh, PhD",
+        title: "President, Asian Conference on Clinical Pharmacy 2025-2027 | Executive Vice President, Philippine Pharmacists Association",
         role: "ACCP President",
-        image: "/assets/img/all-images/team/team-img2.png",
-        message: `Dear Colleagues and Friends,
+        image: "/assets/img/all-images/team/hazel_docuyanan.jpg",
+        message: `Welcome to the 2026 ACCP Conference, and welcome to Bangkok.
+Our theme this year, “Borderless Pharmacy Practice: Collaboration for Sustainability and Cultural Integration,” captures the very heart of what ACCP stands for—a professional community of advocates of clinical pharmacy that transcends borders to advance clinical pharmacy practice through shared knowledge, mutual respect, and collective innovation. Over the coming days, you will encounter new ideas, innovative practices, and inspiring stories that reflect not only advancements in clinical pharmacy, but also the rich cultural contexts that shape how care is delivered.
 
-It is with great excitement that I welcome you to ACCP 2026, the 25th anniversary of our esteemed conference. Over the past 25 years, ACCP has grown to become the premier platform for clinical pharmacy professionals in Asia to share knowledge, foster collaborations, and advance our profession.
-
-This year's theme emphasizes the importance of borderless collaboration in pharmacy practice. As healthcare challenges become increasingly complex and interconnected, our profession must evolve to meet these demands through international cooperation and cultural understanding.
-
-I encourage all participants to actively engage in the scientific sessions, workshops, and networking events. Share your experiences, learn from your peers, and forge new partnerships that will strengthen clinical pharmacy practice in your home countries.
-
-Thank you for your continued support of ACCP. Together, we will continue to elevate clinical pharmacy practice across Asia and contribute to better patient outcomes worldwide.`
+Thank you for being part of this journey. Let us move forward together—toward a truly borderless pharmacy practice. We wish you a productive, enriching, and memorable conference. Welcome to ACCP 2026.`
     },
     {
         id: 3,

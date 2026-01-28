@@ -12,6 +12,18 @@ export default function SponsorshipProspectus() {
                         <div className="heading2 text-center space-margin60">
                             <h2>{t('prospectusTitle')}</h2>
                         </div>
+                        <div className="text-center mb-5" style={{ textAlign: 'center', marginBottom: '40px' }}>
+                            <a 
+                                href="/assets/documents/Sponsorship_Prospectus_ACCP2026.pdf" 
+                                className="vl-btn1" 
+                                download="Sponsorship_Prospectus_ACCP2026.pdf"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                <i className="fa-solid fa-file-arrow-down" style={{ marginRight: '8px' }}></i>
+                                {t('downloadProspectus')}
+                            </a>
+                        </div>
                         <div className="space30" />
                         <div className="prospectus-content">
                             <p className="text-justify mb-4" style={{ textAlign: 'justify' }}>{t('intro1')}</p>

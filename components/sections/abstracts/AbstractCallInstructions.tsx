@@ -67,6 +67,7 @@ export default function AbstractCallInstructions() {
                                     </p>
                                     <ul style={{ margin: 0, paddingLeft: '20px', color: '#333', fontSize: '14px', lineHeight: '1.8' }}>
                                         <li><strong>{t('background')}</strong></li>
+                                        <li><strong>{t('objectives')}</strong></li>
                                         <li><strong>{t('methods')}</strong></li>
                                         <li><strong>{t('results')}</strong></li>
                                         <li><strong>{t('conclusions')}</strong></li>

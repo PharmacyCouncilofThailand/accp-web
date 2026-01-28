@@ -141,16 +141,13 @@ export default function AbstractSubmissionGuideline() {
                                         <ul style={{ paddingLeft: '20px', color: '#555', fontSize: '16px', lineHeight: '1.8' }}>
                                             <li style={{ marginBottom: '12px' }}>{t('guideline1')}</li>
                                             <li style={{ marginBottom: '12px' }}>{t('guideline2')}</li>
-                                            <li style={{ marginBottom: '12px' }}>{t('guideline3')}</li>
                                             <li style={{ marginBottom: '12px' }}>{t('guideline4')}</li>
                                             <li style={{ marginBottom: '12px' }}>{t('guideline5')}</li>
                                             <li style={{ marginBottom: '12px' }}>{t('guideline6')}</li>
-                                            <li style={{ marginBottom: '12px' }}><strong>{t('guideline7')}</strong></li>
                                             <li style={{ marginBottom: '12px' }}><strong>{t('guideline8')}</strong></li>
                                             <li style={{ marginBottom: '12px' }}>{t('guideline9')}</li>
                                             <li style={{ marginBottom: '12px' }}>{t('guideline10')}</li>
                                             <li style={{ marginBottom: '12px' }}>{t('guideline11')}</li>
-                                            <li style={{ marginBottom: '12px' }}>{t('guideline12')}</li>
                                         </ul>
 
                                         <div style={{ backgroundColor: '#e3f2fd', padding: '20px', borderRadius: '8px', marginTop: '20px', border: '1px solid #90caf9' }}>
