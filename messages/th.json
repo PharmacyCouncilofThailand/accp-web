@@ -898,7 +898,7 @@
         "results": "ผลการศึกษา",
         "conclusion": "สรุปและข้อเสนอแนะ",
         "wordCountLabel": "จำนวนคำทั้งหมด",
-        "wordCountRequired": "(ต้องมี 250-300 คำ)",
+        "wordCountRequired": "(ไม่เกิน 250 คำ)",
         "uploadAbstract": "อัปโหลดไฟล์เต็ม (PDF)",
         "uploadInstructions": "กรุณาอัปโหลดไฟล์ Abstract แบบเต็มในรูปแบบ PDF (ไม่เกิน 10MB)",
         "conflictOfInterest": "ความขัดแย้งทางผลประโยชน์",
@@ -1089,11 +1089,6 @@
         "pharmacoeconomics": "เภสัชเศรษฐศาสตร์",
         "oralPresentation": "การนำเสนอแบบบรรยาย",
         "posterPresentation": "การนำเสนอแบบโปสเตอร์",
-        "status": {
-            "accepted": "ยอมรับแล้ว",
-            "underReview": "อยู่ระหว่างการพิจารณา",
-            "rejected": "ปฏิเสธ"
-        },
         "category": {
             "clinicalPharmacy": "เภสัชกรรมคลินิก",
             "pharmacoeconomics": "เภสัชเศรษฐศาสตร์",

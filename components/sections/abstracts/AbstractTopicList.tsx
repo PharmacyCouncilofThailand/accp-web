@@ -2,18 +2,18 @@
 
 import { useTranslations } from 'next-intl';
 
+const topicsKey = [
+    "clinicalPharmacy",
+    "socialAdministrative",
+    "pharmaceuticalSciences",
+    "pharmacology",
+    "education",
+    "digitalPharmacy"
+];
+
 export default function AbstractTopicList() {
     const t = useTranslations('callForAbstracts');
     const tCategories = useTranslations('abstractSubmission.categories');
-
-    const topicsKey = [
-        "clinicalPharmacy",
-        "socialAdministrative",
-        "pharmaceuticalSciences",
-        "pharmacology",
-        "education",
-        "digitalPharmacy"
-    ];
 
     return (
         <div className="sp1" style={{ backgroundColor: '#fff', paddingBottom: '80px' }}>

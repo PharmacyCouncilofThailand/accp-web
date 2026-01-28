@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import Layout from "@/components/layout/Layout"
 import Link from "next/link"
 import { useTranslations } from 'next-intl'
@@ -11,20 +11,20 @@ export default function AbstractSubmission() {
     const tCommon = useTranslations('common')
 
     // Categories for abstract submission
-    const categories = [
+    const categories = useMemo(() => [
         t('categories.clinicalPharmacy'),
         t('categories.socialAdministrative'),
         t('categories.pharmaceuticalSciences'),
         t('categories.pharmacology'),
         t('categories.education'),
         t('categories.digitalPharmacy')
-    ]
+    ], [t])
 
-    const presentationTypes = [
+    const presentationTypes = useMemo(() => [
         { value: "oral", label: t('presentationTypes.oral') },
         { value: "poster", label: t('presentationTypes.poster') },
         { value: "either", label: t('presentationTypes.either') }
-    ]
+    ], [t])
     const [formData, setFormData] = useState({
         // Author Information
         firstName: '',
@@ -89,7 +89,19 @@ export default function AbstractSubmission() {
 
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
-    const [wordCount, setWordCount] = useState(0)
+    
+    // Calculate word count using useMemo for better performance
+    const wordCount = useMemo(() => {
+        const totalText = [
+            formData.background,
+            formData.methods,
+            formData.results,
+            formData.conclusions
+        ].join(' ')
+        const words = totalText.trim().split(/\s+/).filter(word => word.length > 0)
+        return words.length
+    }, [formData.background, formData.methods, formData.results, formData.conclusions])
+    
     const [showSuccessModal, setShowSuccessModal] = useState(false)
 
     const [trackingId, setTrackingId] = useState('')
@@ -134,7 +146,7 @@ export default function AbstractSubmission() {
         }
     }, [submitStatus])
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value, type } = e.target
 
         if (name === 'phone') {
@@ -149,29 +161,7 @@ export default function AbstractSubmission() {
         } else {
             setFormData(prev => ({ ...prev, [name]: value }))
         }
-
-        // Calculate word count for abstract sections
-        if (['background', 'methods', 'results', 'conclusions'].includes(name)) {
-            // Create updated form data with the new value
-            const updatedData = {
-                background: name === 'background' ? value : formData.background,
-                methods: name === 'methods' ? value : formData.methods,
-                results: name === 'results' ? value : formData.results,
-                conclusions: name === 'conclusions' ? value : formData.conclusions
-            }
-
-            // Calculate total words from all sections
-            const totalText = [
-                updatedData.background,
-                updatedData.methods,
-                updatedData.results,
-                updatedData.conclusions
-            ].join(' ')
-
-            const words = totalText.trim().split(/\s+/).filter(word => word.length > 0)
-            setWordCount(words.length)
-        }
-    }
+    }, [])
 
     // Multiple files state
     const [uploadedFiles, setUploadedFiles] = useState<Array<{
@@ -179,7 +169,7 @@ export default function AbstractSubmission() {
         file: File;
     }>>([])
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0] || null
         if (file) {
             const validTypes = ['.pdf']
@@ -188,24 +178,27 @@ export default function AbstractSubmission() {
                 alert('Please upload only PDF files')
                 return
             }
-            // Check for duplicate filename
-            const isDuplicate = uploadedFiles.some(f => f.file.name === file.name)
-            if (isDuplicate) {
-                alert('This file has already been uploaded!')
-                return
-            }
-            setUploadedFiles(prev => [...prev, {
-                id: `file-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-                file: file
-            }])
+            
+            setUploadedFiles(prev => {
+                const isDuplicate = prev.some(f => f.file.name === file.name)
+                if (isDuplicate) {
+                    alert('This file has already been uploaded!')
+                    return prev
+                }
+                return [...prev, {
+                    id: `file-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                    file: file
+                }]
+            })
+            
             // Reset input value to allow re-selecting the same file
             e.target.value = ''
         }
-    }
+    }, [])
 
-    const removeFile = (id: string) => {
+    const removeFile = useCallback((id: string) => {
         setUploadedFiles(prev => prev.filter(f => f.id !== id))
-    }
+    }, [])
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -213,8 +206,8 @@ export default function AbstractSubmission() {
         setSubmitStatus('idle')
 
         // Validate word count
-        if (wordCount < 250 || wordCount > 300) {
-            alert(`Abstract word count must be between 250-300 words. Current: ${wordCount} words`)
+        if (wordCount > 250) {
+            alert(`Abstract word count must not exceed 250 words. Current: ${wordCount} words`)
             setIsSubmitting(false)
             return
         }
@@ -799,7 +792,7 @@ export default function AbstractSubmission() {
                                                     <select
                                                         name="category"
                                                         value={formData.category}
-                                                        onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                                                        onChange={handleInputChange}
                                                         className="submission-input"
                                                         required
                                                     >
@@ -853,7 +846,7 @@ export default function AbstractSubmission() {
                                             {t('section4Title')}
                                         </h3>
                                         <p style={{ marginBottom: '24px', color: '#666', fontSize: '14px' }}>
-                                            {t('wordCount')} <strong style={{ color: wordCount >= 250 && wordCount <= 300 ? '#4caf50' : '#f44336' }}>{wordCount}</strong> {t('wordCountRange')}
+                                            {t('wordCount')} <strong style={{ color: wordCount <= 250 ? '#4caf50' : '#f44336' }}>{wordCount}</strong> / 250 {t('words')}
                                         </p>
 
                                         <div className="submission-input-group">

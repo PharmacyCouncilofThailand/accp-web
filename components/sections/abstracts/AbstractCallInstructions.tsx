@@ -1,6 +1,81 @@
 'use client'
 import { useTranslations } from 'next-intl'
 
+// Styles
+const containerStyle = {
+    backgroundColor: '#fff',
+    padding: '20px',
+    borderRadius: '8px',
+    marginBottom: '15px',
+    borderLeft: '4px solid #FFBA00'
+} as const;
+
+const noteStyle = {
+    backgroundColor: '#fff3e0',
+    padding: '20px',
+    borderRadius: '8px',
+    border: '2px solid #FF9800'
+} as const;
+
+// Helper components
+const TitleSection = ({ t }: { t: any }) => (
+    <div style={containerStyle}>
+        <h6 style={{ color: '#1a237e', marginBottom: '10px' }}>{t('titleSection')}</h6>
+        <p style={{ margin: 0, color: '#666', fontSize: '14px', lineHeight: '1.7' }}>
+            {t('titleFormat')}
+        </p>
+        <ul style={{ margin: '10px 0 0 0', paddingLeft: '20px', color: '#333', fontSize: '14px', lineHeight: '1.8' }}>
+            <li>{t('titleRule1')}</li>
+            <li>{t('titleRule2')}</li>
+        </ul>
+    </div>
+);
+
+const AuthorsSection = ({ t }: { t: any }) => (
+    <div style={containerStyle}>
+        <h6 style={{ color: '#1a237e', marginBottom: '10px' }}>{t('authorsSection')}</h6>
+        <ul style={{ margin: 0, paddingLeft: '20px', color: '#333', fontSize: '14px', lineHeight: '1.8' }}>
+            <li>{t('authorRule1')}</li>
+            <li>{t('authorRule2')}</li>
+            <li>{t('authorRule3')}</li>
+            <li>{t('authorRule4')}</li>
+        </ul>
+    </div>
+);
+
+const AbstractBodySection = ({ t }: { t: any }) => (
+    <div style={containerStyle}>
+        <h6 style={{ color: '#1a237e', marginBottom: '10px' }}>{t('abstractSection')}</h6>
+        <p style={{ margin: '0 0 10px 0', color: '#666', fontSize: '14px' }}>
+            {t('abstractFormat')}
+        </p>
+        <ul style={{ margin: 0, paddingLeft: '20px', color: '#333', fontSize: '14px', lineHeight: '1.8' }}>
+            <li><strong>{t('background')}</strong></li>
+            <li><strong>{t('objectives')}</strong></li>
+            <li><strong>{t('methods')}</strong></li>
+            <li><strong>{t('results')}</strong></li>
+            <li><strong>{t('conclusions')}</strong></li>
+        </ul>
+    </div>
+);
+
+const KeywordsSection = ({ t }: { t: any }) => (
+    <div style={containerStyle}>
+        <h6 style={{ color: '#1a237e', marginBottom: '10px' }}>{t('keywordsSection')}</h6>
+        <p style={{ margin: 0, color: '#333', fontSize: '14px', lineHeight: '1.8' }}>
+            {t('keywordsFormat')}
+        </p>
+    </div>
+);
+
+const ImportantNote = ({ t }: { t: any }) => (
+    <div style={noteStyle}>
+        <p style={{ margin: 0, color: '#e65100', fontSize: '14px', lineHeight: '1.8' }}>
+            {t('importantNote')}
+        </p>
+    </div>
+);
+
 export default function AbstractCallInstructions() {
     const t = useTranslations('callForAbstracts')
 
@@ -36,58 +111,11 @@ export default function AbstractCallInstructions() {
                             <div style={{ marginTop: '30px' }}>
                                 <h5 style={{ color: '#1a237e', marginBottom: '20px' }}>{t('structureTitle')}</h5>
 
-                                {/* Title Section */}
-                                <div style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '8px', marginBottom: '15px', borderLeft: '4px solid #FFBA00' }}>
-                                    <h6 style={{ color: '#1a237e', marginBottom: '10px' }}>{t('titleSection')}</h6>
-                                    <p style={{ margin: 0, color: '#666', fontSize: '14px', lineHeight: '1.7' }}>
-                                        {t('titleFormat')}
-                                    </p>
-                                    <ul style={{ margin: '10px 0 0 0', paddingLeft: '20px', color: '#333', fontSize: '14px', lineHeight: '1.8' }}>
-                                        <li>{t('titleRule1')}</li>
-                                        <li>{t('titleRule2')}</li>
-                                    </ul>
-                                </div>
-
-                                {/* Authors Section */}
-                                <div style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '8px', marginBottom: '15px', borderLeft: '4px solid #FFBA00' }}>
-                                    <h6 style={{ color: '#1a237e', marginBottom: '10px' }}>{t('authorsSection')}</h6>
-                                    <ul style={{ margin: 0, paddingLeft: '20px', color: '#333', fontSize: '14px', lineHeight: '1.8' }}>
-                                        <li>{t('authorRule1')}</li>
-                                        <li>{t('authorRule2')}</li>
-                                        <li>{t('authorRule3')}</li>
-                                        <li>{t('authorRule4')}</li>
-                                    </ul>
-                                </div>
-
-                                {/* Abstract Body Section */}
-                                <div style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '8px', marginBottom: '15px', borderLeft: '4px solid #FFBA00' }}>
-                                    <h6 style={{ color: '#1a237e', marginBottom: '10px' }}>{t('abstractSection')}</h6>
-                                    <p style={{ margin: '0 0 10px 0', color: '#666', fontSize: '14px' }}>
-                                        {t('abstractFormat')}
-                                    </p>
-                                    <ul style={{ margin: 0, paddingLeft: '20px', color: '#333', fontSize: '14px', lineHeight: '1.8' }}>
-                                        <li><strong>{t('background')}</strong></li>
-                                        <li><strong>{t('objectives')}</strong></li>
-                                        <li><strong>{t('methods')}</strong></li>
-                                        <li><strong>{t('results')}</strong></li>
-                                        <li><strong>{t('conclusions')}</strong></li>
-                                    </ul>
-                                </div>
-
-                                {/* Keywords Section */}
-                                <div style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '8px', marginBottom: '15px', borderLeft: '4px solid #FFBA00' }}>
-                                    <h6 style={{ color: '#1a237e', marginBottom: '10px' }}>{t('keywordsSection')}</h6>
-                                    <p style={{ margin: 0, color: '#333', fontSize: '14px', lineHeight: '1.8' }}>
-                                        {t('keywordsFormat')}
-                                    </p>
-                                </div>
-
-                                {/* Important Note */}
-                                <div style={{ backgroundColor: '#fff3e0', padding: '20px', borderRadius: '8px', border: '2px solid #FF9800' }}>
-                                    <p style={{ margin: 0, color: '#e65100', fontSize: '14px', lineHeight: '1.8' }}>
-                                        {t('importantNote')}
-                                    </p>
-                                </div>
+                                <TitleSection t={t} />
+                                <AuthorsSection t={t} />
+                                <AbstractBodySection t={t} />
+                                <KeywordsSection t={t} />
+                                <ImportantNote t={t} />
                             </div>
                         </div>
                     </div>

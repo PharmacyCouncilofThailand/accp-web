@@ -1,6 +1,47 @@
 'use client'
 import { useTranslations } from 'next-intl'
 
+// Extracted render functions for better organization and performance
+const renderStep1 = (t: any) => (
+    <div style={{ backgroundColor: '#f8f9fa', padding: '25px', borderRadius: '12px', marginBottom: '20px' }}>
+        <p style={{ margin: 0, lineHeight: '1.8', color: '#333', fontSize: '16px' }}>
+            {t('step1')}
+        </p>
+    </div>
+);
+
+const renderStep2 = (t: any) => (
+    <div style={{ backgroundColor: '#fff', border: '1px solid #e0e0e0', padding: '25px', borderRadius: '12px', marginBottom: '20px' }}>
+        <p style={{ margin: 0, lineHeight: '1.8', color: '#333', fontSize: '16px' }}>
+            {t('step2')}
+        </p>
+    </div>
+);
+
+const renderStep3 = (t: any) => (
+    <div style={{ backgroundColor: '#fff', border: '1px solid #e0e0e0', padding: '25px', borderRadius: '12px', marginBottom: '20px' }}>
+        <p style={{ margin: 0, lineHeight: '1.8', color: '#333', fontSize: '16px' }}>
+            {t('step3')}
+        </p>
+    </div>
+);
+
+const renderSubmissionNote = (t: any) => (
+    <div style={{ backgroundColor: '#e3f2fd', padding: '25px', borderRadius: '12px', marginBottom: '20px', border: '2px solid #2196F3' }}>
+        <p style={{ margin: 0, lineHeight: '1.8', color: '#1565c0', fontSize: '16px' }}>
+            <strong>📝</strong> {t('submissionNote')}
+        </p>
+    </div>
+);
+
+const renderFullPaperNote = (t: any) => (
+    <div style={{ backgroundColor: '#fff3e0', padding: '25px', borderRadius: '12px', border: '2px solid #FF9800' }}>
+        <p style={{ margin: 0, lineHeight: '1.8', color: '#e65100', fontSize: '16px' }}>
+            <strong>📄</strong> {t('fullPaperNote')}
+        </p>
+    </div>
+);
+
 export default function CallSubmissionSteps() {
     const t = useTranslations('callForAbstracts')
 
@@ -14,35 +55,11 @@ export default function CallSubmissionSteps() {
                         </div>
 
                         <div data-aos="fade-up" data-aos-duration={1000}>
-                            <div style={{ backgroundColor: '#f8f9fa', padding: '25px', borderRadius: '12px', marginBottom: '20px' }}>
-                                <p style={{ margin: 0, lineHeight: '1.8', color: '#333', fontSize: '16px' }}>
-                                    {t('step1')}
-                                </p>
-                            </div>
-
-                            <div style={{ backgroundColor: '#fff', border: '1px solid #e0e0e0', padding: '25px', borderRadius: '12px', marginBottom: '20px' }}>
-                                <p style={{ margin: 0, lineHeight: '1.8', color: '#333', fontSize: '16px' }}>
-                                    {t('step2')}
-                                </p>
-                            </div>
-
-                            <div style={{ backgroundColor: '#fff', border: '1px solid #e0e0e0', padding: '25px', borderRadius: '12px', marginBottom: '20px' }}>
-                                <p style={{ margin: 0, lineHeight: '1.8', color: '#333', fontSize: '16px' }}>
-                                    {t('step3')}
-                                </p>
-                            </div>
-
-                            <div style={{ backgroundColor: '#e3f2fd', padding: '25px', borderRadius: '12px', marginBottom: '20px', border: '2px solid #2196F3' }}>
-                                <p style={{ margin: 0, lineHeight: '1.8', color: '#1565c0', fontSize: '16px' }}>
-                                    <strong>📝</strong> {t('submissionNote')}
-                                </p>
-                            </div>
-
-                            <div style={{ backgroundColor: '#fff3e0', padding: '25px', borderRadius: '12px', border: '2px solid #FF9800' }}>
-                                <p style={{ margin: 0, lineHeight: '1.8', color: '#e65100', fontSize: '16px' }}>
-                                    <strong>📄</strong> {t('fullPaperNote')}
-                                </p>
-                            </div>
+                            {renderStep1(t)}
+                            {renderStep2(t)}
+                            {renderStep3(t)}
+                            {renderSubmissionNote(t)}
+                            {renderFullPaperNote(t)}
                         </div>
                     </div>
                 </div>

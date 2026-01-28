@@ -1,10 +1,40 @@
 'use client'
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { Hourglass } from 'react-loader-spinner';
 import Layout from '@/components/layout/Layout';
+
+const getStatusColor = (status: string) => {
+    switch (status) {
+        case 'accepted':
+            return '#00C853';
+        case 'rejected':
+            return '#D32F2F';
+        case 'pending':
+        default:
+            return '#FF9800';
+    }
+};
+
+const getStatusIcon = (status: string) => {
+    switch (status) {
+        case 'accepted':
+            return 'fa-circle-check';
+        case 'underReview':
+            return 'fa-clock';
+        case 'rejected':
+            return 'fa-circle-xmark';
+        default:
+            return 'fa-circle';
+    }
+};
+
+const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+};
 
 export default function AbstractStatus() {
     const t = useTranslations('abstracts');
@@ -24,8 +54,6 @@ export default function AbstractStatus() {
                 return;
             }
 
-
-
             try {
                 const API_URL = process.env.NEXT_PUBLIC_API_URL;
                 const response = await fetch(`${API_URL}/api/abstracts/user`, {
@@ -34,8 +62,6 @@ export default function AbstractStatus() {
                         'x-user-email': user.email,
                     },
                 });
-
-
 
                 if (!response.ok) {
                     throw new Error('Failed to fetch abstracts');
@@ -55,40 +81,14 @@ export default function AbstractStatus() {
         fetchAbstracts();
     }, [user]);
 
-    const getStatusColor = (status: string) => {
-        switch (status) {
-            case 'accepted':
-                return '#00C853';
-            case 'rejected':
-                return '#D32F2F';
-            case 'pending':
-            default:
-                return '#FF9800';
-        }
-    };
-
-    const formatDate = (dateString: string) => {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-    };
-
     // Calculate summary stats
-    const totalSubmitted = abstracts.length;
-    const acceptedCount = abstracts.filter(a => a.status === 'accepted').length;
-    const underReviewCount = abstracts.filter(a => a.status === 'pending').length;
-
-    const getStatusIcon = (status: string) => {
-        switch (status) {
-            case 'accepted':
-                return 'fa-circle-check';
-            case 'underReview':
-                return 'fa-clock';
-            case 'rejected':
-                return 'fa-circle-xmark';
-            default:
-                return 'fa-circle';
-        }
-    };
+    const { totalSubmitted, acceptedCount, underReviewCount } = useMemo(() => {
+        return {
+            totalSubmitted: abstracts.length,
+            acceptedCount: abstracts.filter(a => a.status === 'accepted').length,
+            underReviewCount: abstracts.filter(a => a.status === 'pending').length
+        };
+    }, [abstracts]);
 
     return (
         <Layout headerStyle={1} footerStyle={1} headerBgWhite={true}>
@@ -495,16 +495,6 @@ export default function AbstractStatus() {
                                 <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                                     <button 
                                         onClick={() => {
-                                            console.log('🔍 Selected Abstract Data:', abstract);
-                                            console.log('🔍 Author Fields Check:');
-                                            console.log('  - firstName:', abstract.firstName);
-                                            console.log('  - lastName:', abstract.lastName);
-                                            console.log('  - email:', abstract.email);
-                                            console.log('  - phone:', abstract.phone);
-                                            console.log('  - country:', abstract.country);
-                                            console.log('  - affiliation:', abstract.affiliation);
-                                            console.log('🔍 All available keys:', Object.keys(abstract));
-                                            console.log('🔍 Full object:', JSON.stringify(abstract, null, 2));
                                             setSelectedAbstract(abstract);
                                             setShowModal(true);
                                         }}

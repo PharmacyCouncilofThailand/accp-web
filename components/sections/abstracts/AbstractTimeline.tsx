@@ -1,10 +1,11 @@
 'use client'
 import { useTranslations } from 'next-intl'
+import { useMemo } from 'react'
 
 export default function AbstractTimeline() {
     const t = useTranslations('callForAbstracts')
 
-    const timelineItems = [
+    const timelineItems = useMemo(() => [
         {
             label: t('openingDate'),
             date: '4 February 2026',
@@ -35,7 +36,7 @@ export default function AbstractTimeline() {
             labelColor: '#1565c0',
             dateColor: '#0d47a1'
         }
-    ]
+    ], [t])
 
     return (
         <div className="sp1" style={{ backgroundColor: '#fff', paddingTop: '60px', paddingBottom: '60px' }}>

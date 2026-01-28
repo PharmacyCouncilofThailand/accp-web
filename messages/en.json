@@ -868,7 +868,7 @@
     "keywordsLabel": "Keywords * (maximum 5, comma separated)",
     "section4Title": "Abstract Content",
     "wordCount": "Word count:",
-    "wordCountRange": "/ 250-300 words",
+    "words": "words",
     "background": "Background",
     "methods": "Methods",
     "results": "Results",
@@ -1075,11 +1075,6 @@
     "pharmacoeconomics": "Pharmacoeconomics",
     "oralPresentation": "Oral Presentation",
     "posterPresentation": "Poster Presentation",
-    "status": {
-      "accepted": "Accepted",
-      "underReview": "Under Review",
-      "rejected": "Rejected"
-    },
     "category": {
       "clinicalPharmacy": "Clinical Pharmacy",
       "pharmacoeconomics": "Pharmacoeconomics",
