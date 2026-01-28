@@ -3,7 +3,13 @@ import { useTranslations, useLocale } from 'next-intl';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 
-export default function RegistrationInternationalFees() {
+import { TicketType } from '@/lib/api';
+
+interface RegistrationInternationalFeesProps {
+    tickets?: TicketType[];
+}
+
+export default function RegistrationInternationalFees({ tickets = [] }: RegistrationInternationalFeesProps) {
     const t = useTranslations('registration');
     const tCommon = useTranslations('common');
     const locale = useLocale();
@@ -13,12 +19,18 @@ export default function RegistrationInternationalFees() {
     const isIntlStudent = user?.delegateType === 'international_student';
     const isIntlPharmacist = user?.delegateType === 'international_pharmacist';
 
+    // Filter tickets for international (USD)
+    const studentTicket = tickets.find(t => t.currency === 'USD' && t.name.toLowerCase().includes('student') && t.category === 'primary');
+    const professionalTicket = tickets.find(t => t.currency === 'USD' && !t.name.toLowerCase().includes('student') && t.category === 'primary');
+    const workshopTicket = tickets.find(t => t.currency === 'USD' && t.category === 'addon' && t.name.toLowerCase().includes('workshop'));
+    const galaTicket = tickets.find(t => t.currency === 'USD' && t.category === 'addon' && t.name.toLowerCase().includes('gala'));
+
     const pricingOptions = [
         {
             type: 'student',
             show: !isAuthenticated || isIntlStudent,
             title: locale === 'th' ? 'นักศึกษาต่างชาติ' : "Int'l Student",
-            price: '$250',
+            price: studentTicket ? `$${parseFloat(studentTicket.price).toLocaleString()}` : '$250',
             regularPrice: `$270 ${t('regular')}`,
             features: [
                 t('fullConferenceAccess'),
@@ -32,7 +44,7 @@ export default function RegistrationInternationalFees() {
             type: 'professional',
             show: !isAuthenticated || isIntlPharmacist,
             title: locale === 'th' ? 'เภสัชกรต่างชาติ' : "Int'l Professional",
-            price: '$385',
+            price: professionalTicket ? `$${parseFloat(professionalTicket.price).toLocaleString()}` : '$385',
             regularPrice: `$400 ${t('regular')}`,
             features: [
                 t('fullConferenceAccess'),
@@ -47,16 +59,19 @@ export default function RegistrationInternationalFees() {
             type: 'addons',
             show: true,
             title: t('addons'),
-            price: t('workshopPriceUSD'),
-            regularPrice: t('perWorkshop'),
-            features: [
-                t('preConferenceWorkshop'),
-                `9 ${locale === 'th' ? 'ก.ค. 2569' : 'July 2026'}`,
-                t('handsOnTraining')
-            ],
             addons: [
                 {
-                    price: t('galaPriceUSD'),
+                    name: 'Workshop',
+                    price: workshopTicket ? `$${parseFloat(workshopTicket.price).toLocaleString()}` : '$70',
+                    features: [
+                        t('preConferenceWorkshop'),
+                        `9 ${locale === 'th' ? 'ก.ค. 2569' : 'July 2026'}`,
+                        t('handsOnTraining')
+                    ]
+                },
+                {
+                    name: 'Gala Dinner',
+                    price: galaTicket ? `$${parseFloat(galaTicket.price).toLocaleString()}` : '$75',
                     features: [
                         t('networkingDinner'),
                         `10 ${locale === 'th' ? 'ก.ค. 2569' : 'July 2026'}`,
@@ -84,25 +99,33 @@ export default function RegistrationInternationalFees() {
                 <div className="row">
                     {filteredOptions.map((option) => (
                         <div key={option.type} className={`col-lg-${filteredOptions.length === 1 ? '12' : filteredOptions.length === 2 ? '6' : '4'} col-md-6`}>
-                            <div className="pricing-boxarea" style={option.highlighted ? { border: '2px solid #FFBA00' } : {}}>
+                            <div className="pricing-boxarea" style={{ ...(option.highlighted ? { border: '2px solid #FFBA00' } : {}), width: '636px', height: '432px', overflow: 'auto' }}>
                                 <h5>{option.title}</h5>
                                 <div className="space20" />
-                                <h2>{option.price}</h2>
-                                <div className="space8" />
+                                {option.price && (
+                                    <>
+                                        <h2>{option.price}</h2>
+                                        <div className="space8" />
+                                    </>
+                                )}
                                 <ul>
-                                    {option.features.map((feature, idx) => (
+                                    {option.features && option.features.map((feature, idx) => (
                                         <li key={idx}><img src="/assets/img/icons/check2.svg" alt="" />{feature}</li>
                                     ))}
                                 </ul>
                                 {option.addons && (
                                     <>
-                                        <div className="space20" />
-                                        <h2>{option.addons[0].price}</h2>
-                                        <ul>
-                                            {option.addons[0].features.map((feature, idx) => (
-                                                <li key={idx}><img src="/assets/img/icons/check2.svg" alt="" />{feature}</li>
-                                            ))}
-                                        </ul>
+                                        {option.addons.map((addon, addonIdx) => (
+                                            <div key={addonIdx}>
+                                                {addonIdx > 0 && <div className="space20" />}
+                                                <h2>{addon.name}: {addon.price}</h2>
+                                                <ul>
+                                                    {addon.features.map((feature, idx) => (
+                                                        <li key={idx}><img src="/assets/img/icons/check2.svg" alt="" />{feature}</li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        ))}
                                     </>
                                 )}
                                 {option.type !== 'addons' && (
