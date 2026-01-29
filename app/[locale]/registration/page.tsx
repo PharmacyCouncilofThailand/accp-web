@@ -3,6 +3,8 @@ import Layout from "@/components/layout/Layout"
 import Link from "next/link"
 import { useTranslations, useLocale } from 'next-intl';
 import { useAuth } from '@/context/AuthContext';
+import { api, TicketType } from '@/lib/api';
+import { useEffect, useState } from 'react';
 import RegistrationImportantDates from '@/components/sections/registration/RegistrationImportantDates';
 import RegistrationInternationalFees from '@/components/sections/registration/RegistrationInternationalFees';
 import RegistrationThaiFees from '@/components/sections/registration/RegistrationThaiFees';
@@ -12,6 +14,20 @@ export default function Registration() {
     const tCommon = useTranslations('common');
     const locale = useLocale();
     const { user, isAuthenticated } = useAuth();
+    const [tickets, setTickets] = useState<TicketType[]>([]);
+
+    useEffect(() => {
+        const fetchTickets = async () => {
+            try {
+                const response = await api.tickets.list();
+                setTickets(response.tickets);
+            } catch (error) {
+                console.error('Failed to fetch tickets:', error);
+            }
+        };
+
+        fetchTickets();
+    }, []);
 
     // Determine which pricing to show based on user role
     const isThai = user?.isThai === true;
@@ -44,15 +60,15 @@ export default function Registration() {
                     {isAuthenticated && user ? (
                         // Logged in: Show only relevant pricing
                         isThai ? (
-                            <RegistrationThaiFees />
+                            <RegistrationThaiFees tickets={tickets} />
                         ) : (
-                            <RegistrationInternationalFees />
+                            <RegistrationInternationalFees tickets={tickets} />
                         )
                     ) : (
                         // Not logged in: Show both pricing sections
                         <>
-                            <RegistrationInternationalFees />
-                            <RegistrationThaiFees />
+                            <RegistrationInternationalFees tickets={tickets} />
+                            <RegistrationThaiFees tickets={tickets} />
                         </>
                     )}
 

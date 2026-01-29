@@ -86,6 +86,19 @@ export interface RegisterData {
     country?: string;
 }
 
+export interface TicketType {
+    id: number;
+    eventId: number;
+    category: 'primary' | 'addon';
+    groupName: string | null;
+    name: string;
+    price: string;
+    currency: string;
+    saleStartDate: string | null;
+    saleEndDate: string | null;
+    allowedRoles: string | null;
+}
+
 // ============================================================================
 // API Object
 // ============================================================================
@@ -131,6 +144,36 @@ export const api = {
     speakers: {
         list: () =>
             fetchAPI<{ speakers: Record<string, unknown>[] }>('/api/speakers'),
+    },
+
+    workshops: {
+        list: () =>
+            fetchAPI<{
+                workshops: {
+                    id: string;
+                    sessionId: number;
+                    eventId: number;
+                    title: string;
+                    description: string | null;
+                    date: string;
+                    time: string;
+                    duration: 'fullDay' | 'halfDay';
+                    venue: string;
+                    capacity: number;
+                    enrolled: number;
+                    fee: string;
+                    instructors: { name: string; affiliation?: string }[];
+                    color: string;
+                    icon: string;
+                    isFull: boolean;
+                    saleStartDate: string | null;
+                }[]
+            }>('/api/workshops'),
+    },
+
+    tickets: {
+        list: () =>
+            fetchAPI<{ tickets: TicketType[] }>('/api/tickets'),
     },
 };
 
