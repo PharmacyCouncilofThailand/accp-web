@@ -30,7 +30,7 @@ export default function RegistrationThaiFees({ tickets = [] }: RegistrationThaiF
             type: 'student',
             show: !isAuthenticated || isThaiStudent,
             title: locale === 'th' ? 'นักศึกษาไทย' : 'Thai Student',
-            price: studentTicket ? `${parseFloat(studentTicket.price).toLocaleString()} THB` : t('studentPriceTHB'),
+            price: studentTicket ? `฿${parseFloat(studentTicket.price).toLocaleString()}` : t('studentPriceTHB'),
             regularPrice: t('studentRegularTHB'),
             features: [
                 t('fullConferenceAccess'),
@@ -44,7 +44,7 @@ export default function RegistrationThaiFees({ tickets = [] }: RegistrationThaiF
             type: 'professional',
             show: !isAuthenticated || isThaiPharmacist,
             title: locale === 'th' ? 'เภสัชกรไทย' : 'Thai Professional',
-            price: professionalTicket ? `${parseFloat(professionalTicket.price).toLocaleString()} THB` : t('professionalPriceTHB'),
+            price: professionalTicket ? `฿${parseFloat(professionalTicket.price).toLocaleString()}` : t('professionalPriceTHB'),
             regularPrice: t('professionalRegularTHB'),
             features: [
                 t('fullConferenceAccess'),
@@ -62,7 +62,7 @@ export default function RegistrationThaiFees({ tickets = [] }: RegistrationThaiF
             addons: [
                 {
                     name: 'Workshop',
-                    price: workshopTicket ? `${parseFloat(workshopTicket.price).toLocaleString()} THB` : '2,100 THB',
+                    price: workshopTicket ? `฿${parseFloat(workshopTicket.price).toLocaleString()}` : '฿2,100',
                     features: [
                         t('preConferenceWorkshop'),
                         `9 ${locale === 'th' ? 'ก.ค. 2569' : 'July 2026'}`,
@@ -71,7 +71,7 @@ export default function RegistrationThaiFees({ tickets = [] }: RegistrationThaiF
                 },
                 {
                     name: 'Gala Dinner',
-                    price: galaTicket ? `${parseFloat(galaTicket.price).toLocaleString()} THB` : '2,500 THB',
+                    price: galaTicket ? `฿${parseFloat(galaTicket.price).toLocaleString()}` : '฿2,500',
                     features: [
                         t('networkingDinner'),
                         `10 ${locale === 'th' ? 'ก.ค. 2569' : 'July 2026'}`,
@@ -96,10 +96,10 @@ export default function RegistrationThaiFees({ tickets = [] }: RegistrationThaiF
                         </div>
                     </div>
                 </div>
-                <div className="row">
+                <div className="row g-4 justify-content-center">
                     {filteredOptions.map((option) => (
                         <div key={option.type} className={`col-lg-${filteredOptions.length === 1 ? '12' : filteredOptions.length === 2 ? '6' : '4'} col-md-6`}>
-                            <div className="pricing-boxarea" style={{ ...(option.highlighted ? { border: '2px solid #FFBA00' } : {}), width: '636px', height: '432px', overflow: 'auto' }}>
+                            <div className="pricing-boxarea h-100 d-flex flex-column" style={{ ...(option.highlighted ? { border: '2px solid #FFBA00' } : {}) }}>
                                 <h5>{option.title}</h5>
                                 <div className="space20" />
                                 {option.price && (
@@ -118,7 +118,7 @@ export default function RegistrationThaiFees({ tickets = [] }: RegistrationThaiF
                                         {option.addons.map((addon, addonIdx) => (
                                             <div key={addonIdx}>
                                                 {addonIdx > 0 && <div className="space20" />}
-                                                <h2>{addon.name}: {addon.price}</h2>
+                                                <h3 style={{ whiteSpace: 'nowrap', fontSize: '1.5rem' }}>{addon.name}: {addon.price}</h3>
                                                 <ul>
                                                     {addon.features.map((feature, idx) => (
                                                         <li key={idx}><img src="/assets/img/icons/check2.svg" alt="" />{feature}</li>
@@ -129,12 +129,12 @@ export default function RegistrationThaiFees({ tickets = [] }: RegistrationThaiF
                                     </>
                                 )}
                                 {option.type !== 'addons' && (
-                                    <>
+                                    <div className="mt-auto">
                                         <div className="space28" />
                                         <div className="btn-area1">
                                             <Link href={`/${locale}/checkout`} className="vl-btn1">{tCommon('registerNow')}</Link>
                                         </div>
-                                    </>
+                                    </div>
                                 )}
                             </div>
                         </div>
