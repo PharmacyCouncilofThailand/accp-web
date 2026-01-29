@@ -96,10 +96,10 @@ export default function RegistrationInternationalFees({ tickets = [] }: Registra
                         </div>
                     </div>
                 </div>
-                <div className="row">
+                <div className="row g-4 justify-content-center">
                     {filteredOptions.map((option) => (
                         <div key={option.type} className={`col-lg-${filteredOptions.length === 1 ? '12' : filteredOptions.length === 2 ? '6' : '4'} col-md-6`}>
-                            <div className="pricing-boxarea" style={{ ...(option.highlighted ? { border: '2px solid #FFBA00' } : {}), width: '636px', height: '432px', overflow: 'auto' }}>
+                            <div className="pricing-boxarea h-100 d-flex flex-column" style={{ ...(option.highlighted ? { border: '2px solid #FFBA00' } : {}) }}>
                                 <h5>{option.title}</h5>
                                 <div className="space20" />
                                 {option.price && (
@@ -118,7 +118,7 @@ export default function RegistrationInternationalFees({ tickets = [] }: Registra
                                         {option.addons.map((addon, addonIdx) => (
                                             <div key={addonIdx}>
                                                 {addonIdx > 0 && <div className="space20" />}
-                                                <h2>{addon.name}: {addon.price}</h2>
+                                                <h3 style={{ whiteSpace: 'nowrap', fontSize: '1.5rem' }}>{addon.name}: {addon.price}</h3>
                                                 <ul>
                                                     {addon.features.map((feature, idx) => (
                                                         <li key={idx}><img src="/assets/img/icons/check2.svg" alt="" />{feature}</li>
@@ -129,12 +129,12 @@ export default function RegistrationInternationalFees({ tickets = [] }: Registra
                                     </>
                                 )}
                                 {option.type !== 'addons' && (
-                                    <>
+                                    <div className="mt-auto">
                                         <div className="space28" />
                                         <div className="btn-area1">
                                             <Link href={`/${locale}/checkout`} className="vl-btn1">{tCommon('registerNow')}</Link>
                                         </div>
-                                    </>
+                                    </div>
                                 )}
                             </div>
                         </div>
