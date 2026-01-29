@@ -69,7 +69,7 @@ export default function GallerySection() {
                             <i className="fa-solid fa-camera-retro"></i>
                             {t('accp2025Recap')}
                         </button>
-                        <button
+                        {/*<button
                             onClick={() => setActiveTab('venue')}
                             style={{
                                 padding: '12px 30px',
@@ -92,7 +92,7 @@ export default function GallerySection() {
                         >
                             <i className="fa-solid fa-building"></i>
                             {t('venue')}
-                        </button>
+                        </button>*/}
                         <button
                             onClick={() => setActiveTab('bangkok')}
                             style={{
