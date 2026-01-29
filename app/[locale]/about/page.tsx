@@ -47,8 +47,9 @@ export default function About() {
 								<div className="col-lg-5">
 									<div style={{ position: 'sticky', top: '100px' }}>
 										<div className="about-imges" data-aos="zoom-in" data-aos-duration={1000}>
-											<div style={{
+											<div className="mx-auto ms-lg-auto" style={{
 												position: 'relative',
+												width: '85%',
 												borderRadius: '16px',
 												overflow: 'hidden',
 												boxShadow: '0 20px 40px rgba(0, 0, 0, 0.15), 0 0 40px rgba(255, 186, 0, 0.1)',
@@ -79,10 +80,18 @@ export default function About() {
 										<p data-aos="fade-left" data-aos-duration={1000} style={paragraphStyle}>{t('description2')}</p>
 										<p data-aos="fade-left" data-aos-duration={1100} style={paragraphStyle}>{t('description3')}</p>
 										<p data-aos="fade-left" data-aos-duration={1200} style={paragraphStyle}>{t('description4')}</p>
-										<p data-aos="fade-left" data-aos-duration={1300} style={paragraphStyle}>{t('description5')}</p>
+									</div>
+								</div>
+							</div>
+							
+							{/* Description 5 and Bullet Points (Full Width) */}
+							<div className="row" style={{ marginTop: '30px' }}>
+								<div className="col-12">
+									<div className="about-header-area heading2">
+										<p data-aos="fade-up" data-aos-duration={1300} style={paragraphStyle}>{t('description5')}</p>
 										
 										{/* Bullet Points for Conference Benefits */}
-										<div data-aos="fade-left" data-aos-duration={1400} style={{ marginTop: '20px' }}>
+										<div data-aos="fade-up" data-aos-duration={1400} style={{ marginTop: '20px' }}>
 											<p style={{ ...paragraphStyle, marginBottom: '10px' }}><strong>This conference is a vital platform to:</strong></p>
 											<ul style={{ 
 												listStyleType: 'disc', 
@@ -102,6 +111,7 @@ export default function About() {
 									</div>
 								</div>
 							</div>
+
 							<div className="space32" />
 							<div className="row">
 								<div className="col-12" data-aos="fade-up" data-aos-duration={1000}>
