@@ -43,9 +43,9 @@ export default function About() {
 					<div className="about1-section-area" style={{ padding: '60px 0' }}>
 						<div className="container">
 							<div className="row align-items-start">
+								{/* Left Column - Poster (Sticky) */}
 								<div className="col-lg-5">
-									{/* Spacer to push poster down */}
-									<div style={{ marginTop: '80px' }}>
+									<div style={{ position: 'sticky', top: '100px' }}>
 										<div className="about-imges" data-aos="zoom-in" data-aos-duration={1000}>
 											<div style={{
 												position: 'relative',
@@ -68,6 +68,7 @@ export default function About() {
 										</div>
 									</div>
 								</div>
+								{/* Right Column - All History Content */}
 								<div className="col-lg-7">
 									<div className="about-header-area heading2">
 										<h5 data-aos="fade-left" data-aos-duration={800}>{t('title')}</h5>
@@ -77,15 +78,27 @@ export default function About() {
 										<p data-aos="fade-left" data-aos-duration={900} style={paragraphStyle}>{t('description1')}</p>
 										<p data-aos="fade-left" data-aos-duration={1000} style={paragraphStyle}>{t('description2')}</p>
 										<p data-aos="fade-left" data-aos-duration={1100} style={paragraphStyle}>{t('description3')}</p>
-									</div>
-								</div>
-							</div>
-							{/* Full width paragraphs below */}
-							<div className="row" style={{ marginTop: '30px' }}>
-								<div className="col-12">
-									<div className="about-header-area heading2">
-										<p data-aos="fade-up" data-aos-duration={800} style={paragraphStyle}>{t('description4')}</p>
-										<p data-aos="fade-up" data-aos-duration={900} style={paragraphStyle}>{t('description5')}</p>
+										<p data-aos="fade-left" data-aos-duration={1200} style={paragraphStyle}>{t('description4')}</p>
+										<p data-aos="fade-left" data-aos-duration={1300} style={paragraphStyle}>{t('description5')}</p>
+										
+										{/* Bullet Points for Conference Benefits */}
+										<div data-aos="fade-left" data-aos-duration={1400} style={{ marginTop: '20px' }}>
+											<p style={{ ...paragraphStyle, marginBottom: '10px' }}><strong>This conference is a vital platform to:</strong></p>
+											<ul style={{ 
+												listStyleType: 'disc', 
+												paddingLeft: '25px', 
+												color: '#666', 
+												lineHeight: '1.8',
+												fontSize: '16px'
+											}}>
+												<li style={{ marginBottom: '8px' }}><strong>Share distinct clinical experiences</strong> regarding patient care from around the globe.</li>
+												<li style={{ marginBottom: '8px' }}><strong>Present groundbreaking research</strong> that drives the evolution of clinical pharmacy.</li>
+												<li><strong>Collaborate across borders</strong> to create sustainable healthcare solutions.</li>
+											</ul>
+											<p style={{ ...paragraphStyle, marginTop: '15px', fontStyle: 'italic' }}>
+												Join us as we bridge cultures and knowledge to shape the future of our profession.
+											</p>
+										</div>
 									</div>
 								</div>
 							</div>
