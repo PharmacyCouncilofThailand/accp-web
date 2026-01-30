@@ -42,6 +42,7 @@ export default function AbstractSubmission() {
 
         // Abstract Content
         background: '',
+        objective: '',
         methods: '',
         results: '',
         conclusions: '',
@@ -94,13 +95,14 @@ export default function AbstractSubmission() {
     const wordCount = useMemo(() => {
         const totalText = [
             formData.background,
+            formData.objective,
             formData.methods,
             formData.results,
             formData.conclusions
         ].join(' ')
         const words = totalText.trim().split(/\s+/).filter(word => word.length > 0)
         return words.length
-    }, [formData.background, formData.methods, formData.results, formData.conclusions])
+    }, [formData.background, formData.objective, formData.methods, formData.results, formData.conclusions])
     
     const [showSuccessModal, setShowSuccessModal] = useState(false)
 
@@ -240,6 +242,7 @@ export default function AbstractSubmission() {
             
             // Add abstract content
             formDataToSend.append('background', formData.background)
+            formDataToSend.append('objective', formData.objective)
             formDataToSend.append('methods', formData.methods)
             formDataToSend.append('results', formData.results)
             formDataToSend.append('conclusion', formData.conclusions)
@@ -381,6 +384,7 @@ export default function AbstractSubmission() {
                                             </h4>
                                             <div style={{ fontSize: '14px' }}>
                                                 {formData.background && <p><strong>Background:</strong> {formData.background.substring(0, 200)}...</p>}
+                                                {formData.objective && <p><strong>Objective:</strong> {formData.objective.substring(0, 200)}...</p>}
                                                 {formData.methods && <p><strong>Methods:</strong> {formData.methods.substring(0, 200)}...</p>}
                                                 {formData.results && <p><strong>Results:</strong> {formData.results.substring(0, 200)}...</p>}
                                                 {formData.conclusions && <p><strong>Conclusions:</strong> {formData.conclusions.substring(0, 200)}...</p>}
@@ -859,6 +863,19 @@ export default function AbstractSubmission() {
                                                 style={{ minHeight: '100px', resize: 'vertical' }}
                                                 required
                                                 placeholder={t('backgroundPlaceholder')}
+                                            />
+                                        </div>
+
+                                        <div className="submission-input-group">
+                                            <label className="submission-label">{t('objective')} *</label>
+                                            <textarea
+                                                name="objective"
+                                                value={formData.objective}
+                                                onChange={handleInputChange}
+                                                className="submission-input"
+                                                style={{ minHeight: '100px', resize: 'vertical' }}
+                                                required
+                                                placeholder={t('objectivePlaceholder')}
                                             />
                                         </div>
 

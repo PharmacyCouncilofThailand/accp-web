@@ -56,7 +56,7 @@ export default function AbstractStatus() {
 
             try {
                 const API_URL = process.env.NEXT_PUBLIC_API_URL;
-                const response = await fetch(`${API_URL}/api/abstracts/user`, {
+                const response = await fetch(`${API_URL}/api/abstracts/user?t=${Date.now()}`, {
                     credentials: 'include',
                     headers: {
                         'x-user-email': user.email,
@@ -902,7 +902,7 @@ export default function AbstractStatus() {
                                 </div>
 
                                 {/* Abstract Content Sections */}
-                                {(selectedAbstract.background || selectedAbstract.methods || selectedAbstract.results || selectedAbstract.conclusion) && (
+                                {(selectedAbstract.background || selectedAbstract.objective || selectedAbstract.methods || selectedAbstract.results || selectedAbstract.conclusion) && (
                                     <div style={{ marginBottom: '32px' }}>
                                         <div style={{
                                             background: 'linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%)',
@@ -950,6 +950,25 @@ export default function AbstractStatus() {
                                                     </div>
                                                     <p style={{ fontSize: '15px', lineHeight: '1.8', color: '#333', textAlign: 'justify', margin: 0 }}>
                                                         {selectedAbstract.background}
+                                                    </p>
+                                                </div>
+                                            )}
+
+                                            {selectedAbstract.objective && (
+                                                <div style={{ marginBottom: '20px' }}>
+                                                    <div style={{
+                                                        display: 'inline-block',
+                                                        background: 'linear-gradient(135deg, #e8eaf6 0%, #c5cae9 100%)',
+                                                        padding: '6px 14px',
+                                                        borderRadius: '6px',
+                                                        marginBottom: '10px'
+                                                    }}>
+                                                        <h4 style={{ fontSize: '15px', fontWeight: '700', color: '#1a237e', margin: 0 }}>
+                                                            Objective
+                                                        </h4>
+                                                    </div>
+                                                    <p style={{ fontSize: '15px', lineHeight: '1.8', color: '#333', textAlign: 'justify', margin: 0 }}>
+                                                        {selectedAbstract.objective}
                                                     </p>
                                                 </div>
                                             )}

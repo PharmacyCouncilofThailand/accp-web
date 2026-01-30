@@ -96,14 +96,14 @@ export default function WelcomeSection() {
             positionTh: "นายกสมาคมเภสัชกรรมคลินิกไทย",
             image: "/assets/img/all-images/team/team-img1.jpg"
         },
-        {
-            name: "Prof. Dr. Kenji Yamamoto",
-            nameTh: "ศ.ดร.เคนจิ ยามาโมโตะ",
-            titleKey: 'welcome.accpPresident',
-            position: "President, Asian Conference on Clinical Pharmacy",
-            positionTh: "ประธานการประชุมเภสัชกรรมคลินิกแห่งเอเชีย",
-            image: "/assets/img/all-images/team/team-img2.png"
-        },
+        // {
+        //     name: "Prof. Dr. Kenji Yamamoto",
+        //     nameTh: "ศ.ดร.เคนจิ ยามาโมโตะ",
+        //     titleKey: 'welcome.accpPresident',
+        //     position: "President, Asian Conference on Clinical Pharmacy",
+        //     positionTh: "ประธานการประชุมเภสัชกรรมคลินิกแห่งเอเชีย",
+        //     image: "/assets/img/all-images/team/team-img2.png"
+        // },
         {
             name: "Assoc. Prof. Dr. Nattiya Kapol",
             nameTh: "รศ.ดร.ณัฏฐิยา คาพล",
@@ -112,14 +112,14 @@ export default function WelcomeSection() {
             positionTh: "ประธานคณะกรรมการจัดงาน ACCP 2026",
             image: "/assets/img/all-images/team/team-img3.jpg"
         },
-        {
-            name: "Committee Member 4",
-            nameTh: "กรรมการท่านที่ 4",
-            titleKey: 'welcome.committeeMember',
-            position: "Organization TBA",
-            positionTh: "องค์กร TBA",
-            image: "/assets/img/all-images/team/team-img1.jpg" // Using img1 as placeholder
-        }
+        // {
+        //     name: "Committee Member 4",
+        //     nameTh: "กรรมการท่านที่ 4",
+        //     titleKey: 'welcome.committeeMember',
+        //     position: "Organization TBA",
+        //     positionTh: "องค์กร TBA",
+        //     image: "/assets/img/all-images/team/team-img1.jpg" // Using img1 as placeholder
+        // }
     ];
 
     return (

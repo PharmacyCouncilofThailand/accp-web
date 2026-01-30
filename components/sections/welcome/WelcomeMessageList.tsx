@@ -12,8 +12,8 @@ export default function WelcomeMessageList() {
                         padding: '40px',
                         boxShadow: '0 10px 40px rgba(0,0,0,0.08)'
                     }}>
-                        {/* Alternate layout */}
-                        {index % 2 === 0 ? (
+                        {/* Alternate layout - Swapped as requested */}
+                        {index % 2 !== 0 ? (
                             <>
                                 {/* Image on left */}
                                 <div className="col-lg-4 text-center" style={{ marginBottom: '30px' }}>

@@ -54,11 +54,11 @@ export default function MobileMenu({ isMobileMenu, handleMobileMenu }: MobileMen
                             <Link href={`/${locale}/program`} className="hash-nav">{t('program')}</Link>
                             <ul className={`sub-menu ${isAccordion == 2 ? "open-sub" : ""}`} style={{ display: `${isAccordion == 2 ? "block" : "none"}` }}>
                                 <li className="hash-has-sub"><Link href={`/${locale}/program`} className="hash-nav">{t('programOverview')}</Link></li>
-                                <li className="hash-has-sub"><Link href={`/${locale}/program-plenary`} className="hash-nav">{t('plenaryKeynotes')}</Link></li>
+                                {/* <li className="hash-has-sub"><Link href={`/${locale}/program-plenary`} className="hash-nav">{t('plenaryKeynotes')}</Link></li>
                                 <li className="hash-has-sub"><Link href={`/${locale}/program-symposium`} className="hash-nav">{t('symposia')}</Link></li>
                                 <li className="hash-has-sub"><Link href={`/${locale}/program-oral-poster`} className="hash-nav">{t('oralPoster')}</Link></li>
                                 <li className="hash-has-sub"><Link href={`/${locale}/gala-dinner`} className="hash-nav">{t('galaDinner')}</Link></li>
-                                <li className="hash-has-sub"><Link href={`/${locale}/preconference-workshops`} className="hash-nav">{t('workshops')}</Link></li>
+                                <li className="hash-has-sub"><Link href={`/${locale}/preconference-workshops`} className="hash-nav">{t('workshops')}</Link></li> */}
                             </ul>
                         </li>
                         <li className="has-sub hash-has-sub"><span className={`submenu-button ${isAccordion == 3 ? "submenu-opened" : ""}`} onClick={() => handleAccordion(3)}><em /></span>
