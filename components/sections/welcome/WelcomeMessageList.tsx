@@ -43,15 +43,17 @@ export default function WelcomeMessageList() {
                                         </div>
                                         <div style={{
                                             position: 'absolute',
-                                            bottom: '10px',
-                                            right: '10px',
+                                            bottom: '-5px',
+                                            left: '50%',
+                                            transform: 'translateX(-50%)',
                                             background: '#ffc107',
                                             color: '#1a237e',
-                                            padding: '8px 16px',
+                                            padding: '8px 20px',
                                             borderRadius: '20px',
                                             fontSize: '0.85rem',
                                             fontWeight: '600',
-                                            boxShadow: '0 4px 15px rgba(255,193,7,0.4)'
+                                            boxShadow: '0 4px 15px rgba(255,193,7,0.4)',
+                                            whiteSpace: 'nowrap'
                                         }}>
                                             {person.role}
                                         </div>
@@ -143,15 +145,17 @@ export default function WelcomeMessageList() {
                                         </div>
                                         <div style={{
                                             position: 'absolute',
-                                            bottom: '10px',
-                                            right: '10px',
+                                            bottom: '-5px',
+                                            left: '50%',
+                                            transform: 'translateX(-50%)',
                                             background: '#ffc107',
                                             color: '#1a237e',
-                                            padding: '8px 16px',
+                                            padding: '8px 20px',
                                             borderRadius: '20px',
                                             fontSize: '0.85rem',
                                             fontWeight: '600',
-                                            boxShadow: '0 4px 15px rgba(255,193,7,0.4)'
+                                            boxShadow: '0 4px 15px rgba(255,193,7,0.4)',
+                                            whiteSpace: 'nowrap'
                                         }}>
                                             {person.role}
                                         </div>
