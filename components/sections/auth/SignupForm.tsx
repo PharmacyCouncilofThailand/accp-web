@@ -42,6 +42,7 @@ export default function SignupForm() {
     const [studentDocument, setStudentDocument] = useState<File | null>(null);
     const [isPending, setIsPending] = useState(false);
     const [step, setStep] = useState(1);
+    const [passportSpecialCharError, setPassportSpecialCharError] = useState(false);
 
     // Handle file selection (store in state only, no upload yet)
     const handleFileSelect = (file: File) => {
@@ -491,10 +492,42 @@ export default function SignupForm() {
                                         {locale === 'th' ? 'หมายเลขหนังสือเดินทาง' : 'Passport ID'} <span style={{ color: '#e53935' }}>*</span>
                                     </label>
                                     <input type="text" value={passportId}
-                                        onChange={(e) => setPassportId(e.target.value.toUpperCase())}
+                                        onChange={(e) => {
+                                            const inputValue = e.target.value;
+                                            const specialCharsPattern = /[!@#$%^&*()]/;
+                                            
+                                            if (specialCharsPattern.test(inputValue)) {
+                                                // Show error and filter out special characters
+                                                setPassportSpecialCharError(true);
+                                                const filteredValue = inputValue.replace(/[!@#$%^&*()]/g, '').toUpperCase();
+                                                setPassportId(filteredValue);
+                                            } else {
+                                                setPassportSpecialCharError(false);
+                                                setPassportId(inputValue.toUpperCase());
+                                            }
+                                        }}
                                         placeholder={locale === 'th' ? 'เช่น AB1234567' : 'e.g. AB1234567'}
                                         maxLength={9}
-                                        required style={inputStyle} />
+                                        required 
+                                        style={{
+                                            ...inputStyle,
+                                            border: passportSpecialCharError ? '2px solid #e53935' : '1px solid #e0e0e0',
+                                            boxShadow: passportSpecialCharError ? '0 0 0 3px rgba(229, 57, 53, 0.1)' : 'none'
+                                        }} />
+                                    {passportSpecialCharError && (
+                                        <p style={{ 
+                                            fontSize: '12px', 
+                                            color: '#e53935', 
+                                            marginTop: '6px',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '4px'
+                                        }}>
+                                            ⚠️ {locale === 'th' 
+                                                ? 'ไม่สามารถกรอกอักขระพิเศษ (!@#$%^&*()) ได้' 
+                                                : 'Special characters (!@#$%^&*()) are not allowed'}
+                                        </p>
+                                    )}
                                 </div>
                                 <div style={{ marginBottom: '16px' }}>
                                     <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#333', marginBottom: '6px' }}>
