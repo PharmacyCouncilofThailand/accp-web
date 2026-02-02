@@ -1,6 +1,7 @@
 'use client'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useTranslations } from 'next-intl';
+import ReCAPTCHA from 'react-google-recaptcha';
 
 interface FormData {
     name: string;
@@ -13,6 +14,8 @@ interface FormData {
 export default function ContactForm() {
     const t = useTranslations('contact');
     const tCommon = useTranslations('common');
+    const recaptchaRef = useRef<ReCAPTCHA>(null);
+    const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
 
     const [formData, setFormData] = useState<FormData>({
         name: '',
@@ -23,6 +26,7 @@ export default function ContactForm() {
     });
     const [isLoading, setIsLoading] = useState(false);
     const [status, setStatus] = useState<{ type: 'success' | 'error', message: string } | null>(null);
+    const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -32,6 +36,10 @@ export default function ContactForm() {
     const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value.replace(/[^0-9]/g, '');
         setFormData(prev => ({ ...prev, phone: value }));
+    };
+
+    const handleRecaptchaChange = (token: string | null) => {
+        setRecaptchaToken(token);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -46,6 +54,13 @@ export default function ContactForm() {
             return;
         }
 
+        // Check reCAPTCHA if site key is configured
+        if (siteKey && !recaptchaToken) {
+            setStatus({ type: 'error', message: 'Please complete the reCAPTCHA verification.' });
+            setIsLoading(false);
+            return;
+        }
+
         try {
             const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
             const response = await fetch(`${apiUrl}/api/contact`, {
@@ -53,7 +68,10 @@ export default function ContactForm() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(formData),
+                body: JSON.stringify({
+                    ...formData,
+                    recaptchaToken: recaptchaToken || ''
+                }),
             });
 
             const data = await response.json();
@@ -68,11 +86,19 @@ export default function ContactForm() {
                     subject: '',
                     message: ''
                 });
+                // Reset reCAPTCHA
+                recaptchaRef.current?.reset();
+                setRecaptchaToken(null);
             } else {
                 setStatus({ type: 'error', message: data.error || 'Failed to send message. Please try again.' });
+                // Reset reCAPTCHA on error
+                recaptchaRef.current?.reset();
+                setRecaptchaToken(null);
             }
         } catch {
             setStatus({ type: 'error', message: 'Network error. Please check your connection and try again.' });
+            recaptchaRef.current?.reset();
+            setRecaptchaToken(null);
         } finally {
             setIsLoading(false);
         }
@@ -159,14 +185,29 @@ export default function ContactForm() {
                             />
                         </div>
                     </div>
+                    
+                    {/* reCAPTCHA v2 Checkbox */}
+                    {siteKey && (
+                        <div className="col-lg-12">
+                            <div style={{ marginTop: '16px', marginBottom: '8px' }}>
+                                <ReCAPTCHA
+                                    ref={recaptchaRef}
+                                    sitekey={siteKey}
+                                    onChange={handleRecaptchaChange}
+                                    hl="en"
+                                />
+                            </div>
+                        </div>
+                    )}
+                    
                     <div className="col-lg-12">
                         <div className="space24" />
                         <div className="input-area text-end">
                             <button 
                                 type="submit" 
                                 className="vl-btn1"
-                                disabled={isLoading}
-                                style={{ opacity: isLoading ? 0.7 : 1 }}
+                                disabled={isLoading || (!!siteKey && !recaptchaToken)}
+                                style={{ opacity: (isLoading || (!!siteKey && !recaptchaToken)) ? 0.7 : 1 }}
                             >
                                 {isLoading ? 'Sending...' : t('send')}
                             </button>
