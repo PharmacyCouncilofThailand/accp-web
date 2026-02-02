@@ -158,7 +158,8 @@ export default function Header1({ scroll, isMobileMenu, handleMobileMenu, isSear
                                                     <li><Link href={`/${locale}/welcome-messages`}>{t('welcomeMessages')}</Link></li>
                                                 </ul>
                                             </li>
-                                            <li className={openDropdown === 'program' ? 'dropdown-open' : ''}>
+                                            <li><Link href={`/${locale}/program`}>{t('program')}</Link></li>
+                                            {/*<li className={openDropdown === 'program' ? 'dropdown-open' : ''}>
                                                 <a
                                                     href="#"
                                                     onClick={(e) => toggleDropdown('program', e)}
@@ -174,7 +175,7 @@ export default function Header1({ scroll, isMobileMenu, handleMobileMenu, isSear
                                                     <li><Link href={`/${locale}/gala-dinner`}>{t('galaDinner')}</Link></li>
                                                     <li><Link href={`/${locale}/preconference-workshops`}>{t('workshops')}</Link></li>
                                                 </ul>
-                                            </li>
+                                            </li>*/}
                                             <li className={openDropdown === 'abstracts' ? 'dropdown-open' : ''}>
                                                 <a
                                                     href="#"
@@ -188,7 +189,8 @@ export default function Header1({ scroll, isMobileMenu, handleMobileMenu, isSear
                                                     <li><Link href={`/${locale}/call-for-abstracts`}>{t('callForAbstracts')}</Link></li>
                                                 </ul>
                                             </li>
-                                            <li className={openDropdown === 'registration' ? 'dropdown-open' : ''}>
+                                            <li><Link href={`/${locale}/registration`}>{t('registrationInfo')}</Link></li>
+                                            {/*<li className={openDropdown === 'registration' ? 'dropdown-open' : ''}>
                                                 <a
                                                     href="#"
                                                     onClick={(e) => toggleDropdown('registration', e)}
@@ -198,10 +200,9 @@ export default function Header1({ scroll, isMobileMenu, handleMobileMenu, isSear
                                                 </a>
                                                 <ul className="dropdown-padding" style={getDropdownStyle('registration')}>
                                                     <li><Link href={`/${locale}/registration`}>{t('registrationInfo')}</Link></li>
-                                                    {/* Temporarily hidden - Policies submenu */}
-                                                    {/* <li><Link href={`/${locale}/registration-policies`}>{t('policies')}</Link></li> */}
+                                                    <li><Link href={`/${locale}/registration-policies`}>{t('policies')}</Link></li>
                                                 </ul>
-                                            </li>
+                                            </li>*/}
                                             <li className={openDropdown === 'travel' ? 'dropdown-open' : ''}>
                                                 <a
                                                     href="#"
