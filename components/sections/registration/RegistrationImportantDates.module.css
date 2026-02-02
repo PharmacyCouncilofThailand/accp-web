@@ -1,0 +1,153 @@
+.section {
+    padding: 60px 0;
+    background: #f8f9fa;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 48px;
+}
+
+.headerSubtitle {
+    font-size: 1rem;
+    color: #667eea;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+}
+
+.headerTitle {
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin: 0;
+}
+
+.cardsGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}
+
+@media (max-width: 992px) {
+    .cardsGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 576px) {
+    .cardsGrid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Base Card */
+.card {
+    position: relative;
+    padding: 24px 24px 24px 28px;
+    border-radius: 12px;
+    background: white;
+    min-height: 160px;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+}
+
+.card::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 5px;
+    border-radius: 12px 0 0 12px;
+}
+
+/* Early Bird - Green */
+.cardGreen {
+    background: linear-gradient(to right, #f0fdf4, #ffffff);
+    border: 1px solid #dcfce7;
+}
+
+.cardGreen::before {
+    background: #22c55e;
+}
+
+/* Regular/Deadline - Red */
+.cardRed {
+    background: linear-gradient(to right, #fef2f2, #ffffff);
+    border: 1px solid #fecaca;
+}
+
+.cardRed::before {
+    background: #ef4444;
+}
+
+/* Info - Blue */
+.cardBlue {
+    background: linear-gradient(to right, #eff6ff, #ffffff);
+    border: 1px solid #dbeafe;
+}
+
+.cardBlue::before {
+    background: #3b82f6;
+}
+
+/* Icon + Label */
+.labelRow {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.icon {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.iconGreen {
+    color: #22c55e;
+}
+
+.iconRed {
+    color: #ef4444;
+}
+
+.iconBlue {
+    color: #3b82f6;
+}
+
+.label {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin: 0;
+}
+
+.labelGreen {
+    color: #16a34a;
+}
+
+.labelRed {
+    color: #dc2626;
+}
+
+.labelBlue {
+    color: #2563eb;
+}
+
+/* Date Display */
+.dateText {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin: auto 0 0 0;
+    line-height: 1.2;
+}

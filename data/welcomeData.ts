@@ -20,42 +20,44 @@ Our theme this year, “Borderless Pharmacy Practice: Collaboration for Sustaina
 
 Thank you for being part of this journey. Let us move forward together—toward a truly borderless pharmacy practice. We wish you a productive, enriching, and memorable conference. Welcome to ACCP 2026.`
     },
-    {
-        id: 3,
-        name: "Assoc. Prof. Dr. Nattiya Kapol",
-        title: "Chair, ACCP 2026 Organizing Committee",
-        role: "Organizing Chair",
-        image: "/assets/img/all-images/team/team-img3.jpg",
-        message: `Dear Distinguished Guests and Participants,
+    // Temporarily hidden - Organizing Chair section
+    // {
+    //     id: 3,
+    //     name: "Assoc. Prof. Dr. Nattiya Kapol",
+    //     title: "Chair, ACCP 2026 Organizing Committee",
+    //     role: "Organizing Chair",
+    //     image: "/assets/img/all-images/team/team-img3.jpg",
+    //     message: `Dear Distinguished Guests and Participants,
 
-On behalf of the ACCP 2026 Organizing Committee, I am delighted to invite you to join us for an exceptional conference experience in the heart of Bangkok.
+    //     On behalf of the ACCP 2026 Organizing Committee, I am delighted to invite you to join us for an exceptional conference experience in the heart of Bangkok.
 
-Our team has worked diligently to create a comprehensive program that addresses the most pressing topics in clinical pharmacy today. From plenary sessions featuring world-renowned experts to interactive workshops and poster presentations, ACCP 2026 offers something for everyone.
+    //     Our team has worked diligently to create a comprehensive program that addresses the most pressing topics in clinical pharmacy today. From plenary sessions featuring world-renowned experts to interactive workshops and poster presentations, ACCP 2026 offers something for everyone.
 
-The Centara Grand & Bangkok Convention Centre at CentralWorld provides a state-of-the-art venue for our conference, while the surrounding area offers endless opportunities for cultural exploration and entertainment.
+    //     The Centara Grand & Bangkok Convention Centre at CentralWorld provides a state-of-the-art venue for our conference, while the surrounding area offers endless opportunities for cultural exploration and entertainment.
 
-We have also organized exciting social events, including the Gala Dinner, where you can network with colleagues in a relaxed and festive atmosphere.
+    //     We have also organized exciting social events, including the Gala Dinner, where you can network with colleagues in a relaxed and festive atmosphere.
 
-I look forward to meeting each of you personally and hope that ACCP 2026 will be a rewarding and inspiring experience for all participants.`
-    },
-    {
-        id: 4,
-        name: "Partner Organizations",
-        title: "Supporting Organizations & Sponsors",
-        role: "Partners",
-        image: "/assets/img/logo/accp_logo.svg",
-        message: `ACCP 2026 is made possible through the generous support of our partner organizations and sponsors. We are grateful for the collaboration with:
+    //     I look forward to meeting each of you personally and hope that ACCP 2026 will be a rewarding and inspiring experience for all participants.`
+    // },
+    // Temporarily hidden - Partner Organizations section
+    // {
+    //     id: 4,
+    //     name: "Partner Organizations",
+    //     title: "Supporting Organizations & Sponsors",
+    //     role: "Partners",
+    //     image: "/assets/img/logo/accp_logo.svg",
+    //     message: `ACCP 2026 is made possible through the generous support of our partner organizations and sponsors. We are grateful for the collaboration with:
 
-• The Pharmacy Council of Thailand
-• Faculty of Pharmaceutical Sciences, Chulalongkorn University
-• Faculty of Pharmacy, Mahidol University
-• Faculty of Pharmaceutical Sciences, Prince of Songkla University
-• Faculty of Pharmacy, Silpakorn University
-• Pharmaceutical Association of Thailand under Royal Patronage
-• Hospital Pharmacist Association of Thailand
+    //     • The Pharmacy Council of Thailand
+    //     • Faculty of Pharmaceutical Sciences, Chulalongkorn University
+    //     • Faculty of Pharmacy, Mahidol University
+    //     • Faculty of Pharmaceutical Sciences, Prince of Songkla University
+    //     • Faculty of Pharmacy, Silpakorn University
+    //     • Pharmaceutical Association of Thailand under Royal Patronage
+    //     • Hospital Pharmacist Association of Thailand
 
-Together with our industry partners and sponsors, we are committed to delivering a world-class conference experience that advances clinical pharmacy education, research, and practice.
+    //     Together with our industry partners and sponsors, we are committed to delivering a world-class conference experience that advances clinical pharmacy education, research, and practice.
 
-We invite all organizations interested in supporting clinical pharmacy development in Asia to join us as partners and sponsors for ACCP 2026.`
-    }
+    //     We invite all organizations interested in supporting clinical pharmacy development in Asia to join us as partners and sponsors for ACCP 2026.`
+    // }
 ]

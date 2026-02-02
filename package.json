@@ -10,6 +10,7 @@
     "sass": "sass --watch public/assets/scss/main.scss:styles/main.css"
   },
   "dependencies": {
+    "@types/react-google-recaptcha": "^2.1.9",
     "aos": "^2.3.4",
     "country-flag-icons": "^1.6.4",
     "gsap": "^3.12.5",
@@ -20,6 +21,7 @@
     "react-country-state-city": "^1.1.12",
     "react-countup": "^6.5.3",
     "react-dom": "19.2.3",
+    "react-google-recaptcha": "^3.1.0",
     "react-hot-toast": "^2.6.0",
     "react-international-phone": "^4.6.1",
     "react-loader-spinner": "^8.0.0",

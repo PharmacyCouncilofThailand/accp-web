@@ -203,7 +203,8 @@ export default function Header1({ scroll, isMobileMenu, handleMobileMenu, isSear
 
                                                 <ul className="dropdown-padding" style={getDropdownStyle('registration')}>
                                                     <li><Link href={`/${locale}/registration`}>{t('registrationInfo')}</Link></li>
-                                                    <li><Link href={`/${locale}/registration-policies`}>{t('policies')}</Link></li>
+                                                    {/* Temporarily hidden - Policies submenu */}
+                                                    {/* <li><Link href={`/${locale}/registration-policies`}>{t('policies')}</Link></li> */}
                                                 </ul>
                                             </li>*/}
                                             <li className={openDropdown === 'travel' ? 'dropdown-open' : ''}>
