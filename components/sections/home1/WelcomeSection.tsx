@@ -89,37 +89,21 @@ export default function WelcomeSection() {
 
     const organizers = [
         {
-            name: "Prof. Dr. Suwimol Sapcharoen",
-            nameTh: "ศ.ดร.สุวิมล ทรัพย์เจริญ",
-            titleKey: 'welcome.hostOrg',
-            position: "President, Thai Clinical Pharmacy Association",
-            positionTh: "นายกสมาคมเภสัชกรรมคลินิกไทย",
-            image: "/assets/img/all-images/team/team-img1.jpg"
-        },
-        {
-            name: "Prof. Dr. Kenji Yamamoto",
-            nameTh: "ศ.ดร.เคนจิ ยามาโมโตะ",
+            name: "HAZEL FAYE R. DOCUYANAN, RPh, PhD",
+            nameTh: "HAZEL FAYE R. DOCUYANAN, RPh, PhD",
             titleKey: 'welcome.accpPresident',
-            position: "President, Asian Conference on Clinical Pharmacy",
-            positionTh: "ประธานการประชุมเภสัชกรรมคลินิกแห่งเอเชีย",
-            image: "/assets/img/all-images/team/team-img2.png"
+            position: "President, Asian Conference on Clinical Pharmacy 2025-2027",
+            positionTh: "ประธานการประชุมเภสัชกรรมคลินิกแห่งเอเชีย 2025-2027",
+            image: "/assets/img/all-images/team/ACCP-new.png"
         },
         {
-            name: "Assoc. Prof. Dr. Nattiya Kapol",
-            nameTh: "รศ.ดร.ณัฏฐิยา คาพล",
-            titleKey: 'welcome.organizingChair',
-            position: "Chair, ACCP 2026 Organizing Committee",
-            positionTh: "ประธานคณะกรรมการจัดงาน ACCP 2026",
-            image: "/assets/img/all-images/team/team-img3.jpg"
+            name: "Assoc. Prof. Dr. Wichai Santimaleeworagun",
+            nameTh: "รศ.ดร.วิชัย สันติมาลีวรกุล",
+            titleKey: 'welcome.hostOrg',
+            position: "President, The College of Pharmacotherapy of Thailand",
+            positionTh: "ประธานวิทยาลัยเภสัชบำบัดแห่งประเทศไทย",
+            image: "/assets/img/all-images/team/BCP.png"
         },
-        {
-            name: "Committee Member 4",
-            nameTh: "กรรมการท่านที่ 4",
-            titleKey: 'welcome.committeeMember',
-            position: "Organization TBA",
-            positionTh: "องค์กร TBA",
-            image: "/assets/img/all-images/team/team-img1.jpg" // Using img1 as placeholder
-        }
     ];
 
     return (
