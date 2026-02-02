@@ -2,6 +2,7 @@
 import Layout from "@/components/layout/Layout"
 import Link from "next/link"
 import { useTranslations, useLocale } from 'next-intl';
+import toast from 'react-hot-toast';
 
 export default function ExhibitionFloorPlan() {
     const tCommon = useTranslations('common');
@@ -120,7 +121,7 @@ export default function ExhibitionFloorPlan() {
                                             <button
                                                 onClick={() => {
                                                     navigator.clipboard.writeText('warunsuda.s@psu.ac.th');
-                                                    alert('Email copied to clipboard!');
+                                                    toast.success('Email copied to clipboard!');
                                                 }}
                                                 className="mt-3"
                                                 style={{

@@ -5,6 +5,7 @@ import Link from "next/link"
 import { useTranslations } from 'next-intl'
 import { useAuth } from '@/context/AuthContext'
 import { Hourglass } from 'react-loader-spinner'
+import toast from 'react-hot-toast'
 
 export default function AbstractSubmission() {
     const t = useTranslations('abstractSubmission')
@@ -174,14 +175,14 @@ export default function AbstractSubmission() {
             const validTypes = ['.pdf']
             const fileExtension = file.name.substring(file.name.lastIndexOf('.'))
             if (!validTypes.includes(fileExtension.toLowerCase())) {
-                alert('Please upload only PDF files')
+                toast.error('Please upload only PDF files')
                 return
             }
 
             setUploadedFiles(prev => {
                 const isDuplicate = prev.some(f => f.file.name === file.name)
                 if (isDuplicate) {
-                    alert('This file has already been uploaded!')
+                    toast.error('This file has already been uploaded!')
                     return prev
                 }
                 return [...prev, {
@@ -206,14 +207,14 @@ export default function AbstractSubmission() {
 
         // Validate word count
         if (wordCount > 250) {
-            alert(`Abstract word count must not exceed 250 words. Current: ${wordCount} words`)
+            toast.error(`Abstract word count must not exceed 250 words. Current: ${wordCount} words`)
             setIsSubmitting(false)
             return
         }
 
         // Validate file upload
         if (uploadedFiles.length === 0) {
-            alert('Please upload an abstract file (PDF)')
+            toast.error('Please upload an abstract file (PDF)')
             setIsSubmitting(false)
             return
         }
@@ -268,7 +269,7 @@ export default function AbstractSubmission() {
             setShowSuccessModal(true) // Show modal instead of changing submit status
         } catch (error) {
             console.error('Submission error:', error)
-            alert(error instanceof Error ? error.message : 'Failed to submit abstract. Please try again.')
+            toast.error(error instanceof Error ? error.message : 'Failed to submit abstract. Please try again.')
             setSubmitStatus('error')
         } finally {
             setIsSubmitting(false)
