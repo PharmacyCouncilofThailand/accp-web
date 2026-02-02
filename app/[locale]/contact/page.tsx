@@ -33,7 +33,7 @@ export default function Contact() {
 						<div className="row">
 							<div className="col-lg-6">
 								<div className="img1 image-anime">
-									<img src="/assets/img/all-images/contact/contact-img4.png" alt="" />
+									<img src="/assets/img/all-images/contact/Contact-Us.png" alt="" />
 								</div>
 							</div>
 							<div className="col-lg-6" data-aos="zoom-in" data-aos-duration={1000}>
