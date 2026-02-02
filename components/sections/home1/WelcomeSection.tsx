@@ -89,6 +89,14 @@ export default function WelcomeSection() {
 
     const organizers = [
         {
+            name: "HAZEL FAYE R. DOCUYANAN, RPh, PhD",
+            nameTh: "HAZEL FAYE R. DOCUYANAN, RPh, PhD",
+            titleKey: 'welcome.accpPresident',
+            position: "President, Asian Conference on Clinical Pharmacy 2025-2027",
+            positionTh: "ประธานการประชุมเภสัชกรรมคลินิกแห่งเอเชีย 2025-2027",
+            image: "/assets/img/all-images/team/ACCP-new.png"
+        },
+        {
             name: "Assoc. Prof. Dr. Wichai Santimaleeworagun",
             nameTh: "รศ.ดร.วิชัย สันติมาลีวรกุล",
             titleKey: 'welcome.hostOrg',
@@ -96,14 +104,6 @@ export default function WelcomeSection() {
             positionTh: "ประธานวิทยาลัยเภสัชบำบัดแห่งประเทศไทย",
             image: "/assets/img/all-images/team/BCP.png"
         },
-        {
-            name: "HAZEL FAYE R. DOCUYANAN, RPh, PhD",
-            nameTh: "HAZEL FAYE R. DOCUYANAN, RPh, PhD",
-            titleKey: 'welcome.accpPresident',
-            position: "President, Asian Conference on Clinical Pharmacy 2025-2027",
-            positionTh: "ประธานการประชุมเภสัชกรรมคลินิกแห่งเอเชีย 2025-2027",
-            image: "/assets/img/all-images/team/ACCP-new.png"
-        }
     ];
 
     return (
