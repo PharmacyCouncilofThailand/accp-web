@@ -158,7 +158,9 @@ export default function Header1({ scroll, isMobileMenu, handleMobileMenu, isSear
                                                     <li><Link href={`/${locale}/welcome-messages`}>{t('welcomeMessages')}</Link></li>
                                                 </ul>
                                             </li>
-                                            <li className={openDropdown === 'program' ? 'dropdown-open' : ''}>
+
+                                           <li><Link href={`/${locale}/program`}>{t('program')}</Link></li>
+                                            {/*<li className={openDropdown === 'program' ? 'dropdown-open' : ''}>
                                                 <a
                                                     href="#"
                                                     onClick={(e) => toggleDropdown('program', e)}
@@ -174,7 +176,7 @@ export default function Header1({ scroll, isMobileMenu, handleMobileMenu, isSear
                                                     <li><Link href={`/${locale}/gala-dinner`}>{t('galaDinner')}</Link></li>
                                                     <li><Link href={`/${locale}/preconference-workshops`}>{t('workshops')}</Link></li>
                                                 </ul>
-                                            </li>
+                                            </li>*/}
                                             <li className={openDropdown === 'abstracts' ? 'dropdown-open' : ''}>
                                                 <a
                                                     href="#"

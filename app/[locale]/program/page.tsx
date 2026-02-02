@@ -32,7 +32,7 @@ export default function ProgramOverview() {
 
                     <ProgramSchedule />
 
-                    <ProgramNavigation />
+                    {/* <ProgramNavigation /> */}
 
 
                 </div>
