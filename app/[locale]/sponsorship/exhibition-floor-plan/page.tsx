@@ -87,7 +87,9 @@ export default function ExhibitionFloorPlan() {
 
                                         <div className="d-flex justify-content-center flex-column align-items-center">
                                             <a
-                                                href="mailto:accpbangkok2026@gmail.com"
+                                                href="https://mail.google.com/mail/?view=cm&to=warunsuda.s@psu.ac.th"
+                                                target="_blank"
+                                                rel="noopener noreferrer"
                                                 className="hover-scale"
                                                 style={{
                                                     display: 'inline-flex',
@@ -115,9 +117,24 @@ export default function ExhibitionFloorPlan() {
                                                 Contact Us for Sponsorship
                                             </a>
 
-                                            <a href="mailto:accpbangkok2026@gmail.com" className="mt-3" style={{ textDecoration: 'underline', color: '#fff' }}>
-                                                accpbangkok2026@gmail.com
-                                            </a>
+                                            <button
+                                                onClick={() => {
+                                                    navigator.clipboard.writeText('warunsuda.s@psu.ac.th');
+                                                    alert('Email copied to clipboard!');
+                                                }}
+                                                className="mt-3"
+                                                style={{
+                                                    textDecoration: 'underline',
+                                                    color: '#fff',
+                                                    background: 'none',
+                                                    border: 'none',
+                                                    cursor: 'pointer',
+                                                    fontSize: '16px'
+                                                }}
+                                            >
+                                                <i className="fa-solid fa-copy" style={{ marginRight: '6px' }}></i>
+                                                warunsuda.s@psu.ac.th
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
