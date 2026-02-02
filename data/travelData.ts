@@ -1,9 +1,6 @@
 export const interchangeStations = [
-    { mrt: "Sukhumvit Station", bts: "Asok Station" },
-    { mrt: "Chatuchak Park Station", bts: "Mo Chit Station" },
-    { mrt: "Phahayolthin", bts: "Ha Yaek Lat Phrao Station" },
-    { mrt: "Silom Station", bts: "Sala Daeng Station" },
-    { mrt: "Bang Wa Station", bts: "Bang Wa Station" }
+    { bts: "Siam Station" },
+    { bts: "Chit Lom Station" },
 ]
 
 export const emergencyNumbers = [

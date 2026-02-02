@@ -1,10 +1,11 @@
 'use client'
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import Link from 'next/link';
 import { useTranslations, useLocale } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { logger } from '@/utils/logger';
+import ReCAPTCHA from 'react-google-recaptcha';
 
 export default function LoginForm() {
     const t = useTranslations('login');
@@ -18,6 +19,13 @@ export default function LoginForm() {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
     const [showPendingModal, setShowPendingModal] = useState(false);
+    const recaptchaRef = useRef<ReCAPTCHA>(null);
+    const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
+    const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+
+    const handleRecaptchaChange = (token: string | null) => {
+        setRecaptchaToken(token);
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -32,12 +40,19 @@ export default function LoginForm() {
                 return;
             }
 
+            // Check reCAPTCHA if site key is configured
+            if (siteKey && !recaptchaToken) {
+                setError(locale === 'th' ? 'กรุณายืนยันว่าคุณไม่ใช่หุ่นยนต์' : 'Please complete the reCAPTCHA verification');
+                setIsLoading(false);
+                return;
+            }
+
             // Real API Call
             const API_URL = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
             const response = await fetch(`${API_URL}/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
+                body: JSON.stringify({ email, password, recaptchaToken: recaptchaToken || '' })
             });
 
             const data = await response.json();
@@ -267,6 +282,18 @@ export default function LoginForm() {
                         {t('forgotPassword')}
                     </Link>
                 </div>
+
+                {/* reCAPTCHA */}
+                {siteKey && (
+                    <div style={{ marginBottom: '20px' }}>
+                        <ReCAPTCHA
+                            ref={recaptchaRef}
+                            sitekey={siteKey}
+                            onChange={handleRecaptchaChange}
+                            hl="en"
+                        />
+                    </div>
+                )}
 
                 {/* Submit Button */}
                 <button
