@@ -1,0 +1,177 @@
+.section {
+    padding: 80px 0;
+    background: #ffffff;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 48px;
+}
+
+.badge {
+    display: inline-block;
+    padding: 8px 20px;
+    background: #1a237e;
+    color: white;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+}
+
+.title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin: 0 0 12px 0;
+}
+
+.divider {
+    width: 60px;
+    height: 4px;
+    background: #FFBA00;
+    margin: 0 auto;
+    border-radius: 2px;
+}
+
+.cardsGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}
+
+@media (max-width: 992px) {
+    .cardsGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 576px) {
+    .cardsGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .title {
+        font-size: 2rem;
+    }
+}
+
+.card {
+    position: relative;
+    padding: 32px 24px;
+    background: white;
+    border-radius: 12px;
+    text-align: center;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.1);
+}
+
+.card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+}
+
+/* Pink Card */
+.cardPink {
+    background: linear-gradient(to bottom, #fdf2f8, #ffffff);
+    border: 1px solid #fce7f3;
+}
+
+.cardPink::before {
+    background: linear-gradient(90deg, #ec4899, #f472b6);
+}
+
+/* Blue Card */
+.cardBlue {
+    background: linear-gradient(to bottom, #eff6ff, #ffffff);
+    border: 1px solid #dbeafe;
+}
+
+.cardBlue::before {
+    background: linear-gradient(90deg, #3b82f6, #60a5fa);
+}
+
+/* Yellow Card */
+.cardYellow {
+    background: linear-gradient(to bottom, #fffbeb, #ffffff);
+    border: 1px solid #fef3c7;
+}
+
+.cardYellow::before {
+    background: linear-gradient(90deg, #f59e0b, #fbbf24);
+}
+
+.iconWrapper {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    font-size: 1.5rem;
+}
+
+.iconPink {
+    background: #fce7f3;
+    color: #ec4899;
+}
+
+.iconBlue {
+    background: #dbeafe;
+    color: #3b82f6;
+}
+
+.iconYellow {
+    background: #fef3c7;
+    color: #f59e0b;
+}
+
+.cardTitle {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 12px 0;
+}
+
+.titlePink {
+    color: #ec4899;
+}
+
+.titleBlue {
+    color: #3b82f6;
+}
+
+.titleYellow {
+    color: #f59e0b;
+}
+
+.cardText {
+    font-size: 0.95rem;
+    color: #4b5563;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.priceHighlight {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1a237e;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.priceNote {
+    font-size: 0.85rem;
+    color: #6b7280;
+}

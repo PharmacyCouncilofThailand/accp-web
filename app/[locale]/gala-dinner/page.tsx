@@ -4,6 +4,7 @@ import Link from "next/link"
 import { useTranslations, useLocale } from 'next-intl';
 import { galaHighlights, galaMenu } from '@/data/galaData';
 import { useAuth } from '@/context/AuthContext';
+import VenueDetails from '@/components/sections/program/VenueDetails';
 
 export default function GalaDinner() {
     const tCommon = useTranslations('common');
@@ -158,57 +159,7 @@ export default function GalaDinner() {
                     </div>
 
                     {/* Venue Info */}
-                    <div className="service2-section-area sp1">
-                        <div className="container">
-                            <div className="row">
-                                <div className="col-lg-6 m-auto">
-                                    <div className="heading2 text-center space-margin60">
-                                        <h5 data-aos="fade-up" data-aos-duration={800}>{t('venueDetails')}</h5>
-                                        <div className="space16" />
-                                        <h2 className="text-anime-style-3">{t('grandBallroom')}</h2>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="row">
-                                <div className="col-lg-4 col-md-6" data-aos="fade-up" data-aos-duration={800}>
-                                    <div className="service2-boxarea" style={{ textAlign: 'center' }}>
-                                        <div className="icon-area" style={{ backgroundColor: '#FCE7F3' }}>
-                                            <i className="fa-solid fa-location-dot" style={{ color: '#EC4899' }} />
-                                        </div>
-                                        <div className="content-area">
-                                            <Link href="#">{t('location')}</Link>
-                                            <div className="space8" />
-                                            <p dangerouslySetInnerHTML={{ __html: t.raw('locationDesc') }} />
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="col-lg-4 col-md-6" data-aos="fade-up" data-aos-duration={800} data-aos-delay={100}>
-                                    <div className="service2-boxarea" style={{ textAlign: 'center' }}>
-                                        <div className="icon-area" style={{ backgroundColor: '#DBEAFE' }}>
-                                            <i className="fa-solid fa-shirt" style={{ color: '#3B82F6' }} />
-                                        </div>
-                                        <div className="content-area">
-                                            <Link href="#">{t('dressCode')}</Link>
-                                            <div className="space8" />
-                                            <p>{t('dressCodeDesc')}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="col-lg-4 col-md-6" data-aos="fade-up" data-aos-duration={800} data-aos-delay={200}>
-                                    <div className="service2-boxarea" style={{ textAlign: 'center' }}>
-                                        <div className="icon-area" style={{ backgroundColor: '#FEF3C7' }}>
-                                            <i className="fa-solid fa-ticket" style={{ color: '#F59E0B' }} />
-                                        </div>
-                                        <div className="content-area">
-                                            <Link href="#">{t('ticketPrice')}</Link>
-                                            <div className="space8" />
-                                            <p><strong style={{ fontSize: '20px', color: '#1a237e' }}>{ticketPrice}</strong><br />{t('priceDesc')}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <VenueDetails ticketPrice={ticketPrice} />
 
                     {/* Menu Preview */}
                     <div className="pricing1-section-area sp2" style={{ backgroundColor: '#f8f9fa' }}>

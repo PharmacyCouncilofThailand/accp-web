@@ -22,8 +22,7 @@ export default function AbstractSubmission() {
 
     const presentationTypes = useMemo(() => [
         { value: "oral", label: t('presentationTypes.oral') },
-        { value: "poster", label: t('presentationTypes.poster') },
-        { value: "either", label: t('presentationTypes.either') }
+        { value: "poster", label: t('presentationTypes.poster') }
     ], [t])
     const [formData, setFormData] = useState({
         // Author Information
@@ -89,7 +88,7 @@ export default function AbstractSubmission() {
 
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
-    
+
     // Calculate word count using useMemo for better performance
     const wordCount = useMemo(() => {
         const totalText = [
@@ -101,7 +100,7 @@ export default function AbstractSubmission() {
         const words = totalText.trim().split(/\s+/).filter(word => word.length > 0)
         return words.length
     }, [formData.background, formData.methods, formData.results, formData.conclusions])
-    
+
     const [showSuccessModal, setShowSuccessModal] = useState(false)
 
     const [trackingId, setTrackingId] = useState('')
@@ -178,7 +177,7 @@ export default function AbstractSubmission() {
                 alert('Please upload only PDF files')
                 return
             }
-            
+
             setUploadedFiles(prev => {
                 const isDuplicate = prev.some(f => f.file.name === file.name)
                 if (isDuplicate) {
@@ -190,7 +189,7 @@ export default function AbstractSubmission() {
                     file: file
                 }]
             })
-            
+
             // Reset input value to allow re-selecting the same file
             e.target.value = ''
         }
@@ -223,7 +222,7 @@ export default function AbstractSubmission() {
             // Prepare FormData for multipart submission
             const API_URL = process.env.NEXT_PUBLIC_API_URL;
             const formDataToSend = new FormData()
-            
+
             // Add basic fields
             formDataToSend.append('firstName', formData.firstName)
             formDataToSend.append('lastName', formData.lastName)
@@ -231,24 +230,24 @@ export default function AbstractSubmission() {
             formDataToSend.append('affiliation', formData.affiliation)
             formDataToSend.append('country', formData.country)
             if (formData.phone) formDataToSend.append('phone', formData.phone)
-            
+
             // Add abstract details
             formDataToSend.append('title', formData.title)
             formDataToSend.append('category', formData.category)
             formDataToSend.append('presentationType', formData.presentationType)
             formDataToSend.append('keywords', formData.keywords)
-            
+
             // Add abstract content
             formDataToSend.append('background', formData.background)
             formDataToSend.append('methods', formData.methods)
             formDataToSend.append('results', formData.results)
             formDataToSend.append('conclusion', formData.conclusions)
-            
+
             // Add co-authors as JSON string
             if (coAuthors.length > 0) {
                 formDataToSend.append('coAuthors', JSON.stringify(coAuthors))
             }
-            
+
             // Add file
             formDataToSend.append('abstractFile', uploadedFiles[0].file)
 
@@ -541,13 +540,7 @@ export default function AbstractSubmission() {
                     <div className="container">
                         <div className="row">
                             <div className="col-lg-10 m-auto">
-                                {/* Guidelines Link */}
-                                <div className="guidelines-box">
-                                    <p style={{ margin: 0, color: '#1565c0' }}>
-                                        <i className="fa-solid fa-info-circle" style={{ marginRight: '8px' }} />
-                                        {t('guidelineNote')} <Link href="/call-for-abstracts" style={{ color: '#1565c0', fontWeight: '600' }}>{t('guidelineLink')}</Link> {t('guidelineNote2')}
-                                    </p>
-                                </div>
+
 
                                 <form onSubmit={handleSubmit}>
                                     {/* Section 1: Author Information */}
@@ -793,7 +786,7 @@ export default function AbstractSubmission() {
                                                         name="category"
                                                         value={formData.category}
                                                         onChange={handleInputChange}
-                                                        className="submission-input"
+                                                        className="submission-select"
                                                         required
                                                     >
                                                         <option value="">Select Category</option>
