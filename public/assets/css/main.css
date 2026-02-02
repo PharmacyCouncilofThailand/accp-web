@@ -19434,7 +19434,7 @@ html {
 }
 
 .contact-inner-section .img1 img {
-	height: 540px;
+	height: 100%;
 	width: 100%;
 	object-fit: cover;
 	border-radius: 8px;

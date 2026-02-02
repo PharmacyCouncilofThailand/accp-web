@@ -32,9 +32,7 @@ export default function Contact() {
 					<div className="container">
 						<div className="row">
 							<div className="col-lg-6">
-								<div className="img1 image-anime">
-									<img src="/assets/img/all-images/contact/Contact-Us.png" alt="" />
-								</div>
+									<img src="/assets/img/all-images/contact/Contact-Us.png" alt="" style={{ width: '100%', height: 'auto', borderRadius: '10px' }} />
 							</div>
 							<div className="col-lg-6" data-aos="zoom-in" data-aos-duration={1000}>
 								<ContactForm />
