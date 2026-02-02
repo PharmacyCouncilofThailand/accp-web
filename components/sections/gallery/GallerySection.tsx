@@ -69,6 +69,7 @@ export default function GallerySection() {
                             <i className="fa-solid fa-camera-retro"></i>
                             {t('accp2025Recap')}
                         </button>
+                        {/* Venue button temporarily hidden
                         <button
                             onClick={() => setActiveTab('venue')}
                             style={{
@@ -93,6 +94,7 @@ export default function GallerySection() {
                             <i className="fa-solid fa-building"></i>
                             {t('venue')}
                         </button>
+                        */}
                         <button
                             onClick={() => setActiveTab('bangkok')}
                             style={{
@@ -165,11 +167,11 @@ export default function GallerySection() {
                         ))}
                     </div>
 
-                   
+
                 </div>
             </section>
 
-            
+
 
             {/* Lightbox Modal */}
             {lightboxOpen && (
