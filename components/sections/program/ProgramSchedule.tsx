@@ -73,11 +73,11 @@ export default function ProgramSchedule() {
                 <div className="row" data-aos="fade-up" data-aos-duration={800}>
                     <div className="col-12">
                         <div className="eprogram-buttons">
-                            <a href="/e-program" className="eprogram-btn primary">
+                            <a href="/assets/documents/program_agenda.pdf" className="eprogram-btn primary">
                                 <i className="fa-solid fa-book-open" />
                                 <span>e-Program</span>
                             </a>
-                            <a href="/assets/documents/e-program.pdf" download className="eprogram-btn-download">
+                            <a href="/assets/documents/program_agenda.pdf" download className="eprogram-btn-download">
                                 <i className="fa-solid fa-download" />
                                 <span className="download-label">Download e-Program</span>
                             </a>
