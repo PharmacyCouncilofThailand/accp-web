@@ -1094,5 +1094,28 @@
       "rejected": "Rejected",
       "under_review": "Under Review"
     }
+  },
+  "resubmitDocument": {
+    "pageTitle": "Resubmit Verification Document",
+    "title": "Resubmit Your Document",
+    "description": "Your previous verification document was rejected. Please upload a new document to continue your registration.",
+    "rejectionReason": "Rejection Reason",
+    "email": "Email Address",
+    "password": "Password",
+    "uploadNew": "Upload New Document",
+    "fileRequirements": "Accepted formats: PDF, JPG, PNG (Max 10MB)",
+    "submit": "Submit Document",
+    "submitting": "Submitting...",
+    "success": "Document submitted successfully!",
+    "successMessage": "Your document has been resubmitted and is now pending review. You will receive an email confirmation shortly.",
+    "goToLogin": "Go to Login",
+    "error": {
+      "fileRequired": "Please select a verification document",
+      "invalidFile": "Invalid file type. Only PDF, JPG, and PNG are allowed.",
+      "fileTooLarge": "File too large. Maximum size is 10MB.",
+      "invalidCredentials": "Invalid email or password",
+      "notRejected": "Only rejected accounts can resubmit documents",
+      "failed": "Failed to submit document. Please try again."
+    }
   }
 }
