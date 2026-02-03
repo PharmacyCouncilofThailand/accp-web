@@ -756,9 +756,41 @@ li.dropdown-open ul.dropdown-padding,
 }
 
 /* Style the dropdown parent text when open */
-.homepage1-body .header-area.homepage1 .main-menu ul > li.dropdown-open > a,
-.header-area.homepage1 .main-menu ul > li.dropdown-open > a,
-.main-menu ul > li.dropdown-open > a {
+.main-menu ul > li.dropdown-open > a,
+li.dropdown-open > a {
   color: #FFBA00 !important;
 }
 
+/* ===== MEMORY SECTION HEADER FIX FOR TABLETS ===== */
+/* Force "last year memory" to stack above "Recent Memories 2025" on all screen sizes */
+.memory1-section-area .memory-header.heading2 {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.memory1-section-area .memory-header.heading2 h5 {
+  display: inline-block !important;
+  width: auto !important;
+  margin-bottom: 16px !important;
+}
+
+.memory1-section-area .memory-header.heading2 h2 {
+  display: block !important;
+  width: 100% !important;
+  text-align: center !important;
+}
+
+/* Tablet specific fixes */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .memory1-section-area .memory-header.heading2 {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+  }
+  
+  .memory1-section-area .memory-header.heading2 h5 {
+    margin-bottom: 20px !important;
+  }
+}
