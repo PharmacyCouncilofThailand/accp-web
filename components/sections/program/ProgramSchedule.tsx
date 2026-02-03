@@ -32,11 +32,27 @@ export default function ProgramSchedule() {
         }
     }
 
-    const handleDownload = () => {
-        const pdfUrl = '/assets/documents/program_agenda.pdf';
+    const handleDownload = (dayIndex: number) => {
+        const pdfFiles = [
+            '/assets/documents/agenda_day1.pdf',
+            '/assets/documents/agenda_day2.pdf',
+            '/assets/documents/agenda_day3.pdf',
+            '/assets/documents/agenda_all_day.pdf'
+        ];
+        const downloadNames = [
+            'ACCP2026_Agenda_Day1.pdf',
+            'ACCP2026_Agenda_Day2.pdf',
+            'ACCP2026_Agenda_Day3.pdf',
+            'ACCP2026_Agenda_All_Day.pdf'
+        ];
+        
+        
+        const pdfUrl = pdfFiles[dayIndex] || pdfFiles[0];
+        const downloadName = downloadNames[dayIndex] || downloadNames[0];
+        
         const link = document.createElement('a');
         link.href = pdfUrl;
-        link.download = 'ACCP2026_Program_Agenda.pdf';
+        link.download = downloadName;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -73,14 +89,13 @@ export default function ProgramSchedule() {
                 <div className="row" data-aos="fade-up" data-aos-duration={800}>
                     <div className="col-12">
                         <div className="eprogram-buttons">
-                            <a href="/assets/documents/program_agenda.pdf" className="eprogram-btn primary">
-                                <i className="fa-solid fa-book-open" />
-                                <span>e-Program</span>
-                            </a>
-                            <a href="/assets/documents/program_agenda.pdf" download className="eprogram-btn-download">
+                            <button 
+                                className="eprogram-btn primary"
+                                onClick={() => handleDownload(3)}
+                            >
                                 <i className="fa-solid fa-download" />
-                                <span className="download-label">Download e-Program</span>
-                            </a>
+                                <span>Download Agenda</span>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -98,7 +113,7 @@ export default function ProgramSchedule() {
                                         </div>
                                         <button 
                                             className="download-btn"
-                                            onClick={handleDownload}
+                                            onClick={() => handleDownload(dayIndex)}
                                             aria-label="Download Agenda"
                                         >
                                             <i className="fa-solid fa-download" />
@@ -311,13 +326,16 @@ export default function ProgramSchedule() {
                 .eprogram-btn.primary {
                     background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
                     color: white;
+                    border: none;
+                    cursor: pointer;
                 }
                 .eprogram-btn.primary:hover {
-                    background: linear-gradient(135deg, #283593 0%, #3949ab 100%);
+                    background: #FFBA00;
+                    color: #1a237e;
                     transform: translateY(-3px);
-                    box-shadow: 0 8px 25px rgba(26, 35, 126, 0.3);
+                    box-shadow: 0 8px 25px rgba(255, 186, 0, 0.4);
                 }
-                .eprogram-btn.primary:hover i { transform: rotate(-10deg) scale(1.1); }
+                .eprogram-btn.primary:hover i { transform: translateY(2px); }
                 
                 .eprogram-btn-download {
                     display: inline-flex;
