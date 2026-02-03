@@ -37,12 +37,16 @@ const styles = `
     .memories-header {
         text-align: center;
         margin-bottom: 48px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
     }
 
     .memories-header h5 {
         color: #3b5998;
         font-weight: 600;
         margin-bottom: 16px;
+        display: inline-block;
     }
 
     /* Grid Layout */

@@ -58,8 +58,8 @@ export default function Section6() {
 				<div className="container">
 					<div className="row">
 						<div className="col-lg-6 m-auto">
-							<div className="memory-header text-center heading2 space-margin60">
-								<h5 data-aos="fade-left" data-aos-duration={800}>{t('ความทรงจำปีที่แล้ว', 'last year memory')}</h5>
+							<div className="memory-header text-center heading2 space-margin60" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+								<h5 data-aos="fade-up" data-aos-duration={800}>{t('ความทรงจำปีที่แล้ว', 'last year memory')}</h5>
 								<div className="space16" />
 								<h2 className="text-anime-style-3">{t('ความทรงจำล่าสุด 2024', 'Recent Memories 2024')}</h2>
 							</div>

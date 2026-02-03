@@ -117,7 +117,7 @@ export default function WelcomeSection() {
                 {/* Profile Cards */}
                 <div className="row justify-content-center g-4">
                     {organizers.map((person, index) => (
-                        <div key={index} className="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay={index * 100}>
+                        <div key={index} className="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay={index * 100}>
                             <div style={welcomeStyles.card}
                                 onMouseEnter={(e) => {
                                     e.currentTarget.style.transform = 'translateY(-10px)';
