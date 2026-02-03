@@ -984,7 +984,7 @@ export default function AbstractSubmission() {
                           className="fa-solid fa-info-circle"
                           style={{ marginRight: "8px" }}
                         />
-                        คลิกปุ่มด้านล่างเพื่อเพิ่มผู้เขียนร่วม (ถ้ามี)
+                        {t("coAuthorInstruction")}
                       </p>
                     ) : (
                       coAuthors.map((coAuthor, index) => (
