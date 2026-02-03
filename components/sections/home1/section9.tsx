@@ -96,7 +96,10 @@ export default function Section9() {
                       className="fa-regular fa-calendar"
                       style={{ marginRight: "8px" }}
                     ></i>
-                    {t("เปิดให้ลงทะเบียน 18 ก.พ.", "AVAILABLE ON 18 FEB")}
+                    {t(
+                      "เปิดให้ลงทะเบียน 18 ก.พ. 2569",
+                      "AVAILABLE ON 18 FEB 2026",
+                    )}
                   </span>
                   <Link
                     href="/call-for-abstracts"

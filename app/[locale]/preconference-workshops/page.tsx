@@ -817,7 +817,7 @@ export default function PreconferenceWorkshops() {
                                     className="fa-regular fa-calendar"
                                     style={{ marginRight: "6px" }}
                                   ></i>
-                                  Available on 18 Feb
+                                  Available on 18 Feb 2026
                                 </span>
                               ) : (
                                 <div
