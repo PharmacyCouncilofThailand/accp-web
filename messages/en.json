@@ -216,7 +216,7 @@
     "track3": "Pharmacology & Toxicology",
     "track4": "Pharmacoeconomics & Outcomes",
     "track5": "Pharmacy Education",
-    "track6": "Pharmaceutical Sciences",
+    "track6": "Community Pharmacy",
     "track7": "Medicinal Chemistry",
     "track8": "Natural Products & Biotechnology",
     "day1": "Day 1",
@@ -574,7 +574,7 @@
     "abstractTopicsTitle": "ABSTRACT TOPICS for Oral and Poster presentation",
     "topic1": "Clinical Pharmacy",
     "topic2": "Social and Administrative Pharmacy",
-    "topic3": "Pharmaceutical Sciences",
+    "topic3": "Community Pharmacy",
     "topic4": "Pharmacology",
     "topic5": "Pharmacy education",
     "topic6": "Digital pharmacy and innovation",
@@ -902,7 +902,7 @@
     "categories": {
       "clinicalPharmacy": "Clinical Pharmacy",
       "socialAdministrative": "Social and Administrative Pharmacy",
-      "pharmaceuticalSciences": "Pharmaceutical Sciences",
+      "communityPharmacy": "Community Pharmacy",
       "pharmacology": "Pharmacology and Toxicology",
       "education": "Pharmacy Education",
       "digitalPharmacy": "Digital Pharmacy and Innovation"

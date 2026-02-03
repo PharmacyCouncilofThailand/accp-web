@@ -36,7 +36,7 @@ export const symposiaData = [
     },
     {
         track: "Track E",
-        name: "Pharmaceutical Sciences",
+        name: "Community Pharmacy",
         color: "#10B981",
         sessions: [
             { day: "Day 2", time: "10:30 - 12:00", title: "Novel Drug Delivery Systems", room: "Room E1" },
