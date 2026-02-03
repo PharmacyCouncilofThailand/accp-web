@@ -25,7 +25,7 @@ export const posterTopics = [
     { topic: "Clinical Pharmacy Practice", count: 45, icon: "fa-stethoscope" },
     { topic: "Pharmacology & Toxicology", count: 32, icon: "fa-flask-vial" },
     { topic: "Pharmacy Education", count: 28, icon: "fa-graduation-cap" },
-    { topic: "Pharmaceutical Sciences", count: 25, icon: "fa-pills" },
+    { topic: "Community Pharmacy", count: 25, icon: "fa-pills" },
     { topic: "Pharmacoeconomics", count: 18, icon: "fa-chart-line" },
     { topic: "Natural Products", count: 15, icon: "fa-leaf" },
 ];
