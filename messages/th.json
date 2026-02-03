@@ -913,8 +913,8 @@
     "submittingButton": "กำลังส่ง...",
     "successTitle": "ส่ง Abstract สำเร็จ!",
     "successMessage": "ขอบคุณสำหรับการส่ง Abstract ของคุณ",
-    "successWaitMessage": "กรุณารอผลการคัดเลือก Abstract ในวันที่",
-    "successDate": "10 เมษายน 2026",
+    "successWaitMessage": "ผลการตอบรับจะประกาศภายใน",
+    "successDate": "2 สัปดาห์หลังจากส่ง",
     "trackingIdLabel": "รหัสติดตาม",
     "categories": {
       "clinicalPharmacy": "Clinical Pharmacy",
