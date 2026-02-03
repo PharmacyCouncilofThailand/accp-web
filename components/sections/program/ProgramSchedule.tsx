@@ -32,11 +32,24 @@ export default function ProgramSchedule() {
         }
     }
 
-    const handleDownload = () => {
-        const pdfUrl = '/assets/documents/program_agenda.pdf';
+    const handleDownload = (dayIndex: number) => {
+        const pdfFiles = [
+            '/assets/documents/agenda day1.pdf',
+            '/assets/documents/agenda day2.pdf',
+            '/assets/documents/agenda day3.pdf'
+        ];
+        const downloadNames = [
+            'ACCP2026_Agenda_Day1.pdf',
+            'ACCP2026_Agenda_Day2.pdf',
+            'ACCP2026_Agenda_Day3.pdf'
+        ];
+        
+        const pdfUrl = pdfFiles[dayIndex] || pdfFiles[0];
+        const downloadName = downloadNames[dayIndex] || downloadNames[0];
+        
         const link = document.createElement('a');
         link.href = pdfUrl;
-        link.download = 'ACCP2026_Program_Agenda.pdf';
+        link.download = downloadName;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -98,7 +111,7 @@ export default function ProgramSchedule() {
                                         </div>
                                         <button 
                                             className="download-btn"
-                                            onClick={handleDownload}
+                                            onClick={() => handleDownload(dayIndex)}
                                             aria-label="Download Agenda"
                                         >
                                             <i className="fa-solid fa-download" />
