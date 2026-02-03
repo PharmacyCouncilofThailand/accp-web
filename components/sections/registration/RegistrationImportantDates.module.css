@@ -1,6 +1,6 @@
 .section {
     padding: 60px 0;
-    background: #f8f9fa;
+    background: #ffffff;
 }
 
 .header {
@@ -45,58 +45,60 @@
 /* Base Card */
 .card {
     position: relative;
-    padding: 24px 24px 24px 28px;
-    border-radius: 12px;
+    padding: 20px 24px 20px 24px;
+    border-radius: 8px;
     background: white;
-    min-height: 160px;
+    min-height: 140px;
     display: flex;
     flex-direction: column;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
-}
-
-.card::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 5px;
-    border-radius: 12px 0 0 12px;
+    border-left: 4px solid transparent;
 }
 
 /* Early Bird - Green */
 .cardGreen {
-    background: linear-gradient(to right, #f0fdf4, #ffffff);
-    border: 1px solid #dcfce7;
-}
-
-.cardGreen::before {
-    background: #22c55e;
+    background: #f0fdf4;
+    border-left-color: #22c55e;
+    border-top: 1px solid #dcfce7;
+    border-right: 1px solid #dcfce7;
+    border-bottom: 1px solid #dcfce7;
 }
 
 /* Regular/Deadline - Red */
 .cardRed {
-    background: linear-gradient(to right, #fef2f2, #ffffff);
-    border: 1px solid #fecaca;
-}
-
-.cardRed::before {
-    background: #ef4444;
+    background: #fef2f2;
+    border-left-color: #ef4444;
+    border-top: 1px solid #fecaca;
+    border-right: 1px solid #fecaca;
+    border-bottom: 1px solid #fecaca;
 }
 
 /* Info - Blue */
 .cardBlue {
-    background: linear-gradient(to right, #eff6ff, #ffffff);
-    border: 1px solid #dbeafe;
+    background: #e0f2fe;
+    border-left-color: #3b82f6;
+    border-top: 1px solid #bae6fd;
+    border-right: 1px solid #bae6fd;
+    border-bottom: 1px solid #bae6fd;
 }
 
-.cardBlue::before {
-    background: #3b82f6;
+/* Pulse Animation for Early Bird */
+@keyframes pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.5);
+    }
+
+    50% {
+        transform: scale(1.02);
+        box-shadow: 0 0 0 8px rgba(34, 197, 94, 0);
+    }
+}
+
+.pulse {
+    animation: pulse 2s infinite ease-in-out;
+    z-index: 10;
 }
 
 /* Icon + Label */
@@ -108,7 +110,7 @@
 }
 
 .icon {
-    font-size: 1.25rem;
+    font-size: 1.1rem;
     flex-shrink: 0;
     margin-top: 2px;
 }
@@ -122,11 +124,11 @@
 }
 
 .iconBlue {
-    color: #3b82f6;
+    color: #0ea5e9;
 }
 
 .label {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     line-height: 1.5;
     margin: 0;
 }
@@ -140,14 +142,25 @@
 }
 
 .labelBlue {
-    color: #2563eb;
+    color: #0284c7;
 }
 
 /* Date Display */
 .dateText {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #1a1a2e;
     margin: auto 0 0 0;
     line-height: 1.2;
+}
+
+.cardGreen .dateText {
+    color: #166534;
+}
+
+.cardRed .dateText {
+    color: #dc2626;
+}
+
+.cardBlue .dateText {
+    color: #0284c7;
 }
