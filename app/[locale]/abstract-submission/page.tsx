@@ -252,9 +252,9 @@ export default function AbstractSubmission() {
     setSubmitStatus("idle");
 
     // Validate word count
-    if (wordCount > 300) {
+    if (wordCount > 250) {
       toast.error(
-        `Abstract word count must not exceed 300 words. Current: ${wordCount} words`,
+        `Abstract word count must not exceed 250 words. Current: ${wordCount} words`,
       );
       setIsSubmitting(false);
       return;
@@ -1271,12 +1271,12 @@ export default function AbstractSubmission() {
                       {t("wordCount")}{" "}
                       <strong
                         style={{
-                          color: wordCount <= 300 ? "#4caf50" : "#f44336",
+                          color: wordCount <= 250 ? "#4caf50" : "#f44336",
                         }}
                       >
                         {wordCount}
                       </strong>{" "}
-                      / 300 {t("words")}
+                      / 250 {t("words")}
                     </p>
 
                     <div className="submission-input-group">
