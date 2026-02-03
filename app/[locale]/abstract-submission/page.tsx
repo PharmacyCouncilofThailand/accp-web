@@ -48,6 +48,7 @@ export default function AbstractSubmission() {
 
     // Abstract Content
     background: "",
+    objective: "",
     methods: "",
     results: "",
     conclusions: "",
@@ -112,6 +113,7 @@ export default function AbstractSubmission() {
   const wordCount = useMemo(() => {
     const totalText = [
       formData.background,
+      formData.objective,
       formData.methods,
       formData.results,
       formData.conclusions,
@@ -123,6 +125,7 @@ export default function AbstractSubmission() {
     return words.length;
   }, [
     formData.background,
+    formData.objective,
     formData.methods,
     formData.results,
     formData.conclusions,
@@ -249,9 +252,9 @@ export default function AbstractSubmission() {
     setSubmitStatus("idle");
 
     // Validate word count
-    if (wordCount > 250) {
+    if (wordCount > 300) {
       toast.error(
-        `Abstract word count must not exceed 250 words. Current: ${wordCount} words`,
+        `Abstract word count must not exceed 300 words. Current: ${wordCount} words`,
       );
       setIsSubmitting(false);
       return;
@@ -285,6 +288,7 @@ export default function AbstractSubmission() {
 
       // Add abstract content
       formDataToSend.append("background", formData.background);
+      formDataToSend.append("objective", formData.objective);
       formDataToSend.append("methods", formData.methods);
       formDataToSend.append("results", formData.results);
       formDataToSend.append("conclusion", formData.conclusions);
@@ -984,7 +988,7 @@ export default function AbstractSubmission() {
                           className="fa-solid fa-info-circle"
                           style={{ marginRight: "8px" }}
                         />
-                        คลิกปุ่มด้านล่างเพื่อเพิ่มผู้เขียนร่วม (ถ้ามี)
+                        {t("coAuthorInstruction")}
                       </p>
                     ) : (
                       coAuthors.map((coAuthor, index) => (
@@ -1267,12 +1271,12 @@ export default function AbstractSubmission() {
                       {t("wordCount")}{" "}
                       <strong
                         style={{
-                          color: wordCount <= 250 ? "#4caf50" : "#f44336",
+                          color: wordCount <= 300 ? "#4caf50" : "#f44336",
                         }}
                       >
                         {wordCount}
                       </strong>{" "}
-                      / 250 {t("words")}
+                      / 300 {t("words")}
                     </p>
 
                     <div className="submission-input-group">
@@ -1287,6 +1291,21 @@ export default function AbstractSubmission() {
                         style={{ minHeight: "100px", resize: "vertical" }}
                         required
                         placeholder={t("backgroundPlaceholder")}
+                      />
+                    </div>
+
+                    <div className="submission-input-group">
+                      <label className="submission-label">
+                        {t("objective")} *
+                      </label>
+                      <textarea
+                        name="objective"
+                        value={formData.objective}
+                        onChange={handleInputChange}
+                        className="submission-input"
+                        style={{ minHeight: "80px", resize: "vertical" }}
+                        required
+                        placeholder={t("objectivePlaceholder")}
                       />
                     </div>
 
