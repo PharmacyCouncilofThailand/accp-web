@@ -67,7 +67,10 @@ export default function Section1() {
                       className="fa-regular fa-calendar"
                       style={{ marginRight: "8px" }}
                     ></i>
-                    {t("เปิดให้ลงทะเบียน 18 ก.พ.", "Available on 18 Feb")}
+                    {t(
+                      "เปิดให้ลงทะเบียน 18 ก.พ. 2569",
+                      "Available on 18 Feb 2026",
+                    )}
                   </span>
                   <Link href="/call-for-abstracts" className="vl-btn2">
                     {t("ส่งบทคัดย่อ", "Submit Abstract")}

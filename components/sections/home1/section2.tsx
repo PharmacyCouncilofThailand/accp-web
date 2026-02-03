@@ -69,7 +69,7 @@ export default function Section2() {
                     </span>
                     <br />
                     <div className="space12" />
-                    <span style={{ fontSize: "12px" }}>18 Feb</span>
+                    <span style={{ fontSize: "12px" }}>18 Feb 2026</span>
                   </span>
                 </div>
               </div>

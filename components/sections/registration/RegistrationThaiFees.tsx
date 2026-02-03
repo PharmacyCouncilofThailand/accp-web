@@ -198,7 +198,7 @@ export default function RegistrationThaiFees({
                           className="fa-regular fa-calendar"
                           style={{ marginRight: "8px" }}
                         ></i>
-                        Available on 18 Feb
+                        Available on 18 Feb 2026
                       </span>
                     </div>
                   </div>
