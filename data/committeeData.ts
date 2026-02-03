@@ -125,5 +125,20 @@ export const committeeData: CommitteeCategory[] = [
             { name: "Asst. Prof. Dr. Pitchaya Dilokpattanamongkol", affiliation: "Faculty of Pharmacy, Mahidol University", title: "" },
             { name: "Mr. Jesada Jantharaprasert", affiliation: "Pharmacy Council of Thailand", title: "Secretary" }
         ]
+    },
+    {
+        category: "SUBCOMMITTEE ON ABSTRACT REVIEW",
+        members: [
+            { name: "Asst. Prof. Dr. Thanompong Sathienlackana", affiliation: "Faculty of Pharmacy, Siam University", title: "" },
+            { name: "Dr. Thitinun Raknoo", affiliation: "Department of Pharmacy, Suratthani Hospital", title: "" },
+            { name: "Dr. Neeracha Phon-in", affiliation: "Department of Pharmacy, Songklanagarind Hospital", title: "" },
+            { name: "Dr. Usasiri Srisakul", affiliation: "Faculty of Pharmacy, Siam University", title: "" },
+            { name: "Dr. Ploylarp Lertvipapath", affiliation: "Department of Pharmacy, Siriraj Hospital, Mahidol University", title: "" },
+            { name: "Dr. Taniya Charoensareerat", affiliation: "Faculty of Pharmacy, Siam University", title: "" },
+            { name: "Dr. Busaya Kulabusaya", affiliation: "Department of Pharmaceutical Care, Siriraj Hospital, Mahidol University", title: "" },
+            { name: "Dr. Kittika Yampayon", affiliation: "Department of Pharmacy, Siriraj Hospital, Mahidol University", title: "" },
+            { name: "Dr. Thitipon Yaowaluk", affiliation: "Department of Pharmacy, Siriraj Hospital, Mahidol University", title: "" },
+            { name: "Mrs. Anusara Kraunual", affiliation: "Department of Pharmacy, Somdet Chaopraya Institute of Psychiatry", title: "" }
+        ]
     }
 ]
