@@ -870,6 +870,8 @@
     "wordCount": "Word count:",
     "words": "words",
     "background": "Background",
+    "objective": "Objectives",
+    "objectivePlaceholder": "Clearly state the specific objectives of your study...",
     "methods": "Methods",
     "results": "Results",
     "conclusions": "Conclusions",
