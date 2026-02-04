@@ -172,7 +172,6 @@ export default function AbstractSubmission() {
   // Scroll to top when form is submitted successfully
   useEffect(() => {
     if (submitStatus === "success") {
-      setTrackingId(`ACCP2026-${Date.now().toString().slice(-6)}`);
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   }, [submitStatus]);
@@ -321,7 +320,7 @@ export default function AbstractSubmission() {
       }
 
       // Set tracking ID from response
-      setTrackingId(`ACCP2026-${result.abstract.id}`);
+      setTrackingId(result.abstract.trackingId);
       setShowSuccessModal(true); // Show modal instead of changing submit status
     } catch (error) {
       console.error("Submission error:", error);
