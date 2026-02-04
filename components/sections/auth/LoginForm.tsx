@@ -73,6 +73,17 @@ export default function LoginForm() {
       const data = await response.json();
 
       if (!response.ok) {
+        // Rate Limit Error (429)
+        if (response.status === 429) {
+          setError(
+            locale === "th"
+              ? "⚠️ คุณพยายามเข้าสู่ระบบบ่อยเกินไป กรุณารอสักครู่แล้วลองใหม่"
+              : "⚠️ Too many login attempts. Please wait a moment and try again.",
+          );
+          setIsLoading(false);
+          return;
+        }
+
         // Handle specific errors
         if (response.status === 401) {
           setError(
