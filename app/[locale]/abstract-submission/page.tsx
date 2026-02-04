@@ -220,6 +220,13 @@ export default function AbstractSubmission() {
           return;
         }
 
+        // Validate file size (max 30MB)
+        const MAX_FILE_SIZE = 30 * 1024 * 1024;
+        if (file.size > MAX_FILE_SIZE) {
+          toast.error("File too large. Maximum size is 30MB.");
+          return;
+        }
+
         setUploadedFiles((prev) => {
           const isDuplicate = prev.some((f) => f.file.name === file.name);
           if (isDuplicate) {
