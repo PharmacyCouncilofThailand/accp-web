@@ -14,9 +14,9 @@ export default function SponsorshipProspectus() {
                         </div>
                         <div className="text-center mb-5" style={{ textAlign: 'center', marginBottom: '40px' }}>
                             <a 
-                                href="/assets/documents/ACCP-Sponser 2026.pdf" 
+                                href="/assets/documents/sponsor.pdf" 
                                 className="vl-btn1" 
-                                download="ACCP-Sponser 2026.pdf"
+                                download="sponsor.pdf"
                                 target="_blank"
                                 rel="noopener noreferrer"
                             >
