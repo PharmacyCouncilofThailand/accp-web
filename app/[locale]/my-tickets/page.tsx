@@ -1,11 +1,13 @@
 'use client'
+import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import Layout from '@/components/layout/Layout';
 
     import { useCheckoutWizard } from '@/hooks/checkout/useCheckoutWizard';
-    import { registrationPackages, workshopOptions, addOns } from '@/data/checkout';
+    import { workshopOptions } from '@/data/checkout';
     import { useAuth } from '@/context/AuthContext';
+    import { useTickets } from '@/context/TicketContext';
 
     export default function MyTickets() {
     const t = useTranslations('tickets');
@@ -13,19 +15,17 @@ import Layout from '@/components/layout/Layout';
     const { checkoutData } = useCheckoutWizard();
     const { user } = useAuth();
 
-    // Determine if we have valid checkout data, otherwise fallback to default/empty or display a message
-    // For this prototype, we'll try to use checkoutData, if package is not selected, we might fallback or show nothing.
-    // However, to ensure the user sees *their* selection, we rely on checkoutData.
+    const { packages: apiPackages, addOns: apiAddOns } = useTickets();
 
-    const selectedPackage = registrationPackages.find(p => p.id === checkoutData.selectedPackage);
+    const selectedPackage = apiPackages.find(p => p.id === checkoutData.selectedPackage);
     const hasGala = checkoutData.selectedAddOns.includes('gala');
     const hasWorkshop = checkoutData.selectedAddOns.includes('workshop');
 
     // Dynamic Ticket Data
     const tickets = selectedPackage ? [{
-        id: `ACCP2026-REG-${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`, // content_chunk: Generate random ID
-        type: selectedPackage.id, // This matches the translation key 'packages.student' etc. ideally, or we use the ID
-        category: 'earlyBird', // Assuming early bird for now
+        id: `ACCP2026-REG-${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`,
+        type: selectedPackage.id,
+        category: 'earlyBird',
         status: 'confirmed',
         purchaseDate: new Date().toISOString().split('T')[0],
         amount: user?.country?.toLowerCase() === 'thailand' ? `฿${selectedPackage.priceTHB}` : `$${selectedPackage.priceUSD}`,
@@ -53,7 +53,7 @@ import Layout from '@/components/layout/Layout';
     } : null;
 
     // Dynamic Workshop Data
-    const workshopAddon = addOns.find(a => a.id === 'workshop');
+    const workshopAddon = apiAddOns.find(a => a.id === 'workshop');
     const selectedWorkshop = workshopOptions.find(w => w.value === checkoutData.selectedWorkshopTopic);
     
     const addons = hasWorkshop && selectedWorkshop ? [{

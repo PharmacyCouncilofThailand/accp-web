@@ -13,13 +13,11 @@ import { useCheckoutWizard } from "@/hooks/checkout/useCheckoutWizard";
 import FormInput from "@/components/common/FormInput";
 import Button from "@/components/common/Button";
 import { formatCurrency } from "@/utils/currency";
+import { useTickets } from "@/context/TicketContext";
+import type { ResolvedPackage, ResolvedAddOn } from "@/utils/tickets";
 
 import {
-  registrationPackages,
-  addOns,
   workshopOptions,
-  type RegistrationPackage,
-  type AddOn
 } from "@/data/checkout";
 
 export default function Registration() {
@@ -44,21 +42,22 @@ export default function Registration() {
   const isThai = user?.country?.toLowerCase() === "thailand";
   const [isLoading, setIsLoading] = useState(true);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const { packages: registrationPackages, addOns, loading: ticketsLoading } = useTickets();
 
   useEffect(() => {
     if (!isAuthenticated) {
       router.push(`/${locale}/login`);
-    } else {
-      // Pre-fill user data
-      updateCheckoutData({
-        firstName: user?.firstName || "",
-        lastName: user?.lastName || "",
-        email: user?.email || "",
-        country: user?.country || "",
-        selectedPackage: user?.delegateType?.includes('student') ? 'student' : 'professional'
-      });
-      setIsLoading(false);
+      return;
     }
+    // Pre-fill user data
+    updateCheckoutData({
+      firstName: user?.firstName || "",
+      lastName: user?.lastName || "",
+      email: user?.email || "",
+      country: user?.country || "",
+      selectedPackage: user?.delegateType?.includes('student') ? 'student' : 'professional'
+    });
+    setIsLoading(false);
   }, [isAuthenticated, user, locale, router, updateCheckoutData]);
 
   const validateStep = (): boolean => {
