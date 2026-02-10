@@ -92,11 +92,26 @@ export interface TicketType {
     category: 'primary' | 'addon';
     groupName: string | null;
     name: string;
+    description: string | null;
     price: string;
+    originalPrice: string | null;
     currency: string;
+    features: string[];
+    badgeText: string | null;
+    displayOrder: number;
+    allowedRoles: string | null;
+    quota: number;
+    soldCount: number;
+    isAvailable: boolean;
     saleStartDate: string | null;
     saleEndDate: string | null;
-    allowedRoles: string | null;
+}
+
+export interface TicketGroup {
+    groupId: string;
+    groupName: string;
+    category: 'primary' | 'addon';
+    tickets: TicketType[];
 }
 
 // ============================================================================

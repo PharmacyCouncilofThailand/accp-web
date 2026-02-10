@@ -1,12 +1,28 @@
 "use client";
-import { useTranslations, useLocale } from "next-intl";
-import Link from "next/link";
-import { useAuth } from "@/context/AuthContext";
 
+import { useTranslations, useLocale } from "next-intl";
+import { useAuth } from "@/context/AuthContext";
 import { TicketType } from "@/lib/api";
+import { useTicketSelector } from "@/hooks/useTicketSelector";
+import Link from "next/link";
 
 interface RegistrationInternationalFeesProps {
   tickets?: TicketType[];
+}
+
+// Format date for display
+function formatAvailableDate(
+  dateString: string | null,
+  locale: string,
+): string {
+  if (!dateString) return "";
+  const date = new Date(dateString);
+  const options: Intl.DateTimeFormatOptions = {
+    day: "numeric",
+    month: locale === "th" ? "short" : "short",
+    year: "numeric",
+  };
+  return date.toLocaleDateString(locale === "th" ? "th-TH" : "en-US", options);
 }
 
 export default function RegistrationInternationalFees({
@@ -17,69 +33,118 @@ export default function RegistrationInternationalFees({
   const locale = useLocale();
   const { user, isAuthenticated } = useAuth();
 
+  // ✅ กรอง USD + ใช้ hook เลือกตั๋วที่ดีที่สุด (EB → Regular อัตโนมัติ)
+  const usdTickets = tickets.filter((t) => t.currency === "USD");
+  const { studentTicket, professionalTicket, addonTickets } =
+    useTicketSelector(usdTickets);
+
   // Determine user type
   const isIntlStudent = user?.delegateType === "international_student";
   const isIntlPharmacist = user?.delegateType === "international_pharmacist";
 
-  // Filter tickets for international (USD)
-  const studentTicket = tickets.find(
-    (t) =>
-      t.currency === "USD" &&
-      t.name.toLowerCase().includes("student") &&
-      t.category === "primary",
+  // หา addon tickets ตามสกุลเงิน USD
+  const workshopTicket = addonTickets.find(
+    (t) => t.groupName === "workshop" && t.currency === "USD",
   );
-  const professionalTicket = tickets.find(
-    (t) =>
-      t.currency === "USD" &&
-      !t.name.toLowerCase().includes("student") &&
-      t.category === "primary",
-  );
-  const workshopTicket = tickets.find(
-    (t) =>
-      t.currency === "USD" &&
-      t.category === "addon" &&
-      t.name.toLowerCase().includes("workshop"),
-  );
-  const galaTicket = tickets.find(
-    (t) =>
-      t.currency === "USD" &&
-      t.category === "addon" &&
-      t.name.toLowerCase().includes("gala"),
+  const galaTicket = addonTickets.find(
+    (t) => t.groupName === "gala" && t.currency === "USD",
   );
 
+  // Format price with locale
+  const formatPrice = (price: string) => {
+    return `$${parseFloat(price).toLocaleString()}`;
+  };
+
+  // Format original price (strikethrough)
+  const formatOriginalPrice = (price: string | null) => {
+    if (!price) return null;
+    return `$${parseFloat(price).toLocaleString()}`;
+  };
+
+  // ✅ Handle กรณีไม่มีตั๋วเลย
+  if (!studentTicket && !professionalTicket) {
+    return (
+      <div
+        className="pricing-lan-section-area sp1"
+        style={{ backgroundColor: "#f5f5f5" }}
+      >
+        <div className="container">
+          <div className="row">
+            <div className="col-lg-8 m-auto">
+              <div className="heading2 text-center space-margin60">
+                <h5>{t("internationalDelegates")}</h5>
+                <div className="space18" />
+                <h2>{t("registrationFees")} (USD)</h2>
+              </div>
+            </div>
+          </div>
+          <div className="row">
+            <div className="col-lg-12 text-center">
+              <div
+                className="p-5 rounded-4"
+                style={{
+                  background:
+                    "linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%)",
+                  border: "2px solid #ddd",
+                }}
+              >
+                <i
+                  className="fa-solid fa-ticket mb-3"
+                  style={{ fontSize: "48px", color: "#999" }}
+                />
+                <h3>Registration Closed</h3>
+                <p className="mb-0">Please contact us for more information.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Build pricing options
   const pricingOptions = [
     {
       type: "student",
       show: !isAuthenticated || isIntlStudent,
       title: locale === "th" ? "นักศึกษาต่างชาติ" : "Int'l Student",
-      price: studentTicket
-        ? `$${parseFloat(studentTicket.price).toLocaleString()}`
-        : "$250",
-      regularPrice: `$270 ${t("regular")}`,
-      features: [
-        t("fullConferenceAccess"),
-        t("conferenceMaterials"),
-        t("coffeeBreaksLunch"),
-        t("certificateAttendance"),
-        t("validStudentID"),
-      ],
+      ticket: studentTicket,
+      price: studentTicket ? formatPrice(studentTicket.price) : null,
+      originalPrice: studentTicket
+        ? formatOriginalPrice(studentTicket.originalPrice)
+        : null,
+      badge: studentTicket?.badgeText || null,
+      features: studentTicket?.features?.length
+        ? studentTicket.features
+        : [
+            t("fullConferenceAccess"),
+            t("conferenceMaterials"),
+            t("certificateAttendance"),
+          ],
+      isAvailable: studentTicket?.isAvailable ?? false,
+      availableDate: studentTicket?.saleStartDate || null,
     },
     {
       type: "professional",
       show: !isAuthenticated || isIntlPharmacist,
       title: locale === "th" ? "เภสัชกรต่างชาติ" : "Int'l Professional",
-      price: professionalTicket
-        ? `$${parseFloat(professionalTicket.price).toLocaleString()}`
-        : "$385",
-      regularPrice: `$400 ${t("regular")}`,
-      features: [
-        t("fullConferenceAccess"),
-        t("conferenceMaterials"),
-        t("coffeeBreaksLunch"),
-        t("certificateAttendance"),
-        t("networkingEvents"),
-      ],
+      ticket: professionalTicket,
+      price: professionalTicket ? formatPrice(professionalTicket.price) : null,
+      originalPrice: professionalTicket
+        ? formatOriginalPrice(professionalTicket.originalPrice)
+        : null,
+      badge: professionalTicket?.badgeText || null,
+      features: professionalTicket?.features?.length
+        ? professionalTicket.features
+        : [
+            t("fullConferenceAccess"),
+            t("conferenceMaterials"),
+            t("certificateAttendance"),
+            t("networkingEvents"),
+          ],
       highlighted: true,
+      isAvailable: professionalTicket?.isAvailable ?? false,
+      availableDate: professionalTicket?.saleStartDate || null,
     },
     {
       type: "addons",
@@ -88,25 +153,25 @@ export default function RegistrationInternationalFees({
       addons: [
         {
           name: "Workshop",
-          price: workshopTicket
-            ? `$${parseFloat(workshopTicket.price).toLocaleString()}`
-            : "$70",
-          features: [
-            t("preConferenceWorkshop"),
-            `9 ${locale === "th" ? "ก.ค. 2569" : "July 2026"}`,
-            t("handsOnTraining"),
-          ],
+          price: workshopTicket ? formatPrice(workshopTicket.price) : null,
+          features: workshopTicket?.features?.length
+            ? workshopTicket.features
+            : [
+                t("preConferenceWorkshop"),
+                `9 ${locale === "th" ? "ก.ค. 2569" : "July 2026"}`,
+                t("handsOnTraining"),
+              ],
         },
         {
           name: "Gala Dinner",
-          price: galaTicket
-            ? `$${parseFloat(galaTicket.price).toLocaleString()}`
-            : "$75",
-          features: [
-            t("networkingDinner"),
-            `10 ${locale === "th" ? "ก.ค. 2569" : "July 2026"}`,
-            t("entertainment"),
-          ],
+          price: galaTicket ? formatPrice(galaTicket.price) : null,
+          features: galaTicket?.features?.length
+            ? galaTicket.features
+            : [
+                t("networkingDinner"),
+                `10 ${locale === "th" ? "ก.ค. 2569" : "July 2026"}`,
+                t("entertainment"),
+              ],
         },
       ],
     },
@@ -133,7 +198,13 @@ export default function RegistrationInternationalFees({
           {filteredOptions.map((option) => (
             <div
               key={option.type}
-              className={`col-lg-${filteredOptions.length === 1 ? "12" : filteredOptions.length === 2 ? "6" : "4"} col-md-6`}
+              className={`col-lg-${
+                filteredOptions.length === 1
+                  ? "12"
+                  : filteredOptions.length === 2
+                    ? "6"
+                    : "4"
+              } col-md-6`}
             >
               <div
                 className="pricing-boxarea h-100 d-flex flex-column"
@@ -143,10 +214,42 @@ export default function RegistrationInternationalFees({
                     : {}),
                 }}
               >
+                {option.badge && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: "12px",
+                      right: "12px",
+                      background:
+                        "linear-gradient(135deg, #FFBA00 0%, #FF8C00 100%)",
+                      color: "#fff",
+                      padding: "4px 12px",
+                      borderRadius: "20px",
+                      fontSize: "12px",
+                      fontWeight: "700",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.5px",
+                    }}
+                  >
+                    {option.badge}
+                  </div>
+                )}
                 <h5>{option.title}</h5>
                 <div className="space20" />
                 {option.price && (
                   <>
+                    {option.originalPrice && (
+                      <div
+                        style={{
+                          fontSize: "16px",
+                          color: "#999",
+                          textDecoration: "line-through",
+                          marginBottom: "4px",
+                        }}
+                      >
+                        {option.originalPrice}
+                      </div>
+                    )}
                     <h2>{option.price}</h2>
                     <div className="space8" />
                   </>
@@ -168,7 +271,7 @@ export default function RegistrationInternationalFees({
                         <h3
                           style={{ whiteSpace: "nowrap", fontSize: "1.5rem" }}
                         >
-                          {addon.name}: {addon.price}
+                          {addon.name}: {addon.price || "-"}
                         </h3>
                         <ul>
                           {addon.features.map((feature, idx) => (
@@ -186,23 +289,59 @@ export default function RegistrationInternationalFees({
                   <div className="mt-auto">
                     <div className="space28" />
                     <div className="btn-area1">
-                      {/* <Link href={`/${locale}/checkout`} className="vl-btn1">{tCommon('registerNow')}</Link> */}
-                      <span
-                        className="vl-btn1"
-                        style={{
-                          background:
-                            "linear-gradient(135deg, #FFBA00 0%, #FF8C00 100%)",
-                          color: "#fff",
-                          cursor: "default",
-                          boxShadow: "0 4px 15px rgba(255, 186, 0, 0.4)",
-                        }}
-                      >
-                        <i
-                          className="fa-regular fa-calendar"
-                          style={{ marginRight: "8px" }}
-                        ></i>
-                        Available on 18 Feb 2026
-                      </span>
+                      {option.isAvailable ? (
+                        // ✅ Sale started - show Register Now button
+                        <Link
+                          href={`/${locale}/checkout`}
+                          className="vl-btn1"
+                          style={{
+                            background:
+                              "linear-gradient(135deg, #00C853 0%, #00A344 100%)",
+                            color: "#fff",
+                            boxShadow: "0 4px 15px rgba(0, 200, 83, 0.4)",
+                          }}
+                        >
+                          <i
+                            className="fa-solid fa-ticket"
+                            style={{ marginRight: "8px" }}
+                          ></i>
+                          {tCommon("registerNow")}
+                        </Link>
+                      ) : (
+                        // ⏳ Sale not started - show Available on date
+                        <span
+                          className="vl-btn1"
+                          style={{
+                            background:
+                              "linear-gradient(135deg, #FFBA00 0%, #FF8C00 100%)",
+                            color: "#fff",
+                            cursor: "default",
+                            boxShadow: "0 4px 15px rgba(255, 186, 0, 0.4)",
+                          }}
+                        >
+                          <i
+                            className="fa-regular fa-calendar"
+                            style={{ marginRight: "8px" }}
+                          ></i>
+                          {locale === "th"
+                            ? `เปิดจำหน่าย ${
+                                option.availableDate
+                                  ? formatAvailableDate(
+                                      option.availableDate,
+                                      locale,
+                                    )
+                                  : "เร็วๆ นี้"
+                              }`
+                            : `Available on ${
+                                option.availableDate
+                                  ? formatAvailableDate(
+                                      option.availableDate,
+                                      locale,
+                                    )
+                                  : "Coming Soon"
+                              }`}
+                        </span>
+                      )}
                     </div>
                   </div>
                 )}
