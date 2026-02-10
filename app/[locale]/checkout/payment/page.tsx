@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import Layout from "@/components/layout/Layout"
 import Link from "next/link"
 import { useTranslations, useLocale } from 'next-intl';
@@ -7,9 +7,10 @@ import { useAuth } from '@/context/AuthContext'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import { useCheckoutWizard } from '@/hooks/checkout/useCheckoutWizard'
-import { registrationPackages, addOns, workshopOptions } from '@/data/checkout'
+import { workshopOptions } from '@/data/checkout'
 import { formatCurrency } from "@/utils/currency"
 import OrderSummary from '@/components/checkout/OrderSummary'
+import { useTickets } from '@/context/TicketContext'
 
 export default function Payment() {
 	const t = useTranslations('payment');
@@ -27,10 +28,13 @@ export default function Payment() {
 	const isThaiPayment = checkoutData.country?.trim().toLowerCase() === 'thailand';
 	const currencySymbol = isThaiPayment ? '฿' : '$';
 
-	// Calculate total amount from checkout data
-	const currentPackage = registrationPackages.find(p => p.id === checkoutData.selectedPackage);
+	// Ticket data from context (cached, single fetch)
+	const { packages: apiPackages, addOns: apiAddOns } = useTickets();
+
+	// Calculate total amount from API data
+	const currentPackage = apiPackages.find(p => p.id === checkoutData.selectedPackage);
 	const packagePrice = isThaiPayment ? currentPackage?.priceTHB || 0 : currentPackage?.priceUSD || 0;
-	const addOnsPrice = addOns
+	const addOnsPrice = apiAddOns
 		.filter(a => checkoutData.selectedAddOns.includes(a.id))
 		.reduce((sum, a) => (isThaiPayment ? sum + a.priceTHB : sum + a.priceUSD), 0);
 	const totalAmount = packagePrice + addOnsPrice;
@@ -45,29 +49,31 @@ export default function Payment() {
     price: packagePrice
   };
 
-  const orderAddOns = checkoutData.selectedAddOns.map(addOnId => {
-    const addon = addOns.find(a => a.id === addOnId);
-    if (!addon) return null;
+  const orderAddOns = useMemo(() => {
+    return checkoutData.selectedAddOns.map(addOnId => {
+      const addon = apiAddOns.find(a => a.id === addOnId);
+      if (!addon) return null;
 
-    let details = '';
-    if (addOnId === 'workshop' && checkoutData.selectedWorkshopTopic) {
-      const option = workshopOptions.find(o => o.value === checkoutData.selectedWorkshopTopic);
-      if (option) details = option.label;
-    } else if (addOnId === 'gala' && checkoutData.dietaryRequirement) {
-      if (checkoutData.dietaryRequirement === 'other' && checkoutData.dietaryOtherText) {
-        details = checkoutData.dietaryOtherText;
-      } else {
-        details = tCheckout(`dietaryOptions.${checkoutData.dietaryRequirement}`);
+      let details = '';
+      if (addOnId === 'workshop' && checkoutData.selectedWorkshopTopic) {
+        const option = workshopOptions.find(o => o.value === checkoutData.selectedWorkshopTopic);
+        if (option) details = option.label;
+      } else if (addOnId === 'gala' && checkoutData.dietaryRequirement) {
+        if (checkoutData.dietaryRequirement === 'other' && checkoutData.dietaryOtherText) {
+          details = checkoutData.dietaryOtherText;
+        } else {
+          details = tCheckout(`dietaryOptions.${checkoutData.dietaryRequirement}`);
+        }
       }
-    }
 
-    return {
-      id: addOnId,
-      name: tCheckout(`addOns.${addOnId}`),
-      price: isThaiPayment ? addon.priceTHB : addon.priceUSD,
-      details
-    };
-  }).filter((item): item is { id: string; name: string; price: number; details: string } => item !== null);
+      return {
+        id: addOnId,
+        name: tCheckout(`addOns.${addOnId}`),
+        price: isThaiPayment ? addon.priceTHB : addon.priceUSD,
+        details
+      };
+    }).filter((item): item is { id: string; name: string; price: number; details: string } => item !== null);
+  }, [checkoutData.selectedAddOns, checkoutData.selectedWorkshopTopic, checkoutData.dietaryRequirement, checkoutData.dietaryOtherText, apiAddOns, isThaiPayment, tCheckout]);
 	const packageType = checkoutData.selectedPackage || 'professional';
 	const orderNumber = `ACCP2026-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
 

@@ -2,22 +2,7 @@
 import { useState, useEffect } from 'react'
 import Layout from "@/components/layout/Layout"
 import Link from "next/link"
-
-// Delegate types
-const delegateTypes = [
-    { value: "student_undergraduate", label: "Student (Undergraduate)", priceUSD: 250, priceTHB: 4900, earlyBirdPriceUSD: 250, earlyBirdPriceTHB: 4900 },
-    { value: "student_graduate", label: "Student (Graduate/Postgraduate)", priceUSD: 300, priceTHB: 5900, earlyBirdPriceUSD: 280, earlyBirdPriceTHB: 5500 },
-    { value: "professional", label: "Professional / Academician", priceUSD: 400, priceTHB: 8900, earlyBirdPriceUSD: 385, earlyBirdPriceTHB: 7900 },
-    { value: "presenter_oral", label: "Oral Presenter", priceUSD: 385, priceTHB: 7900, earlyBirdPriceUSD: 370, earlyBirdPriceTHB: 7500 },
-    { value: "presenter_poster", label: "Poster Presenter", priceUSD: 385, priceTHB: 7900, earlyBirdPriceUSD: 370, earlyBirdPriceTHB: 7500 },
-]
-
-// Add-ons
-const addOns = [
-    { id: "workshop1", name: "Pre-conference Workshop 1", description: "Clinical Pharmacy Practice", priceUSD: 70, priceTHB: 2100 },
-    { id: "workshop2", name: "Pre-conference Workshop 2", description: "Pharmacoeconomics", priceUSD: 70, priceTHB: 2100 },
-    { id: "gala", name: "Gala Dinner", description: "July 10, 2026 Evening", priceUSD: 75, priceTHB: 2200 },
-]
+import { useTickets } from "@/context/TicketContext"
 
 // Countries list (simplified)
 const countries = [
@@ -73,13 +58,15 @@ export default function Register() {
 
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
+    const { packages: delegateTypes, addOns, tickets: rawTickets, loading: ticketsLoading } = useTickets()
 
-    // Check if early bird period
+    // Determine early bird from ticket badgeText
     useEffect(() => {
-        const earlyBirdDeadline = new Date('2026-04-15')
-        const now = new Date()
-        setIsEarlyBird(now < earlyBirdDeadline)
-    }, [])
+        if (!ticketsLoading && rawTickets.length > 0) {
+            const hasBadge = rawTickets.some((t) => t.badgeText?.toLowerCase().includes('early') && t.isAvailable);
+            setIsEarlyBird(hasBadge);
+        }
+    }, [ticketsLoading, rawTickets])
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value, type } = e.target
@@ -101,19 +88,15 @@ export default function Register() {
         }))
     }
 
-    // Calculate total price
+    // Calculate total price (API already returns the best available ticket — no earlyBird toggle needed)
     const calculateTotal = () => {
         const isThai = formData.country === 'Thailand'
         let total = 0
 
         // Delegate type price
-        const selectedDelegate = delegateTypes.find(d => d.value === formData.delegateType)
+        const selectedDelegate = delegateTypes.find(d => d.id === formData.delegateType)
         if (selectedDelegate) {
-            if (isThai) {
-                total += isEarlyBird ? selectedDelegate.earlyBirdPriceTHB : selectedDelegate.priceTHB
-            } else {
-                total += isEarlyBird ? selectedDelegate.earlyBirdPriceUSD : selectedDelegate.priceUSD
-            }
+            total += isThai ? selectedDelegate.priceTHB : selectedDelegate.priceUSD
         }
 
         // Add-ons
@@ -453,40 +436,38 @@ export default function Register() {
                                                 <div style={{ display: 'grid', gap: '12px' }}>
                                                     {delegateTypes.map(type => {
                                                         const isThai = formData.country === 'Thailand'
-                                                        const price = isThai
-                                                            ? (isEarlyBird ? type.earlyBirdPriceTHB : type.priceTHB)
-                                                            : (isEarlyBird ? type.earlyBirdPriceUSD : type.priceUSD)
+                                                        const price = isThai ? type.priceTHB : type.priceUSD
                                                         const currency = isThai ? '฿' : '$'
 
                                                         return (
-                                                            <label key={type.value} style={{
+                                                            <label key={type.id} style={{
                                                                 display: 'flex',
                                                                 alignItems: 'center',
                                                                 padding: '16px 20px',
-                                                                border: formData.delegateType === type.value ? '2px solid #FFBA00' : '1px solid #e0e0e0',
+                                                                border: formData.delegateType === type.id ? '2px solid #FFBA00' : '1px solid #e0e0e0',
                                                                 borderRadius: '12px',
                                                                 cursor: 'pointer',
-                                                                backgroundColor: formData.delegateType === type.value ? '#fffbf0' : '#fff',
+                                                                backgroundColor: formData.delegateType === type.id ? '#fffbf0' : '#fff',
                                                                 transition: 'all 0.3s ease'
                                                             }}>
                                                                 <input
                                                                     type="radio"
                                                                     name="delegateType"
-                                                                    value={type.value}
-                                                                    checked={formData.delegateType === type.value}
+                                                                    value={type.id}
+                                                                    checked={formData.delegateType === type.id}
                                                                     onChange={handleInputChange}
                                                                     style={{ marginRight: '16px' }}
                                                                 />
                                                                 <div style={{ flex: 1 }}>
-                                                                    <strong style={{ color: '#1a1a2e' }}>{type.label}</strong>
+                                                                    <strong style={{ color: '#1a1a2e' }}>{type.name}</strong>
                                                                 </div>
                                                                 <div style={{ textAlign: 'right' }}>
                                                                     <strong style={{ color: '#FFBA00', fontSize: '18px' }}>
                                                                         {currency}{price.toLocaleString()}
                                                                     </strong>
-                                                                    {isEarlyBird && (
+                                                                    {type.badgeText && (
                                                                         <span style={{ display: 'block', fontSize: '12px', color: '#4caf50' }}>
-                                                                            Early Bird
+                                                                            {type.badgeText}
                                                                         </span>
                                                                     )}
                                                                 </div>
@@ -665,7 +646,7 @@ export default function Register() {
                                                 <div style={{ backgroundColor: '#f8f9fa', padding: '20px', borderRadius: '12px', marginBottom: '20px' }}>
                                                     <h5 style={{ marginBottom: '12px', color: '#1a1a2e' }}>Registration Details</h5>
                                                     <p style={{ margin: '4px 0', color: '#666' }}>
-                                                        <strong>Delegate Type:</strong> {delegateTypes.find(d => d.value === formData.delegateType)?.label}
+                                                        <strong>Delegate Type:</strong> {delegateTypes.find(d => d.id === formData.delegateType)?.name}
                                                     </p>
                                                     {formData.selectedAddOns.length > 0 && (
                                                         <p style={{ margin: '4px 0', color: '#666' }}>
@@ -759,24 +740,26 @@ export default function Register() {
                                         Order Summary
                                     </h4>
 
-                                    {formData.delegateType && (
-                                        <div style={{ marginBottom: '16px', paddingBottom: '16px', borderBottom: '1px solid #eee' }}>
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                                                <span style={{ color: '#666' }}>{delegateTypes.find(d => d.value === formData.delegateType)?.label}</span>
-                                                <strong style={{ color: '#1a1a2e' }}>
-                                                    {currency}{(formData.country === 'Thailand'
-                                                        ? (isEarlyBird ? delegateTypes.find(d => d.value === formData.delegateType)?.earlyBirdPriceTHB : delegateTypes.find(d => d.value === formData.delegateType)?.priceTHB)
-                                                        : (isEarlyBird ? delegateTypes.find(d => d.value === formData.delegateType)?.earlyBirdPriceUSD : delegateTypes.find(d => d.value === formData.delegateType)?.priceUSD)
-                                                    )?.toLocaleString()}
-                                                </strong>
+                                    {formData.delegateType && (() => {
+                                        const sel = delegateTypes.find(d => d.id === formData.delegateType);
+                                        const isThai = formData.country === 'Thailand';
+                                        const price = sel ? (isThai ? sel.priceTHB : sel.priceUSD) : 0;
+                                        return (
+                                            <div style={{ marginBottom: '16px', paddingBottom: '16px', borderBottom: '1px solid #eee' }}>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                                                    <span style={{ color: '#666' }}>{sel?.name}</span>
+                                                    <strong style={{ color: '#1a1a2e' }}>
+                                                        {currency}{price.toLocaleString()}
+                                                    </strong>
+                                                </div>
+                                                {sel?.badgeText && (
+                                                    <span style={{ fontSize: '12px', color: '#4caf50', backgroundColor: '#e8f5e9', padding: '2px 8px', borderRadius: '4px' }}>
+                                                        {sel.badgeText}
+                                                    </span>
+                                                )}
                                             </div>
-                                            {isEarlyBird && (
-                                                <span style={{ fontSize: '12px', color: '#4caf50', backgroundColor: '#e8f5e9', padding: '2px 8px', borderRadius: '4px' }}>
-                                                    Early Bird Discount Applied
-                                                </span>
-                                            )}
-                                        </div>
-                                    )}
+                                        );
+                                    })()}
 
                                     {formData.selectedAddOns.length > 0 && (
                                         <div style={{ marginBottom: '16px', paddingBottom: '16px', borderBottom: '1px solid #eee' }}>

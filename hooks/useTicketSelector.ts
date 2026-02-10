@@ -1,12 +1,7 @@
 "use client";
 
 import { TicketType } from "@/lib/api";
-
-// Roles mapping ตรงกับ userRoleEnum ใน DB
-const ROLES = {
-  STUDENT: ["thstd", "interstd"],
-  PROFESSIONAL: ["thpro", "interpro"],
-} as const;
+import { ticketMatchesRoles, STUDENT_ROLES, PRO_ROLES } from "@/utils/tickets";
 
 interface UseTicketSelectorReturn {
   studentTicket: TicketType | null;
@@ -21,19 +16,13 @@ interface UseTicketSelectorReturn {
  * - รองรับการสลับอัตโนมัติจาก Early Bird → Regular
  */
 export function useTicketSelector(tickets: TicketType[]): UseTicketSelectorReturn {
-  // 1. แบ่งกลุ่มตั๋วตาม allowedRoles
+  // 1. แบ่งกลุ่มตั๋วตาม allowedRoles (ใช้ JSON parse แทน substring match)
   const groups = {
     student: tickets.filter(
-      (t) =>
-        t.category === "primary" &&
-        t.allowedRoles &&
-        ROLES.STUDENT.some((role) => t.allowedRoles?.includes(role))
+      (t) => t.category === "primary" && ticketMatchesRoles(t, STUDENT_ROLES)
     ),
     professional: tickets.filter(
-      (t) =>
-        t.category === "primary" &&
-        t.allowedRoles &&
-        ROLES.PROFESSIONAL.some((role) => t.allowedRoles?.includes(role))
+      (t) => t.category === "primary" && ticketMatchesRoles(t, PRO_ROLES)
     ),
     addons: tickets.filter((t) => t.category === "addon"),
   };
