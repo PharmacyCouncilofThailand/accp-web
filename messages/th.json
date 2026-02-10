@@ -138,7 +138,14 @@
     "studentPriceTHB": "฿4,900",
     "studentRegularTHB": "฿4,900 ราคาปกติ",
     "professionalPriceTHB": "฿7,900",
-    "professionalRegularTHB": "฿8,900 ราคาปกติ"
+    "professionalRegularTHB": "฿8,900 ราคาปกติ",
+    "virtualAttending": "เข้าร่วมแบบออนไลน์",
+    "virtualAttendanceTitle": "การเข้าร่วมแบบออนไลน์",
+    "virtualAttendanceDescription": "เข้าร่วม ACCP 2026 แบบออนไลน์จากทุกที่ในโลก รับชมทุก Session ทางวิชาการผ่าน Live Streaming พร้อมฟีเจอร์ interactive",
+    "virtualIncludes": "การเข้าร่วมแบบออนไลน์รวม:",
+    "virtualComingSoon": "การลงทะเบียนแบบออนไลน์จะเปิดเร็วๆ นี้ ติดตามอัพเดท!",
+    "virtualComingSoonTitle": "เร็วๆ นี้",
+    "virtualComingSoonDescription": "ตัวเลือกการเข้าร่วมแบบออนไลน์จะประกาศให้ทราบเร็วๆ นี้"
   },
   "contact": {
     "pageTitle": "ติดต่อเรา",
