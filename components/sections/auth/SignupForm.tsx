@@ -3,7 +3,6 @@ import { useState, useRef } from 'react';
 import Link from 'next/link';
 import { useTranslations, useLocale } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/context/AuthContext';
 import { PhoneInput } from 'react-international-phone';
 import 'react-international-phone/style.css';
 import { parsePhoneNumber, isValidPhoneNumber } from 'libphonenumber-js';
@@ -24,7 +23,6 @@ export default function SignupForm() {
     const tLogin = useTranslations('login');
     const locale = useLocale();
     const router = useRouter();
-    const { login } = useAuth();
 
     const [activeTab, setActiveTab] = useState<TabType>('thaiStudent');
     const [isLoading, setIsLoading] = useState(false);
@@ -172,25 +170,10 @@ export default function SignupForm() {
                 return;
             }
 
-            // Success handling (reuse isStudent from above)
-            if (isStudent) {
-                // Show pending modal
-                setIsPending(true);
-            } else {
-                // Auto login for professionals
-                login({
-                    firstName: data.user.firstName,
-                    lastName: data.user.lastName,
-                    email: data.user.email,
-                    // Map local state to AuthContext type
-                    delegateType: activeTab === 'thaiProfessional' ? 'thai_pharmacist' : 'international_pharmacist',
-                    isThai: activeTab === 'thaiProfessional',
-                    country: country || 'Thailand',
-                    idCard: idCard,
-                });
-                await new Promise(resolve => setTimeout(resolve, 100));
-                router.push(`/${locale}`);
-            }
+            // Success handling — show modal for all user types
+            // Students: pending approval modal
+            // Professionals: success modal → redirect to login to get JWT token
+            setIsPending(true);
         } catch (error) {
             logger.error('Signup error', error, { component: 'SignupForm' });
             toast.error('Something went wrong. Please try again.');
@@ -289,12 +272,22 @@ export default function SignupForm() {
                                 <img src="/assets/img/logo/accp_logo_main.png" alt="ACCP 2026"
                                     style={{ height: '80px', width: 'auto', margin: '0 auto' }} />
                             </div>
-                            <div style={{ fontSize: '48px', marginBottom: '24px' }}>⏳</div>
+                            <div style={{ fontSize: '48px', marginBottom: '24px' }}>
+                                {(activeTab === 'thaiStudent' || activeTab === 'internationalStudent') ? '⏳' : '✅'}
+                            </div>
                             <h3 style={{ fontSize: '20px', fontWeight: '600', color: '#1a1a1a', marginBottom: '16px' }}>
-                                {locale === 'th' ? 'สร้างบัญชีสำเร็จ' : 'Account Created'}
+                                {(activeTab === 'thaiStudent' || activeTab === 'internationalStudent')
+                                    ? (locale === 'th' ? 'สร้างบัญชีสำเร็จ' : 'Account Created')
+                                    : (locale === 'th' ? 'สร้างบัญชีสำเร็จ!' : 'Account Created Successfully!')
+                                }
                             </h3>
                             <p style={{ color: '#666', fontSize: '16px', marginBottom: '32px', lineHeight: '1.6' }}>
-                                {t('pendingApproval')}
+                                {(activeTab === 'thaiStudent' || activeTab === 'internationalStudent')
+                                    ? t('pendingApproval')
+                                    : (locale === 'th'
+                                        ? 'บัญชีของคุณพร้อมใช้งานแล้ว กรุณาเข้าสู่ระบบเพื่อเริ่มใช้งาน'
+                                        : 'Your account is ready. Please sign in to get started.')
+                                }
                             </p>
                             <button
                                 onClick={() => router.push(`/${locale}/login`)}
@@ -312,7 +305,10 @@ export default function SignupForm() {
                                     width: '100%'
                                 }}
                             >
-                                {locale === 'th' ? 'ตกลง' : 'OK'}
+                                {(activeTab === 'thaiStudent' || activeTab === 'internationalStudent')
+                                    ? (locale === 'th' ? 'ตกลง' : 'OK')
+                                    : (locale === 'th' ? 'เข้าสู่ระบบ' : 'Sign In')
+                                }
                             </button>
                         </div>
                     </div>
