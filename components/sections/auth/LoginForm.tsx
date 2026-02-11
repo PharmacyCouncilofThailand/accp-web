@@ -117,7 +117,7 @@ export default function LoginForm() {
         return;
       }
 
-      // Login Success - pass token to login (stored based on rememberMe)
+      // Login Success - pass token and rememberMe to AuthContext
       login(
         {
           firstName: data.user.firstName,
@@ -129,20 +129,8 @@ export default function LoginForm() {
           idCard: data.user.idCard,
         },
         data.token,
+        rememberMe,
       );
-
-      // Handle Remember Me - use localStorage for persistent, sessionStorage for temporary
-      if (!rememberMe) {
-        // Move token to sessionStorage instead of localStorage (will be cleared on browser close)
-        const token = localStorage.getItem("accp_token");
-        const user = localStorage.getItem("accp_user");
-        if (token && user) {
-          sessionStorage.setItem("accp_token", token);
-          sessionStorage.setItem("accp_user", user);
-          localStorage.removeItem("accp_token");
-          localStorage.removeItem("accp_user");
-        }
-      }
 
       // Redirect
       router.push(`/${locale}`);

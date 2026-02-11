@@ -63,13 +63,17 @@ export interface LoginCredentials {
 
 export interface LoginResponse {
     success: boolean;
-    token?: string;
-    user?: {
+    token: string;
+    user: {
         id: number;
         email: string;
         firstName: string;
         lastName: string;
         role: string;
+        country?: string;
+        delegateType: string;
+        isThai: boolean;
+        idCard?: string;
     };
     error?: string;
 }
@@ -147,14 +151,14 @@ export const api = {
 
     abstracts: {
         submit: (token: string, formData: FormData) =>
-            fetchAPI<{ success: boolean; abstract?: Record<string, unknown> }>('/api/abstracts', {
+            fetchAPI<{ success: boolean; abstract?: Record<string, unknown> }>('/api/abstracts/submit', {
                 method: 'POST',
                 body: formData,
                 token,
             }),
 
-        getUserAbstracts: (token: string, email: string) =>
-            fetchAPI<{ abstracts: Record<string, unknown>[] }>(`/api/abstracts/user?email=${encodeURIComponent(email)}`, { token }),
+        getUserAbstracts: (token: string) =>
+            fetchAPI<{ abstracts: Record<string, unknown>[] }>('/api/abstracts/user', { token }),
     },
 
     speakers: {

@@ -17,13 +17,17 @@ export const VALIDATION_MESSAGES = {
   MIN_LENGTH: (length: number) => `Minimum length is ${length} characters`
 };
 
-// API endpoints (for future use)
+// API endpoints
 export const API_ENDPOINTS = {
-  LOGIN: '/api/auth/login',
-  SIGNUP: '/api/auth/signup',
-  LOGOUT: '/api/auth/logout',
-  CHECKOUT: '/api/checkout',
-  PAYMENT: '/api/payment'
+  LOGIN: '/auth/login',
+  REGISTER: '/auth/register',
+  PROFILE: '/api/users/profile',
+  ABSTRACTS_SUBMIT: '/api/abstracts/submit',
+  ABSTRACTS_USER: '/api/abstracts/user',
+  SPEAKERS: '/api/speakers',
+  EVENTS: '/api/events',
+  WORKSHOPS: '/api/workshops',
+  TICKETS: '/api/tickets',
 };
 
 // Local storage keys

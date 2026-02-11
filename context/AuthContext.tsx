@@ -15,13 +15,22 @@ interface User {
 interface AuthContextType {
     user: User | null;
     token: string | null;
-    login: (userData: User, authToken?: string) => void;
+    login: (userData: User, authToken?: string, rememberMe?: boolean) => void;
     logout: () => void;
     setToken: (token: string | null) => void;
     isAuthenticated: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+function isTokenExpired(token: string): boolean {
+    try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        return payload.exp * 1000 < Date.now();
+    } catch {
+        return true;
+    }
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
@@ -38,6 +47,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (!storedUser || !storedToken) {
             storedUser = storedUser || sessionStorage.getItem('accp_user');
             storedToken = storedToken || sessionStorage.getItem('accp_token');
+        }
+
+        // Check token expiry before restoring session
+        if (storedToken && isTokenExpired(storedToken)) {
+            logger.warn('Token expired, clearing session', { component: 'AuthContext' });
+            localStorage.removeItem('accp_user');
+            localStorage.removeItem('accp_token');
+            sessionStorage.removeItem('accp_user');
+            sessionStorage.removeItem('accp_token');
+            setIsLoading(false);
+            return;
+        }
+
+        // Force logout users from old version (had user but no token)
+        // Safety net: prevents "looks logged in but can't do anything" state
+        if (storedUser && !storedToken) {
+            localStorage.removeItem('accp_user');
+            sessionStorage.removeItem('accp_user');
+            setIsLoading(false);
+            return;
         }
         
         if (storedUser) {
@@ -57,14 +86,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setIsLoading(false);
     }, []);
 
-    const login = (userData: User, authToken?: string) => {
+    const login = (userData: User, authToken?: string, rememberMe: boolean = true) => {
         setUser(userData);
-        localStorage.setItem('accp_user', JSON.stringify(userData));
-        
+        setTokenState(authToken || null);
+
+        const storage = rememberMe ? localStorage : sessionStorage;
+        const otherStorage = rememberMe ? sessionStorage : localStorage;
+
+        storage.setItem('accp_user', JSON.stringify(userData));
         if (authToken) {
-            setTokenState(authToken);
-            localStorage.setItem('accp_token', authToken);
+            storage.setItem('accp_token', authToken);
         }
+
+        otherStorage.removeItem('accp_user');
+        otherStorage.removeItem('accp_token');
     };
 
     const logout = () => {
