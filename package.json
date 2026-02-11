@@ -10,6 +10,8 @@
     "sass": "sass --watch public/assets/scss/main.scss:styles/main.css"
   },
   "dependencies": {
+    "@stripe/react-stripe-js": "^5.6.0",
+    "@stripe/stripe-js": "^8.7.0",
     "@types/react-google-recaptcha": "^2.1.9",
     "aos": "^2.3.4",
     "country-flag-icons": "^1.6.4",

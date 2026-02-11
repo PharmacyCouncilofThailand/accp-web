@@ -28,7 +28,7 @@ import Layout from '@/components/layout/Layout';
         category: 'earlyBird',
         status: 'confirmed',
         purchaseDate: new Date().toISOString().split('T')[0],
-        amount: user?.country?.toLowerCase() === 'thailand' ? `฿${selectedPackage.priceTHB}` : `$${selectedPackage.priceUSD}`,
+        amount: user?.delegateType?.startsWith('th') ? `฿${selectedPackage.priceTHB}` : `$${selectedPackage.priceUSD} USD`,
         includes: [
             'fullAccess',
             'conferenceMaterials',
@@ -63,7 +63,7 @@ import Layout from '@/components/layout/Layout';
         date: 'July 8, 2026',
         time: '09:00 - 17:00',
         status: 'confirmed',
-        amount: user?.country?.toLowerCase() === 'thailand' ? `฿${workshopAddon?.priceTHB}` : `$${workshopAddon?.priceUSD}`
+        amount: user?.delegateType?.startsWith('thai') ? `฿${workshopAddon?.priceTHB}` : `$${workshopAddon?.priceUSD} USD`
     }] : [];
 
     return (
