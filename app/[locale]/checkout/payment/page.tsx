@@ -4,29 +4,30 @@ import Layout from "@/components/layout/Layout"
 import Link from "next/link"
 import { useTranslations, useLocale } from 'next-intl';
 import { useAuth } from '@/context/AuthContext'
-import { useRouter, useSearchParams } from 'next/navigation'
-import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import { useCheckoutWizard } from '@/hooks/checkout/useCheckoutWizard'
 import { workshopOptions } from '@/data/checkout'
-import { formatCurrency } from "@/utils/currency"
 import OrderSummary from '@/components/checkout/OrderSummary'
 import { useTickets } from '@/context/TicketContext'
+import StripeProvider from '@/components/providers/StripeProvider'
+import StripePaymentForm from '@/components/checkout/StripePaymentForm'
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
 export default function Payment() {
 	const t = useTranslations('payment');
 	const tCheckout = useTranslations('checkout');
 	const tCommon = useTranslations('common');
 	const locale = useLocale();
-	const { isAuthenticated, user } = useAuth();
+	const { isAuthenticated, token, user } = useAuth();
 	const router = useRouter();
-	const searchParams = useSearchParams();
 
-	// Use checkout data from hook instead of URL params
-	const { checkoutData } = useCheckoutWizard();
+	// Use checkout data from hook
+	const { checkoutData, resetCheckout, isInitialized } = useCheckoutWizard();
 
-	// Determine currency based on payment country (Thailand = THB, Others = USD)
-	const isThaiPayment = checkoutData.country?.trim().toLowerCase() === 'thailand';
-	const currencySymbol = isThaiPayment ? '฿' : '$';
+	// Determine currency based on delegate type (role)
+	const isThaiPayment = user?.delegateType?.startsWith('thai') ?? false;
+	const currency: 'THB' | 'USD' = isThaiPayment ? 'THB' : 'USD';
 
 	// Ticket data from context (cached, single fetch)
 	const { packages: apiPackages, addOns: apiAddOns } = useTickets();
@@ -39,76 +40,47 @@ export default function Payment() {
 		.reduce((sum, a) => (isThaiPayment ? sum + a.priceTHB : sum + a.priceUSD), 0);
 	const totalAmount = packagePrice + addOnsPrice;
 
-	// Use data from hook
-	const amount = totalAmount.toString();
-  
-  // Prepare OrderSummary props
-  const orderPackageItem = {
-    id: checkoutData.selectedPackage || 'professional',
-    name: tCheckout(`packages.${checkoutData.selectedPackage || 'professional'}`),
-    price: packagePrice
-  };
+	// Prepare OrderSummary props
+	const orderPackageItem = {
+		id: checkoutData.selectedPackage || 'professional',
+		name: tCheckout(`packages.${checkoutData.selectedPackage || 'professional'}`),
+		price: packagePrice
+	};
 
-  const orderAddOns = useMemo(() => {
-    return checkoutData.selectedAddOns.map(addOnId => {
-      const addon = apiAddOns.find(a => a.id === addOnId);
-      if (!addon) return null;
+	const orderAddOns = useMemo(() => {
+		return checkoutData.selectedAddOns.map(addOnId => {
+			const addon = apiAddOns.find(a => a.id === addOnId);
+			if (!addon) return null;
 
-      let details = '';
-      if (addOnId === 'workshop' && checkoutData.selectedWorkshopTopic) {
-        const option = workshopOptions.find(o => o.value === checkoutData.selectedWorkshopTopic);
-        if (option) details = option.label;
-      } else if (addOnId === 'gala' && checkoutData.dietaryRequirement) {
-        if (checkoutData.dietaryRequirement === 'other' && checkoutData.dietaryOtherText) {
-          details = checkoutData.dietaryOtherText;
-        } else {
-          details = tCheckout(`dietaryOptions.${checkoutData.dietaryRequirement}`);
-        }
-      }
+			let details = '';
+			if (addOnId === 'workshop' && checkoutData.selectedWorkshopTopic) {
+				const option = workshopOptions.find(o => o.value === checkoutData.selectedWorkshopTopic);
+				if (option) details = option.label;
+			} else if (addOnId === 'gala' && checkoutData.dietaryRequirement) {
+				if (checkoutData.dietaryRequirement === 'other' && checkoutData.dietaryOtherText) {
+					details = checkoutData.dietaryOtherText;
+				} else {
+					details = tCheckout(`dietaryOptions.${checkoutData.dietaryRequirement}`);
+				}
+			}
 
-      return {
-        id: addOnId,
-        name: tCheckout(`addOns.${addOnId}`),
-        price: isThaiPayment ? addon.priceTHB : addon.priceUSD,
-        details
-      };
-    }).filter((item): item is { id: string; name: string; price: number; details: string } => item !== null);
-  }, [checkoutData.selectedAddOns, checkoutData.selectedWorkshopTopic, checkoutData.dietaryRequirement, checkoutData.dietaryOtherText, apiAddOns, isThaiPayment, tCheckout]);
-	const packageType = checkoutData.selectedPackage || 'professional';
-	const orderNumber = `ACCP2026-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+			return {
+				id: addOnId,
+				name: tCheckout(`addOns.${addOnId}`),
+				price: isThaiPayment ? addon.priceTHB : addon.priceUSD,
+				details
+			};
+		}).filter((item): item is { id: string; name: string; price: number; details: string } => item !== null);
+	}, [checkoutData.selectedAddOns, checkoutData.selectedWorkshopTopic, checkoutData.dietaryRequirement, checkoutData.dietaryOtherText, apiAddOns, isThaiPayment, tCheckout]);
 
-	// Get payment method from URL, default to 'qr' if not specified
-	const methodParam = searchParams.get('method') as 'qr' | 'card' | null;
-	const [paymentMethod, setPaymentMethod] = useState<'qr' | 'card'>(methodParam || 'qr'); // Fallback to URL or default
-	// Use checkoutData method if available
-	useEffect(() => {
-		if (checkoutData.paymentMethod) {
-			setPaymentMethod(checkoutData.paymentMethod);
-		}
-	}, [checkoutData.paymentMethod]);
-
-	const [isProcessing, setIsProcessing] = useState(false);
-	const [showSuccess, setShowSuccess] = useState(false);
-	const [qrTimer, setQrTimer] = useState(300); // 5 minutes
-
-	// Card form states
-	const [cardData, setCardData] = useState({
-		cardNumber: '',
-		cardholderName: '',
-		expiryDate: '',
-		cvv: ''
-	});
-	const [cardErrors, setCardErrors] = useState<Record<string, string>>({});
-
-	// QR Timer countdown
-	useEffect(() => {
-		if (paymentMethod === 'qr' && qrTimer > 0 && !showSuccess) {
-			const timer = setInterval(() => {
-				setQrTimer(prev => prev - 1);
-			}, 1000);
-			return () => clearInterval(timer);
-		}
-	}, [paymentMethod, qrTimer, showSuccess]);
+	// Stripe PaymentIntent state
+	const [clientSecret, setClientSecret] = useState<string | null>(null);
+	const [orderId, setOrderId] = useState<number | null>(null);
+	const [orderNumber, setOrderNumber] = useState<string>('');
+	const [intentError, setIntentError] = useState<string | null>(null);
+	const [isCreatingIntent, setIsCreatingIntent] = useState(false);
+	const [feeAmount, setFeeAmount] = useState<number>(0);
+	const [chargeTotal, setChargeTotal] = useState<number>(0);
 
 	// Check authentication
 	useEffect(() => {
@@ -117,169 +89,54 @@ export default function Payment() {
 		}
 	}, [isAuthenticated, router, locale]);
 
-	const formatTime = (seconds: number) => {
-		const mins = Math.floor(seconds / 60);
-		const secs = seconds % 60;
-		return `${mins}:${secs.toString().padStart(2, '0')}`;
-	};
+	// Create PaymentIntent on mount
+	useEffect(() => {
+		if (!isInitialized || !token || !checkoutData.selectedPackage || clientSecret) return;
 
-	const handleCardChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const { name, value } = e.target;
-		let formattedValue = value;
+		const createIntent = async () => {
+			setIsCreatingIntent(true);
+			setIntentError(null);
 
-		// Format card number with spaces
-		if (name === 'cardNumber') {
-			formattedValue = value.replace(/\s/g, '').replace(/(\d{4})/g, '$1 ').trim();
-			if (formattedValue.length > 19) return;
-		}
+			try {
+				const res = await fetch(`${API_URL}/api/payments/create-intent`, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						'Authorization': `Bearer ${token}`,
+					},
+					body: JSON.stringify({
+						packageId: checkoutData.selectedPackage,
+						addOnIds: checkoutData.selectedAddOns,
+						currency,
+						paymentMethod: checkoutData.paymentMethod,
+					}),
+				});
 
-		// Format expiry date
-		if (name === 'expiryDate') {
-			formattedValue = value.replace(/\D/g, '');
-			if (formattedValue.length >= 2) {
-				formattedValue = formattedValue.slice(0, 2) + '/' + formattedValue.slice(2, 4);
+				const data = await res.json();
+
+				if (!res.ok || !data.success) {
+					setIntentError(data.error || 'Failed to initialize payment');
+					return;
+				}
+
+				setClientSecret(data.data.clientSecret);
+				setOrderId(data.data.orderId);
+				setOrderNumber(data.data.orderNumber);
+				setFeeAmount(data.data.fee || 0);
+				setChargeTotal(data.data.total || totalAmount);
+			} catch (err) {
+				console.error('Failed to create payment intent:', err);
+				setIntentError('Failed to connect to payment server');
+			} finally {
+				setIsCreatingIntent(false);
 			}
-			if (formattedValue.length > 5) return;
-		}
+		};
 
-		// Limit CVV to 4 digits
-		if (name === 'cvv' && value.length > 4) return;
-
-		setCardData(prev => ({ ...prev, [name]: formattedValue }));
-		if (cardErrors[name]) {
-			setCardErrors(prev => ({ ...prev, [name]: '' }));
-		}
-	};
-
-	const validateCard = (): boolean => {
-		const errors: Record<string, string> = {};
-
-		if (!cardData.cardNumber) errors.cardNumber = t('validation.cardNumberRequired');
-		else if (cardData.cardNumber.replace(/\s/g, '').length < 15) errors.cardNumber = t('validation.cardNumberInvalid');
-
-		if (!cardData.cardholderName) errors.cardholderName = t('validation.cardholderNameRequired');
-		if (!cardData.expiryDate) errors.expiryDate = t('validation.expiryDateRequired');
-		else if (!/^\d{2}\/\d{2}$/.test(cardData.expiryDate)) errors.expiryDate = t('validation.expiryDateInvalid');
-
-		if (!cardData.cvv) errors.cvv = t('validation.cvvRequired');
-		else if (cardData.cvv.length < 3) errors.cvv = t('validation.cvvInvalid');
-
-		setCardErrors(errors);
-		return Object.keys(errors).length === 0;
-	};
-
-	const handlePayment = () => {
-		if (paymentMethod === 'card' && !validateCard()) {
-			return;
-		}
-
-		setIsProcessing(true);
-
-		// Simulate payment processing
-		setTimeout(() => {
-			setIsProcessing(false);
-			setShowSuccess(true);
-		}, 2000);
-	};
-
-	const handleGenerateNewQR = () => {
-		setQrTimer(300);
-	};
+		createIntent();
+	}, [isInitialized, token, checkoutData.selectedPackage, checkoutData.selectedAddOns, currency, clientSecret]);
 
 	if (!isAuthenticated) {
 		return null;
-	}
-
-	if (showSuccess) {
-		return (
-			<Layout headerStyle={1} footerStyle={1}>
-				<div className="inner-page-header" style={{ backgroundImage: 'url(/assets/img/bg/header-bg16.png)' }}>
-					<div className="container">
-						<div className="row">
-							<div className="col-lg-9 m-auto">
-								<div className="heading1 text-center">
-									<h1>{t('paymentSuccess')}</h1>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-
-				<div className="sp1">
-					<div className="container">
-						<div className="row justify-content-center">
-							<div className="col-lg-6">
-								<div style={{
-									padding: '40px',
-									border: '2px solid #00C853',
-									borderRadius: '15px',
-									backgroundColor: '#f0f9f6',
-									textAlign: 'center'
-								}}>
-									<div style={{ fontSize: '80px', marginBottom: '20px' }}>✅</div>
-									<h2 style={{ color: '#00C853', marginBottom: '20px' }}>{t('paymentSuccess')}</h2>
-									<p style={{ fontSize: '16px', color: '#666', marginBottom: '30px' }}>
-										{t('paymentSuccessMessage')}
-									</p>
-
-									<div style={{
-										backgroundColor: '#fff',
-										padding: '20px',
-										borderRadius: '10px',
-										marginBottom: '30px',
-										textAlign: 'left'
-									}}>
-										<div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px' }}>
-											<span style={{ fontWeight: '600' }}>{t('orderNumber')}:</span>
-											<span style={{ color: '#00C853', fontFamily: 'monospace' }}>{orderNumber}</span>
-										</div>
-										<div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px' }}>
-											<span style={{ fontWeight: '600' }}>{t('paymentDate')}:</span>
-											<span>{new Date().toLocaleDateString(locale)}</span>
-										</div>
-										<div style={{ display: 'flex', justifyContent: 'space-between' }}>
-											<span style={{ fontWeight: '600' }}>{t('totalAmount')}:</span>
-											<span style={{ fontSize: '20px', fontWeight: 'bold', color: '#00C853' }}>{currencySymbol}{amount}</span>
-										</div>
-									</div>
-
-									<div style={{ display: 'flex', gap: '15px', justifyContent: 'center' }}>
-										<div
-											onClick={() => router.push(`/${locale}/my-tickets`)}
-											style={{
-												padding: '12px 30px',
-												background: 'linear-gradient(135deg, #00C853 0%, #69F0AE 100%)',
-												color: '#fff',
-												borderRadius: '8px',
-												cursor: 'pointer',
-												fontWeight: '600',
-												display: 'inline-block'
-											}}
-										>
-											{t('viewTicket')}
-										</div>
-										<Link
-											href={`/${locale}`}
-											style={{
-												padding: '12px 30px',
-												border: '2px solid #00C853',
-												color: '#00C853',
-												borderRadius: '8px',
-												textDecoration: 'none',
-												fontWeight: '600',
-												backgroundColor: '#fff'
-											}}
-										>
-											{t('backToHome')}
-										</Link>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</Layout>
-		);
 	}
 
 	return (
@@ -293,10 +150,9 @@ export default function Payment() {
 								<div className="heading1 text-center">
 									<h1>{t('pageTitle')}</h1>
 									<div className="space20" />
-									<Link href={`/${locale}`}>{tCommon('home')} <i className="fa-solid fa-angle-right" />
-										<Link href={`/${locale}/checkout`}>{tCheckout('breadcrumb')}</Link> <i className="fa-solid fa-angle-right" />
-										<span>{t('breadcrumb')}</span>
-									</Link>
+									<Link href={`/${locale}`}>{tCommon('home')}</Link> <i className="fa-solid fa-angle-right" />{' '}
+									<Link href={`/${locale}/checkout`}>{tCheckout('breadcrumb')}</Link> <i className="fa-solid fa-angle-right" />{' '}
+									<span>{t('breadcrumb')}</span>
 								</div>
 							</div>
 						</div>
@@ -307,7 +163,7 @@ export default function Payment() {
 				<div className="sp1">
 					<div className="container">
 						<div className="row">
-							{/* Left Column - Payment Methods */}
+							{/* Left Column - Stripe Payment */}
 							<div className="col-lg-8">
 								<div style={{ marginBottom: '20px' }}>
 									<Link
@@ -329,89 +185,57 @@ export default function Payment() {
 									</Link>
 								</div>
 
-
-
-								{/* QR Payment */}
-								{paymentMethod === 'qr' && (
+								{/* Loading state */}
+								{isCreatingIntent && (
 									<div style={{
-										padding: '30px',
-										border: '2px solid #00C853',
+										padding: '60px 30px',
+										border: '2px solid #e0e0e0',
 										borderRadius: '12px',
-										backgroundColor: '#fff'
+										backgroundColor: '#fff',
+										textAlign: 'center'
 									}}>
-										<h4 style={{ marginBottom: '20px', fontSize: '18px', fontWeight: '600', textAlign: 'center' }}>
-											{t('qrInstructions')}
-										</h4>
-
-										<div style={{ textAlign: 'center', marginBottom: '20px' }}>
-											{qrTimer > 0 ? (
-												<>
-													{/* Mock QR Code */}
-													<div style={{
-														width: '250px',
-														height: '250px',
-														margin: '0 auto',
-														backgroundColor: '#f5f5f5',
-														border: '3px solid #00C853',
-														borderRadius: '12px',
-														display: 'flex',
-														alignItems: 'center',
-														justifyContent: 'center',
-														fontSize: '100px',
-														marginBottom: '20px'
-													}}>
-														<div style={{ transform: 'rotate(45deg)' }}>◼</div>
-													</div>
-
-													<p style={{
-														fontSize: '14px',
-														color: '#666',
-														marginBottom: '15px',
-														padding: '0 20px'
-													}}>
-														{t('scanToPayInstructions')}
-													</p>
-
-													<div style={{
-														display: 'inline-block',
-														padding: '10px 20px',
-														backgroundColor: '#fff3cd',
-														border: '2px solid #ffc107',
-														borderRadius: '8px',
-														color: '#856404'
-													}}>
-														<i className="fa-solid fa-clock" style={{ marginRight: '8px' }}></i>
-														{t('qrExpiry')}: <strong>{formatTime(qrTimer)}</strong>
-													</div>
-												</>
-											) : (
-												<div>
-													<p style={{ color: '#ff6b6b', fontSize: '18px', fontWeight: '600', marginBottom: '20px' }}>
-														{t('qrExpired')}
-													</p>
-													<button
-														onClick={handleGenerateNewQR}
-														style={{
-															padding: '12px 30px',
-															backgroundColor: '#00C853',
-															color: '#fff',
-															border: 'none',
-															borderRadius: '8px',
-															fontSize: '16px',
-															fontWeight: '600',
-															cursor: 'pointer'
-														}}
-													>
-														{t('generateNewQR')}
-													</button>
-												</div>
-											)}
-										</div>
+										<i className="fa-solid fa-spinner fa-spin" style={{ fontSize: '40px', color: '#00C853', marginBottom: '20px', display: 'block' }} />
+										<p style={{ color: '#666', fontSize: '16px' }}>
+											{locale === 'th' ? 'กำลังเตรียมระบบชำระเงิน...' : 'Preparing payment...'}
+										</p>
 									</div>
 								)}
 
-								{/* Card Payment */}
-								{paymentMethod === 'card' && (
+								{/* Error state */}
+								{intentError && (
+									<div style={{
+										padding: '30px',
+										border: '2px solid #ff6b6b',
+										borderRadius: '12px',
+										backgroundColor: '#fff0f0',
+										textAlign: 'center'
+									}}>
+										<i className="fa-solid fa-circle-exclamation" style={{ fontSize: '40px', color: '#ff6b6b', marginBottom: '15px', display: 'block' }} />
+										<p style={{ color: '#ff6b6b', fontSize: '16px', fontWeight: '600', marginBottom: '10px' }}>
+											{intentError}
+										</p>
+										<button
+											onClick={() => {
+												setClientSecret(null);
+												setIntentError(null);
+											}}
+											style={{
+												padding: '10px 25px',
+												backgroundColor: '#00C853',
+												color: '#fff',
+												border: 'none',
+												borderRadius: '8px',
+												cursor: 'pointer',
+												fontWeight: '600'
+											}}
+										>
+											{locale === 'th' ? 'ลองอีกครั้ง' : 'Try Again'}
+										</button>
+									</div>
+								)}
+
+								{/* Stripe Payment Form */}
+								{clientSecret && orderId && (
 									<div style={{
 										padding: '30px',
 										border: '2px solid #00C853',
@@ -419,184 +243,53 @@ export default function Payment() {
 										backgroundColor: '#fff'
 									}}>
 										<h4 style={{ marginBottom: '25px', fontSize: '18px', fontWeight: '600' }}>
-											{t('cardPayment')}
+											{locale === 'th' ? 'ชำระเงิน' : 'Payment'}
 										</h4>
 
-										<div style={{ marginBottom: '20px' }}>
-											<label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', fontSize: '14px' }}>
-												{t('cardNumber')} <span style={{ color: '#ff6b6b' }}>*</span>
-											</label>
-											<input
-												type="text"
-												name="cardNumber"
-												value={cardData.cardNumber}
-												onChange={handleCardChange}
-												placeholder={t('cardNumberPlaceholder')}
-												style={{
-													width: '100%',
-													padding: '12px',
-													border: cardErrors.cardNumber ? '2px solid #ff6b6b' : '1px solid #ddd',
-													borderRadius: '8px',
-													fontSize: '16px',
-													fontFamily: 'monospace',
-													boxSizing: 'border-box'
-												}}
-											/>
-											{cardErrors.cardNumber && <p style={{ color: '#ff6b6b', fontSize: '12px', margin: '6px 0 0 0' }}>{cardErrors.cardNumber}</p>}
-										</div>
-
-										<div style={{ marginBottom: '20px' }}>
-											<label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', fontSize: '14px' }}>
-												{t('cardholderName')} <span style={{ color: '#ff6b6b' }}>*</span>
-											</label>
-											<input
-												type="text"
-												name="cardholderName"
-												value={cardData.cardholderName}
-												onChange={handleCardChange}
-												placeholder={t('cardholderNamePlaceholder')}
-												style={{
-													width: '100%',
-													padding: '12px',
-													border: cardErrors.cardholderName ? '2px solid #ff6b6b' : '1px solid #ddd',
-													borderRadius: '8px',
-													fontSize: '16px',
-													textTransform: 'uppercase',
-													boxSizing: 'border-box'
-												}}
-											/>
-											{cardErrors.cardholderName && <p style={{ color: '#ff6b6b', fontSize: '12px', margin: '6px 0 0 0' }}>{cardErrors.cardholderName}</p>}
-										</div>
-
-										<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-											<div>
-												<label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', fontSize: '14px' }}>
-													{t('expiryDate')} <span style={{ color: '#ff6b6b' }}>*</span>
-												</label>
-												<input
-													type="text"
-													name="expiryDate"
-													value={cardData.expiryDate}
-													onChange={handleCardChange}
-													placeholder={t('expiryDatePlaceholder')}
-													style={{
-														width: '100%',
-														padding: '12px',
-														border: cardErrors.expiryDate ? '2px solid #ff6b6b' : '1px solid #ddd',
-														borderRadius: '8px',
-														fontSize: '16px',
-														fontFamily: 'monospace',
-														boxSizing: 'border-box'
-													}}
-												/>
-												{cardErrors.expiryDate && <p style={{ color: '#ff6b6b', fontSize: '12px', margin: '6px 0 0 0' }}>{cardErrors.expiryDate}</p>}
+										{/* Fee Breakdown */}
+										{feeAmount > 0 && (
+											<div style={{
+												padding: '16px',
+												backgroundColor: '#f8f9fa',
+												borderRadius: '10px',
+												marginBottom: '20px',
+												fontSize: '14px',
+											}}>
+												<div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', color: '#333' }}>
+													<span>{locale === 'th' ? 'ราคาสินค้า' : 'Subtotal'}</span>
+													<span>{isThaiPayment ? '฿' : '$'}{totalAmount.toLocaleString()}{!isThaiPayment ? ' USD' : ''}</span>
+												</div>
+												<div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', color: '#666' }}>
+													<span>{locale === 'th' ? 'ค่าธรรมเนียมชำระเงิน' : 'Payment Processing Fee'}</span>
+													<span>{isThaiPayment ? '฿' : '$'}{feeAmount.toLocaleString()}{!isThaiPayment ? ' USD' : ''}</span>
+												</div>
+												<div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: '8px', borderTop: '1px solid #ddd', fontWeight: '700', color: '#1a1a2e' }}>
+													<span>{locale === 'th' ? 'ยอดชำระทั้งหมด' : 'Total'}</span>
+													<span style={{ color: '#00C853' }}>{isThaiPayment ? '฿' : '$'}{chargeTotal.toLocaleString()}{!isThaiPayment ? ' USD' : ''}</span>
+												</div>
 											</div>
+										)}
 
-											<div>
-												<label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', fontSize: '14px' }}>
-													{t('cvv')} <span style={{ color: '#ff6b6b' }}>*</span>
-												</label>
-												<input
-													type="text"
-													name="cvv"
-													value={cardData.cvv}
-													onChange={handleCardChange}
-													placeholder={t('cvvPlaceholder')}
-													maxLength={4}
-													style={{
-														width: '100%',
-														padding: '12px',
-														border: cardErrors.cvv ? '2px solid #ff6b6b' : '1px solid #ddd',
-														borderRadius: '8px',
-														fontSize: '16px',
-														fontFamily: 'monospace',
-														boxSizing: 'border-box'
-													}}
-												/>
-												{cardErrors.cvv && <p style={{ color: '#ff6b6b', fontSize: '12px', margin: '6px 0 0 0' }}>{cardErrors.cvv}</p>}
-											</div>
-										</div>
-
-										<div style={{
-											marginTop: '20px',
-											padding: '15px',
-											backgroundColor: '#f0f9f6',
-											borderRadius: '8px',
-											fontSize: '13px',
-											color: '#666'
-										}}>
-											<i className="fa-solid fa-shield-halved" style={{ color: '#00C853', marginRight: '8px' }}></i>
-											{t('cardSecurity')}
-										</div>
+										<StripeProvider clientSecret={clientSecret}>
+											<StripePaymentForm
+												amount={chargeTotal}
+												currency={currency}
+												orderId={orderId}
+												orderNumber={orderNumber}
+												preferredMethod={checkoutData.paymentMethod}
+											/>
+										</StripeProvider>
 									</div>
 								)}
-
-								{/* Payment Button */}
-								<button
-									onClick={handlePayment}
-									disabled={isProcessing || (paymentMethod === 'qr' && qrTimer === 0)}
-									style={{
-										width: '100%',
-										padding: '18px',
-										background: isProcessing ? '#ccc' : 'linear-gradient(135deg, #00C853 0%, #69F0AE 100%)',
-										color: '#fff',
-										border: 'none',
-										borderRadius: '10px',
-										fontSize: '18px',
-										fontWeight: '600',
-										cursor: isProcessing ? 'not-allowed' : 'pointer',
-										marginTop: '25px',
-										transition: 'opacity 0.3s ease'
-									}}
-									onMouseEnter={(e) => !isProcessing && (e.currentTarget.style.opacity = '0.9')}
-									onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
-								>
-									{isProcessing ? (
-										<>
-											<i className="fa-solid fa-spinner fa-spin" style={{ marginRight: '10px' }}></i>
-											{t('processingPayment')}
-										</>
-									) : (
-										<>
-											<i className="fa-solid fa-lock" style={{ marginRight: '10px' }}></i>
-											{t('completePayment')}
-										</>
-									)}
-								</button>
-
-								<div style={{
-									marginTop: '15px',
-									textAlign: 'center',
-									fontSize: '13px',
-									color: '#666'
-								}}>
-									<i className="fa-solid fa-shield" style={{ color: '#00C853', marginRight: '5px' }}></i>
-									{t('securePayment')}
-								</div>
 							</div>
 
 							{/* Right Column - Order Summary */}
 							<div className="col-lg-4">
-                <OrderSummary
-                  packageItem={orderPackageItem}
-                  addOns={orderAddOns}
-                  isThai={isThaiPayment}
-                />
-                
-                {isProcessing && (
-                  <div style={{
-                    marginTop: '20px',
-                    padding: '15px',
-                    backgroundColor: '#fff3cd',
-                    borderRadius: '8px',
-                    fontSize: '13px',
-                    color: '#856404',
-                    textAlign: 'center'
-                  }}>
-                    <i className="fa-solid fa-info-circle" style={{ marginRight: '8px' }}></i>
-                    {t('processingTime')}
-                  </div>
-                )}
+								<OrderSummary
+									packageItem={orderPackageItem}
+									addOns={orderAddOns}
+									isThai={isThaiPayment}
+								/>
 							</div>
 
 						</div>

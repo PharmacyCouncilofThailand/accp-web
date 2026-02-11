@@ -155,6 +155,7 @@ export function useCheckoutWizard(totalSteps: number = 4) {
   return {
     currentStep,
     checkoutData,
+    isInitialized,
     updateCheckoutData,
     nextStep,
     previousStep,

@@ -39,7 +39,7 @@ export default function Registration() {
     isLastStep
   } = useCheckoutWizard();
 
-  const isThai = user?.country?.toLowerCase() === "thailand";
+  const isThai = user?.delegateType?.startsWith("thai") ?? false;
   const [isLoading, setIsLoading] = useState(true);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { packages: registrationPackages, addOns, loading: ticketsLoading } = useTickets();
@@ -297,13 +297,13 @@ export default function Registration() {
                     </div>
                     
                     <div style={{ textAlign: 'right' }}>
-                      {currentPackage?.originalPriceUSD && (
+                      {(isThai ? currentPackage?.originalPriceTHB : currentPackage?.originalPriceUSD) && (
                         <div style={{ fontSize: '13px', color: '#999', textDecoration: 'line-through', marginBottom: '2px' }}>
-                           {formatCurrency(isThai ? (currentPackage.originalPriceTHB || 0) : (currentPackage.originalPriceUSD || 0), locale)}
+                           {formatCurrency(isThai ? (currentPackage?.originalPriceTHB || 0) : (currentPackage?.originalPriceUSD || 0), isThai ? 'th' : 'en')}
                         </div>
                       )}
                       <div style={{ fontSize: '24px', fontWeight: '800', color: '#00C853' }}>
-                        {formatCurrency(isThai ? (currentPackage?.priceTHB || 0) : (currentPackage?.priceUSD || 0), locale)}
+                        {formatCurrency(isThai ? (currentPackage?.priceTHB || 0) : (currentPackage?.priceUSD || 0), isThai ? 'th' : 'en')}
                       </div>
                     </div>
                   </div>
@@ -356,7 +356,7 @@ export default function Registration() {
                           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
                              <div style={{ fontWeight: "700", fontSize: "16px", color: '#1a1a2e' }}>{t(`addOns.${addon.id}`)}</div>
                              <div style={{ fontSize: "18px", fontWeight: "700", color: "#00C853" }}>
-                                {formatCurrency(isThai ? addon.priceTHB : addon.priceUSD, locale)}
+                                {formatCurrency(isThai ? addon.priceTHB : addon.priceUSD, isThai ? 'th' : 'en')}
                              </div>
                           </div>
                           

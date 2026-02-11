@@ -203,6 +203,41 @@ export const api = {
         list: () =>
             fetchAPI<{ tickets: TicketType[] }>('/api/tickets'),
     },
+
+    payments: {
+        createIntent: (token: string, data: { packageId: string; addOnIds: string[]; currency: 'THB' | 'USD'; promoCode?: string }) =>
+            fetchAPI<{
+                success: boolean;
+                data: {
+                    clientSecret: string;
+                    orderId: number;
+                    orderNumber: string;
+                    amount: number;
+                    currency: string;
+                };
+            }>('/api/payments/create-intent', {
+                method: 'POST',
+                body: JSON.stringify(data),
+                token,
+            }),
+
+        getStatus: (token: string, orderId: number) =>
+            fetchAPI<{
+                success: boolean;
+                data: {
+                    orderId: number;
+                    orderNumber: string;
+                    orderStatus: string;
+                    payment: {
+                        status: string;
+                        amount: string;
+                        paidAt: string | null;
+                        stripeReceiptUrl: string | null;
+                        paymentChannel: string | null;
+                    } | null;
+                };
+            }>(`/api/payments/${orderId}/status`, { token }),
+    },
 };
 
 export default api;
