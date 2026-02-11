@@ -90,6 +90,7 @@ export interface TicketType {
     id: number;
     eventId: number;
     category: 'primary' | 'addon';
+    priority: 'early_bird' | 'regular';
     groupName: string | null;
     name: string;
     description: string | null;
