@@ -90,6 +90,14 @@ export interface RegisterData {
     country?: string;
 }
 
+export interface LinkedSession {
+    sessionId: number;
+    sessionName: string;
+    maxCapacity: number;
+    enrolledCount: number;
+    isFull: boolean;
+}
+
 export interface TicketType {
     id: number;
     eventId: number;
@@ -110,6 +118,7 @@ export interface TicketType {
     isAvailable: boolean;
     saleStartDate: string | null;
     saleEndDate: string | null;
+    sessions?: LinkedSession[];
 }
 
 export interface TicketGroup {
@@ -205,15 +214,29 @@ export const api = {
     },
 
     payments: {
-        createIntent: (token: string, data: { packageId: string; addOnIds: string[]; currency: 'THB' | 'USD'; promoCode?: string }) =>
+        myPurchases: (token: string) =>
+            fetchAPI<{
+                success: boolean;
+                data: {
+                    hasPrimaryTicket: boolean;
+                    primaryTicketName: string | null;
+                    regCode: string | null;
+                    purchasedAddOns: string[];
+                };
+            }>('/api/payments/my-purchases', { token }),
+
+        createIntent: (token: string, data: { packageId?: string; addOnIds: string[]; currency: 'THB' | 'USD'; promoCode?: string; paymentMethod?: string; workshopSessionId?: number }) =>
             fetchAPI<{
                 success: boolean;
                 data: {
                     clientSecret: string;
                     orderId: number;
                     orderNumber: string;
-                    amount: number;
+                    subtotal: number;
+                    fee: number;
+                    total: number;
                     currency: string;
+                    feeMethod: string;
                 };
             }>('/api/payments/create-intent', {
                 method: 'POST',

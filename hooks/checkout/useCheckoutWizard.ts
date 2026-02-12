@@ -28,6 +28,10 @@ export interface CheckoutData {
   // Dynamic fields
   currency?: "THB" | "USD";
   selectedWorkshopTopic?: string;
+
+  // Addon-only mode
+  isAddonOnly?: boolean;
+  purchasedAddOns?: string[];
 }
 
 const STORAGE_KEY = "accp_checkout_data_v2";
