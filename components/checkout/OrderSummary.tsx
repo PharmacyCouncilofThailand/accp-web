@@ -82,16 +82,18 @@ export default function OrderSummary({
               color: '#1a1a2e',
               marginBottom: '4px'
             }}>
-              {t(`packages.${packageItem.id}`) || packageItem.name} 
+              {packageItem.id === 'addon-only' ? packageItem.name : (t(`packages.${packageItem.id}`) || packageItem.name)} 
             </div>
-            <div style={{
-              fontSize: '12px',
-              color: '#00C853',
-              fontWeight: '600'
-            }}>
-              <i className="fa-solid fa-badge-check" style={{ marginRight: '4px' }} />
-              {t('registrationPackage')}
-            </div>
+            {packageItem.id !== 'addon-only' && (
+              <div style={{
+                fontSize: '12px',
+                color: '#00C853',
+                fontWeight: '600'
+              }}>
+                <i className="fa-solid fa-badge-check" style={{ marginRight: '4px' }} />
+                {t('registrationPackage')}
+              </div>
+            )}
           </div>
           <div style={{
             fontSize: '18px',

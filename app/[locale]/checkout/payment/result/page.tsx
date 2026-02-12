@@ -30,6 +30,7 @@ interface PaymentData {
     stripeReceiptUrl: string | null;
     paymentChannel: string | null;
   } | null;
+  receiptDownloadUrl?: string | null;
   items?: OrderItem[];
   subtotal?: string;
   fee?: string;
@@ -283,10 +284,10 @@ export default function PaymentResult() {
                       )}
                     </div>
 
-                    {paymentData?.payment?.stripeReceiptUrl && (
+                    {paymentData?.receiptDownloadUrl && (
                       <div style={{ marginBottom: "20px" }}>
                         <a
-                          href={paymentData.payment.stripeReceiptUrl}
+                          href={paymentData.receiptDownloadUrl}
                           target="_blank"
                           rel="noopener noreferrer"
                           style={{
@@ -295,8 +296,8 @@ export default function PaymentResult() {
                             fontSize: "14px",
                           }}
                         >
-                          <i className="fa-solid fa-receipt" style={{ marginRight: "6px" }} />
-                          {locale === "th" ? "ดูใบเสร็จ Stripe" : "View Stripe Receipt"}
+                          <i className="fa-solid fa-file-pdf" style={{ marginRight: "6px" }} />
+                          {locale === "th" ? "ดาวน์โหลดใบเสร็จ (PDF)" : "Download Receipt (PDF)"}
                         </a>
                       </div>
                     )}

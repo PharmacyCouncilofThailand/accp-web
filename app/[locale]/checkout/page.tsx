@@ -15,16 +15,14 @@ import Button from "@/components/common/Button";
 import { formatCurrency } from "@/utils/currency";
 import { useTickets } from "@/context/TicketContext";
 import type { ResolvedPackage, ResolvedAddOn } from "@/utils/tickets";
-
-import {
-  workshopOptions,
-} from "@/data/checkout";
+import { api } from "@/lib/api";
+import type { LinkedSession } from "@/lib/api";
 
 export default function Registration() {
   const t = useTranslations("checkout");
   const tCommon = useTranslations("common");
   const locale = useLocale();
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, token } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -42,7 +40,76 @@ export default function Registration() {
   const isThai = user?.delegateType?.startsWith("thai") ?? false;
   const [isLoading, setIsLoading] = useState(true);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const { packages: registrationPackages, addOns, loading: ticketsLoading } = useTickets();
+  const { tickets, packages: registrationPackages, addOns, loading: ticketsLoading } = useTickets();
+
+  // Addon-only mode: detected from URL ?mode=addon
+  const isAddonOnly = searchParams.get("mode") === "addon";
+  const [purchasedAddOns, setPurchasedAddOns] = useState<string[]>([]);
+
+  // Fetch user's existing purchases to know which addons are already bought
+  useEffect(() => {
+    if (!isAuthenticated || !token) return;
+    api.payments.myPurchases(token).then((res) => {
+      if (res.data) {
+        setPurchasedAddOns(res.data.purchasedAddOns);
+        // If addon-only mode but user has no primary ticket, redirect back
+        if (isAddonOnly && !res.data.hasPrimaryTicket) {
+          router.push(`/${locale}/checkout`);
+        }
+        // Update checkout data with addon-only flag
+        if (isAddonOnly) {
+          updateCheckoutData({ isAddonOnly: true, purchasedAddOns: res.data.purchasedAddOns });
+        }
+      }
+    }).catch(() => {});
+  }, [isAuthenticated, token, isAddonOnly]);
+
+  // Derive workshop options dynamically from ticket sessions
+  const workshopOptions = useMemo(() => {
+    // Find addon tickets with groupName "workshop" that have linked sessions
+    const workshopTickets = tickets.filter(
+      (t) => t.category === "addon" && (t.groupName || "").toLowerCase() === "workshop" && t.sessions && t.sessions.length > 0
+    );
+    // Collect all unique sessions across workshop ticket variants (THB/USD)
+    const sessionMap = new Map<number, LinkedSession>();
+    for (const t of workshopTickets) {
+      for (const s of t.sessions!) {
+        if (!sessionMap.has(s.sessionId)) {
+          sessionMap.set(s.sessionId, s);
+        }
+      }
+    }
+    return Array.from(sessionMap.values()).map((s) => ({
+      value: String(s.sessionId),
+      label: s.sessionName,
+      isFull: s.isFull,
+      count: s.enrolledCount,
+      maxCapacity: s.maxCapacity,
+    }));
+  }, [tickets]);
+
+  // Determine if each addon is fully sold out
+  const addonFullMap = useMemo(() => {
+    const map: Record<string, boolean> = {};
+    for (const addon of addOns) {
+      if (addon.id === "workshop") {
+        // Workshop is full only when ALL sessions are full (or no sessions exist)
+        map.workshop = workshopOptions.length > 0
+          ? workshopOptions.every((o) => o.isFull)
+          : false;
+      } else if (addon.id === "gala") {
+        // Gala: check ticket-level soldCount vs quota
+        const galaTickets = tickets.filter(
+          (t) => t.category === "addon" && (t.groupName || "").toLowerCase() === "gala"
+        );
+        // Full if ALL currency variants are sold out
+        map.gala = galaTickets.length > 0
+          ? galaTickets.every((t) => t.quota > 0 && t.soldCount >= t.quota)
+          : false;
+      }
+    }
+    return map;
+  }, [addOns, workshopOptions, tickets]);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -92,20 +159,30 @@ export default function Registration() {
 
   const handleCheckout = () => {
     const pkg = registrationPackages.find(p => p.id === checkoutData.selectedPackage);
-    const packagePrice = isThai ? pkg?.priceTHB || 0 : pkg?.priceUSD || 0;
+    const packagePrice = isAddonOnly ? 0 : (isThai ? pkg?.priceTHB || 0 : pkg?.priceUSD || 0);
     const addOnsPrice = addOns
       .filter(a => checkoutData.selectedAddOns.includes(a.id))
       .reduce((sum, a) => (isThai ? sum + a.priceTHB : sum + a.priceUSD), 0);
     const total = packagePrice + addOnsPrice;
 
-    router.push(`/${locale}/checkout/payment?amount=${total}&package=${checkoutData.selectedPackage}&method=${checkoutData.paymentMethod}`);
+    const params = new URLSearchParams({
+      amount: String(total),
+      package: isAddonOnly ? "" : checkoutData.selectedPackage,
+      method: checkoutData.paymentMethod,
+    });
+    if (isAddonOnly) params.set("mode", "addon");
+    router.push(`/${locale}/checkout/payment?${params.toString()}`);
   };
 
   const currentPackage = registrationPackages.find(p => p.id === checkoutData.selectedPackage);
 
   const orderSummary = useMemo(() => {
     return {
-      packageItem: {
+      packageItem: isAddonOnly ? {
+        id: "addon-only",
+        name: locale === "th" ? "ซื้อ Add-on เพิ่ม" : "Add-on Purchase",
+        price: 0
+      } : {
         id: checkoutData.selectedPackage,
         name: t(`packages.${checkoutData.selectedPackage}`),
         price: isThai ? currentPackage?.priceTHB || 0 : currentPackage?.priceUSD || 0
@@ -246,68 +323,103 @@ export default function Registration() {
                   />
                 </div>
 
-                {/* Section 2: Package (Locked) */}
-                <div style={{
-                  backgroundColor: '#fff',
-                  borderRadius: '16px',
-                  padding: '24px',
-                  marginBottom: '24px',
-                  border: '2px solid #00C853',
-                  boxShadow: '0 4px 15px rgba(0, 200, 83, 0.05)',
-                  position: 'relative',
-                  overflow: 'hidden'
-                }}>
+                {/* Section 2: Package (Locked) — hidden in addon-only mode */}
+                {isAddonOnly ? (
                   <div style={{
-                    position: 'absolute',
-                    top: 0,
-                    right: 0,
-                    padding: '6px 12px',
-                    backgroundColor: '#00C85315',
-                    color: '#00C853',
-                    fontSize: '11px',
-                    fontWeight: '700',
-                    borderBottomLeftRadius: '12px'
+                    backgroundColor: '#fff',
+                    borderRadius: '16px',
+                    padding: '24px',
+                    marginBottom: '24px',
+                    border: '2px solid #FF9800',
+                    boxShadow: '0 4px 15px rgba(255, 152, 0, 0.05)',
                   }}>
-                    {t("selected")}
-                  </div>
-
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                       <div style={{
                         width: '48px',
                         height: '48px',
                         borderRadius: '12px',
-                        backgroundColor: '#00C853',
+                        backgroundColor: '#FF9800',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         color: '#fff',
                         fontSize: '20px'
                       }}>
-                        <i className="fa-solid fa-lock" />
+                        <i className="fa-solid fa-plus" />
                       </div>
                       <div>
                         <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#1a1a2e', marginBottom: '4px' }}>
-                          {t(`packages.${checkoutData.selectedPackage}`)}
+                          {locale === "th" ? "ซื้อ Add-on เพิ่มเติม" : "Purchase Additional Add-ons"}
                         </h3>
                         <p style={{ fontSize: '13px', color: '#666', margin: 0 }}>
-                          {t("packageLocked")}
+                          {locale === "th" ? "คุณมีตั๋วลงทะเบียนแล้ว เลือก add-on ที่ต้องการด้านล่าง" : "You already have a registration ticket. Select add-ons below."}
                         </p>
                       </div>
                     </div>
-                    
-                    <div style={{ textAlign: 'right' }}>
-                      {(isThai ? currentPackage?.originalPriceTHB : currentPackage?.originalPriceUSD) && (
-                        <div style={{ fontSize: '13px', color: '#999', textDecoration: 'line-through', marginBottom: '2px' }}>
-                           {formatCurrency(isThai ? (currentPackage?.originalPriceTHB || 0) : (currentPackage?.originalPriceUSD || 0), isThai ? 'th' : 'en')}
+                  </div>
+                ) : (
+                  <div style={{
+                    backgroundColor: '#fff',
+                    borderRadius: '16px',
+                    padding: '24px',
+                    marginBottom: '24px',
+                    border: '2px solid #00C853',
+                    boxShadow: '0 4px 15px rgba(0, 200, 83, 0.05)',
+                    position: 'relative',
+                    overflow: 'hidden'
+                  }}>
+                    <div style={{
+                      position: 'absolute',
+                      top: 0,
+                      right: 0,
+                      padding: '6px 12px',
+                      backgroundColor: '#00C85315',
+                      color: '#00C853',
+                      fontSize: '11px',
+                      fontWeight: '700',
+                      borderBottomLeftRadius: '12px'
+                    }}>
+                      {t("selected")}
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                        <div style={{
+                          width: '48px',
+                          height: '48px',
+                          borderRadius: '12px',
+                          backgroundColor: '#00C853',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: '#fff',
+                          fontSize: '20px'
+                        }}>
+                          <i className="fa-solid fa-lock" />
                         </div>
-                      )}
-                      <div style={{ fontSize: '24px', fontWeight: '800', color: '#00C853' }}>
-                        {formatCurrency(isThai ? (currentPackage?.priceTHB || 0) : (currentPackage?.priceUSD || 0), isThai ? 'th' : 'en')}
+                        <div>
+                          <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#1a1a2e', marginBottom: '4px' }}>
+                            {t(`packages.${checkoutData.selectedPackage}`)}
+                          </h3>
+                          <p style={{ fontSize: '13px', color: '#666', margin: 0 }}>
+                            {t("packageLocked")}
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div style={{ textAlign: 'right' }}>
+                        {(isThai ? currentPackage?.originalPriceTHB : currentPackage?.originalPriceUSD) && (
+                          <div style={{ fontSize: '13px', color: '#999', textDecoration: 'line-through', marginBottom: '2px' }}>
+                             {formatCurrency(isThai ? (currentPackage?.originalPriceTHB || 0) : (currentPackage?.originalPriceUSD || 0), isThai ? 'th' : 'en')}
+                          </div>
+                        )}
+                        <div style={{ fontSize: '24px', fontWeight: '800', color: '#00C853' }}>
+                          {formatCurrency(isThai ? (currentPackage?.priceTHB || 0) : (currentPackage?.priceUSD || 0), isThai ? 'th' : 'en')}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                )}
 
                 {/* Section 3: Add-ons */}
                 <div style={{ marginBottom: '20px' }}>
@@ -318,27 +430,59 @@ export default function Registration() {
                       <span style={{ fontSize: '13px', color: '#666', backgroundColor: '#eee', padding: '4px 8px', borderRadius: '4px' }}>{t("optional")}</span>
                    </div>
 
-                  {addOns.map((addon) => (
+                  {addOns.map((addon) => {
+                    const isFull = addonFullMap[addon.id] || false;
+                    const alreadyPurchased = purchasedAddOns.includes(addon.id);
+                    const isDisabled = isFull || alreadyPurchased;
+                    return (
                     <label
                       key={addon.id}
                       style={{
                         display: "block",
                         padding: "24px",
                         marginBottom: "16px",
-                        border: checkoutData.selectedAddOns.includes(addon.id) ? "2px solid #00C853" : "1px solid #e0e0e0",
+                        border: alreadyPurchased ? "2px solid #2196F3" : checkoutData.selectedAddOns.includes(addon.id) ? "2px solid #00C853" : "1px solid #e0e0e0",
                         borderRadius: "16px",
-                        cursor: "pointer",
-                        backgroundColor: checkoutData.selectedAddOns.includes(addon.id) ? "#f5fcf8" : "#fff",
+                        cursor: isDisabled ? "not-allowed" : "pointer",
+                        backgroundColor: alreadyPurchased ? "#e3f2fd" : isFull ? "#f5f5f5" : checkoutData.selectedAddOns.includes(addon.id) ? "#f5fcf8" : "#fff",
+                        opacity: isDisabled ? 0.7 : 1,
                         transition: "all 0.3s ease",
                         position: 'relative'
                       }}
                     >
+                      {alreadyPurchased && (
+                        <div style={{
+                          position: 'absolute',
+                          top: '12px',
+                          right: '16px',
+                          color: '#1976D2',
+                          fontSize: '12px',
+                          fontWeight: '700',
+                        }}>
+                          <i className="fa-solid fa-circle-check" style={{ marginRight: '4px' }} />
+                          {locale === "th" ? "ซื้อแล้ว" : "Purchased"}
+                        </div>
+                      )}
+                      {isFull && !alreadyPurchased && (
+                        <div style={{
+                          position: 'absolute',
+                          top: '12px',
+                          right: '16px',
+                          color: '#d32f2f',
+                          fontSize: '12px',
+                          fontWeight: '700',
+                        }}>
+                          {t("full")}
+                        </div>
+                      )}
                       <div style={{ display: "flex", alignItems: "flex-start", width: "100%" }}>
                         <div style={{ paddingTop: '4px' }}>
                            <input
                               type="checkbox"
-                              checked={checkoutData.selectedAddOns.includes(addon.id)}
+                              disabled={isDisabled}
+                              checked={alreadyPurchased || checkoutData.selectedAddOns.includes(addon.id)}
                               onChange={(e) => {
+                                if (alreadyPurchased) return;
                                 const newAddOns = e.target.checked
                                   ? [...checkoutData.selectedAddOns, addon.id]
                                   : checkoutData.selectedAddOns.filter(id => id !== addon.id);
@@ -348,7 +492,7 @@ export default function Registration() {
                                 if (addon.id === 'gala' && !e.target.checked) updates.dietaryRequirement = 'none';
                                 updateCheckoutData(updates);
                               }}
-                              style={{ width: "20px", height: "20px", accentColor: '#00C853', cursor: 'pointer' }}
+                              style={{ width: "20px", height: "20px", accentColor: alreadyPurchased ? '#2196F3' : '#00C853', cursor: isDisabled ? 'not-allowed' : 'pointer' }}
                             />
                         </div>
                         
@@ -401,7 +545,7 @@ export default function Registration() {
                                           </div>
                                           <div style={{ fontSize: '12px', color: '#666' }}>
                                             <i className="fa-solid fa-user-group" style={{ marginRight: '6px' }} />
-                                            {option.count ? `${option.count}/50` : '0/50'}
+                                            {`${option.count || 0}/${option.maxCapacity || 0}`}
                                           </div>
                                        </div>
                                     </div>
@@ -498,7 +642,8 @@ export default function Registration() {
                         </div>
                       </div>
                     </label>
-                  ))}
+                    );
+                  })}
                 </div>
 
               </div>

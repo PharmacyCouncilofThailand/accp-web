@@ -2,9 +2,10 @@
 
 import { useTranslations, useLocale } from "next-intl";
 import { useAuth } from "@/context/AuthContext";
-import { TicketType } from "@/lib/api";
+import { TicketType, api } from "@/lib/api";
 import { useTicketSelector } from "@/hooks/useTicketSelector";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 interface RegistrationThaiFeesProps {
   tickets?: TicketType[];
@@ -31,7 +32,24 @@ export default function RegistrationThaiFees({
   const t = useTranslations("registration");
   const tCommon = useTranslations("common");
   const locale = useLocale();
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, token } = useAuth();
+
+  // Purchase status
+  const [hasPrimaryTicket, setHasPrimaryTicket] = useState(false);
+  const [purchasedAddOns, setPurchasedAddOns] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (!isAuthenticated || !token) return;
+    api.payments
+      .myPurchases(token)
+      .then((res) => {
+        if (res.data) {
+          setHasPrimaryTicket(res.data.hasPrimaryTicket);
+          setPurchasedAddOns(res.data.purchasedAddOns);
+        }
+      })
+      .catch(() => {});
+  }, [isAuthenticated, token]);
 
   // กรอง THB + ใช้ hook เลือกตั๋วที่ดีที่สุด (EB → Regular อัตโนมัติ)
   const thbTickets = tickets.filter((t) => t.currency === "THB");
@@ -283,7 +301,29 @@ export default function RegistrationThaiFees({
                   <div className="mt-auto">
                     <div className="space28" />
                     <div className="btn-area1">
-                      {option.isAvailable ? (
+                      {isAuthenticated && hasPrimaryTicket ? (
+                        // ✅ Already registered
+                        <span
+                          className="vl-btn1"
+                          style={{
+                            background:
+                              "linear-gradient(135deg, #2196F3 0%, #1976D2 100%)",
+                            color: "#fff",
+                            cursor: "default",
+                            boxShadow: "0 4px 15px rgba(33, 150, 243, 0.4)",
+                            display: "flex",
+                            width: "100%",
+                            justifyContent: "center",
+                            alignItems: "center",
+                          }}
+                        >
+                          <i
+                            className="fa-solid fa-circle-check"
+                            style={{ marginRight: "8px" }}
+                          ></i>
+                          {locale === "th" ? "ลงทะเบียนแล้ว" : "Registered"}
+                        </span>
+                      ) : option.isAvailable ? (
                         // ✅ Sale started - show Register Now button
                         <Link
                           href={`/${locale}/checkout`}
@@ -339,6 +379,39 @@ export default function RegistrationThaiFees({
                     </div>
                   </div>
                 )}
+                {/* Buy Add-ons button on the addons card */}
+                {option.type === "addons" &&
+                  isAuthenticated &&
+                  hasPrimaryTicket &&
+                  purchasedAddOns.length < 2 && (
+                    <div className="mt-auto">
+                      <div className="space28" />
+                      <div className="btn-area1">
+                        <Link
+                          href={`/${locale}/checkout?mode=addon`}
+                          className="vl-btn1"
+                          style={{
+                            background:
+                              "linear-gradient(135deg, #FF9800 0%, #F57C00 100%)",
+                            color: "#fff",
+                            boxShadow: "0 4px 15px rgba(255, 152, 0, 0.4)",
+                            display: "flex",
+                            width: "100%",
+                            justifyContent: "center",
+                            alignItems: "center",
+                          }}
+                        >
+                          <i
+                            className="fa-solid fa-plus"
+                            style={{ marginRight: "8px" }}
+                          ></i>
+                          {locale === "th"
+                            ? "ซื้อ Add-on เพิ่ม"
+                            : "Buy Add-ons"}
+                        </Link>
+                      </div>
+                    </div>
+                  )}
               </div>
             </div>
           ))}

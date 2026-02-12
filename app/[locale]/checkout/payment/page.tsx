@@ -4,11 +4,11 @@ import Layout from "@/components/layout/Layout"
 import Link from "next/link"
 import { useTranslations, useLocale } from 'next-intl';
 import { useAuth } from '@/context/AuthContext'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useCheckoutWizard } from '@/hooks/checkout/useCheckoutWizard'
-import { workshopOptions } from '@/data/checkout'
 import OrderSummary from '@/components/checkout/OrderSummary'
 import { useTickets } from '@/context/TicketContext'
+import type { LinkedSession } from '@/lib/api'
 import StripeProvider from '@/components/providers/StripeProvider'
 import StripePaymentForm from '@/components/checkout/StripePaymentForm'
 
@@ -21,27 +21,55 @@ export default function Payment() {
 	const locale = useLocale();
 	const { isAuthenticated, token, user } = useAuth();
 	const router = useRouter();
+	const searchParams = useSearchParams();
 
 	// Use checkout data from hook
 	const { checkoutData, resetCheckout, isInitialized } = useCheckoutWizard();
+
+	// Addon-only mode
+	const isAddonOnly = searchParams.get('mode') === 'addon' || checkoutData.isAddonOnly === true;
 
 	// Determine currency based on delegate type (role)
 	const isThaiPayment = user?.delegateType?.startsWith('thai') ?? false;
 	const currency: 'THB' | 'USD' = isThaiPayment ? 'THB' : 'USD';
 
 	// Ticket data from context (cached, single fetch)
-	const { packages: apiPackages, addOns: apiAddOns } = useTickets();
+	const { tickets, packages: apiPackages, addOns: apiAddOns } = useTickets();
+
+	// Derive workshop options dynamically from ticket sessions
+	const workshopOptions = useMemo(() => {
+		const workshopTickets = tickets.filter(
+			(t) => t.category === 'addon' && (t.groupName || '').toLowerCase() === 'workshop' && t.sessions && t.sessions.length > 0
+		);
+		const sessionMap = new Map<number, LinkedSession>();
+		for (const t of workshopTickets) {
+			for (const s of t.sessions!) {
+				if (!sessionMap.has(s.sessionId)) sessionMap.set(s.sessionId, s);
+			}
+		}
+		return Array.from(sessionMap.values()).map((s) => ({
+			value: String(s.sessionId),
+			label: s.sessionName,
+			isFull: s.isFull,
+			count: s.enrolledCount,
+			maxCapacity: s.maxCapacity,
+		}));
+	}, [tickets]);
 
 	// Calculate total amount from API data
 	const currentPackage = apiPackages.find(p => p.id === checkoutData.selectedPackage);
-	const packagePrice = isThaiPayment ? currentPackage?.priceTHB || 0 : currentPackage?.priceUSD || 0;
+	const packagePrice = isAddonOnly ? 0 : (isThaiPayment ? currentPackage?.priceTHB || 0 : currentPackage?.priceUSD || 0);
 	const addOnsPrice = apiAddOns
 		.filter(a => checkoutData.selectedAddOns.includes(a.id))
 		.reduce((sum, a) => (isThaiPayment ? sum + a.priceTHB : sum + a.priceUSD), 0);
 	const totalAmount = packagePrice + addOnsPrice;
 
 	// Prepare OrderSummary props
-	const orderPackageItem = {
+	const orderPackageItem = isAddonOnly ? {
+		id: 'addon-only',
+		name: locale === 'th' ? 'ซื้อ Add-on เพิ่ม' : 'Add-on Purchase',
+		price: 0
+	} : {
 		id: checkoutData.selectedPackage || 'professional',
 		name: tCheckout(`packages.${checkoutData.selectedPackage || 'professional'}`),
 		price: packagePrice
@@ -91,7 +119,10 @@ export default function Payment() {
 
 	// Create PaymentIntent on mount
 	useEffect(() => {
-		if (!isInitialized || !token || !checkoutData.selectedPackage || clientSecret) return;
+		if (!isInitialized || !token || clientSecret) return;
+		// For full mode, need selectedPackage; for addon-only, need at least one addon
+		if (!isAddonOnly && !checkoutData.selectedPackage) return;
+		if (isAddonOnly && checkoutData.selectedAddOns.length === 0) return;
 
 		const createIntent = async () => {
 			setIsCreatingIntent(true);
@@ -105,10 +136,13 @@ export default function Payment() {
 						'Authorization': `Bearer ${token}`,
 					},
 					body: JSON.stringify({
-						packageId: checkoutData.selectedPackage,
+						packageId: isAddonOnly ? '' : checkoutData.selectedPackage,
 						addOnIds: checkoutData.selectedAddOns,
 						currency,
 						paymentMethod: checkoutData.paymentMethod,
+						workshopSessionId: checkoutData.selectedWorkshopTopic
+							? parseInt(checkoutData.selectedWorkshopTopic)
+							: undefined,
 					}),
 				});
 
@@ -133,7 +167,7 @@ export default function Payment() {
 		};
 
 		createIntent();
-	}, [isInitialized, token, checkoutData.selectedPackage, checkoutData.selectedAddOns, currency, clientSecret]);
+	}, [isInitialized, token, checkoutData.selectedPackage, checkoutData.selectedAddOns, currency, clientSecret, isAddonOnly]);
 
 	if (!isAuthenticated) {
 		return null;
