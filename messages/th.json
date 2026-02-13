@@ -989,6 +989,7 @@
       "emailInvalid": "รูปแบบอีเมลไม่ถูกต้อง",
       "phoneRequired": "กรุณากรอกเบอร์โทรศัพท์",
       "countryRequired": "กรุณากรอกประเทศ",
+      "workshopRequired": "กรุณาเลือก session ของ workshop",
       "fillAllFields": "กรุณากรอกข้อมูลที่จำเป็นทั้งหมดให้ถูกต้อง"
     },
     "packages": {
