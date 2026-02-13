@@ -129,6 +129,8 @@ export default function HeroSection() {
               cursor: "default",
               fontWeight: "600",
               boxShadow: "0 4px 15px rgba(33, 150, 243, 0.4)",
+              display: "flex",
+              alignItems: "center",
             }}
           >
             <i
@@ -150,6 +152,8 @@ export default function HeroSection() {
             color: "#fff",
             fontWeight: "600",
             boxShadow: "0 4px 15px rgba(0, 200, 83, 0.4)",
+            display: "flex",
+            alignItems: "center",
           }}
         >
           <i className="fa-solid fa-ticket" style={{ marginRight: "8px" }}></i>
@@ -169,6 +173,8 @@ export default function HeroSection() {
             color: "#fff",
             fontWeight: "600",
             boxShadow: "0 4px 15px rgba(0, 200, 83, 0.4)",
+            display: "flex",
+            alignItems: "center",
           }}
         >
           <i className="fa-solid fa-ticket" style={{ marginRight: "8px" }}></i>
@@ -193,6 +199,8 @@ export default function HeroSection() {
           cursor: "default",
           fontWeight: "600",
           boxShadow: "0 4px 15px rgba(255, 186, 0, 0.4)",
+          display: "flex",
+          alignItems: "center",
         }}
       >
         <i
@@ -343,9 +351,23 @@ export default function HeroSection() {
                   className="btn-area1"
                   data-aos="fade-left"
                   data-aos-duration={1100}
+                  style={{
+                    display: "flex",
+                    alignItems: "stretch",
+                    gap: "16px",
+                    flexWrap: "wrap",
+                  }}
                 >
                   {renderRegisterButton()}
-                  <Link href="/call-for-abstracts" className="vl-btn2">
+                  <Link
+                    href="/call-for-abstracts"
+                    className="vl-btn2"
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
                     {t("common.submitAbstract")}
                   </Link>
                 </div>
