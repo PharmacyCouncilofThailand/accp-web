@@ -168,6 +168,13 @@ export default function Registration() {
     setIsLoading(false);
   }, [isAuthenticated, user, locale, router, updateCheckoutData, token]);
 
+  const isWorkshopSelected = checkoutData.selectedAddOns.includes("workshop");
+  const hasValidWorkshopSelection = workshopOptions.some(
+    (option) =>
+      !option.isFull &&
+      option.value === checkoutData.selectedWorkshopTopic,
+  );
+
   const validateStep = (): boolean => {
     const newErrors: Record<string, string> = {};
 
@@ -182,11 +189,8 @@ export default function Registration() {
     if (!checkoutData.country.trim())
       newErrors.country = t("validation.countryRequired");
 
-    // Workshop validation
-    if (
-      checkoutData.selectedAddOns.includes("workshop") &&
-      !checkoutData.selectedWorkshopTopic
-    ) {
+    // Workshop validation: must pick a valid session from current options
+    if (isWorkshopSelected && !hasValidWorkshopSelection) {
       newErrors.workshop = t("validation.workshopRequired");
     }
 
@@ -205,6 +209,17 @@ export default function Registration() {
   };
 
   const handleCheckout = () => {
+    // Hard guard: never navigate to payment when workshop is selected without session
+    if (isWorkshopSelected && !hasValidWorkshopSelection) {
+      setErrors((prev) => ({
+        ...prev,
+        workshop: t("validation.workshopRequired"),
+      }));
+      return;
+    }
+
+    if (!validateStep()) return;
+
     const pkg = registrationPackages.find(
       (p) => p.id === checkoutData.selectedPackage,
     );
