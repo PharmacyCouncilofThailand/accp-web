@@ -975,6 +975,7 @@
       "emailInvalid": "Invalid email format",
       "phoneRequired": "Phone number is required",
       "countryRequired": "Country is required",
+      "workshopRequired": "Please select a workshop session",
       "fillAllFields": "Please fill in all required fields correctly"
     },
     "packages": {

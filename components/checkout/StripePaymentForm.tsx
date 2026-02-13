@@ -14,6 +14,8 @@ interface StripePaymentFormProps {
   orderId: number;
   orderNumber: string;
   preferredMethod?: "qr" | "card";
+  onCancel?: () => void;
+  isCancelling?: boolean;
 }
 
 export default function StripePaymentForm({
@@ -22,6 +24,8 @@ export default function StripePaymentForm({
   orderId,
   orderNumber,
   preferredMethod,
+  onCancel,
+  isCancelling,
 }: StripePaymentFormProps) {
   const stripe = useStripe();
   const elements = useElements();
@@ -63,12 +67,15 @@ export default function StripePaymentForm({
   return (
     <form onSubmit={handleSubmit}>
       <PaymentElement
-        options={{
-          layout: "tabs",
-          paymentMethodOrder: preferredMethod === "qr"
-            ? ["promptpay", "card"]
-            : ["card", "promptpay"],
-        } as any}
+        options={
+          {
+            layout: "tabs",
+            paymentMethodOrder:
+              preferredMethod === "qr"
+                ? ["promptpay", "card"]
+                : ["card", "promptpay"],
+          } as any
+        }
       />
 
       {errorMessage && (
@@ -120,15 +127,52 @@ export default function StripePaymentForm({
           </>
         ) : (
           <>
-            <i
-              className="fa-solid fa-lock"
-              style={{ marginRight: "10px" }}
-            />
-            {locale === "th" ? "ชำระเงิน" : "Complete Payment"} — {currencySymbol}
+            <i className="fa-solid fa-lock" style={{ marginRight: "10px" }} />
+            {locale === "th" ? "ชำระเงิน" : "Complete Payment"} —{" "}
+            {currencySymbol}
             {amount.toLocaleString()}
           </>
         )}
       </button>
+
+      {onCancel && (
+        <div style={{ marginTop: "12px", textAlign: "center" }}>
+          <button
+            type="button"
+            onClick={onCancel}
+            disabled={isCancelling}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              color: "#ff4444",
+              backgroundColor: "transparent",
+              border: "none",
+              padding: "10px 20px",
+              fontSize: "14px",
+              fontWeight: "600",
+              cursor: isCancelling ? "not-allowed" : "pointer",
+              opacity: isCancelling ? 0.6 : 1,
+              transition: "all 0.2s",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.textDecoration = "underline";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.textDecoration = "none";
+            }}
+          >
+            <i
+              className={
+                isCancelling
+                  ? "fa-solid fa-spinner fa-spin"
+                  : "fa-solid fa-times-circle"
+              }
+              style={{ marginRight: "8px" }}
+            />
+            {isCancelling ? "Cancelling..." : "Cancel Payment"}
+          </button>
+        </div>
+      )}
 
       <div
         style={{
