@@ -855,6 +855,7 @@
     "confirmed": "ยืนยันแล้ว",
     "professionalRegistration": "การลงทะเบียนแบบมืออาชีพ",
     "earlyBird": "Early Bird",
+    "regular": "ราคาปกติ",
     "fullAccess": "เข้าร่วมงานประชุมเต็มรูปแบบ (3 วัน)",
     "conferenceMaterials": "เอกสารการประชุม",
     "coffeeLunch": "ทานอาหารว่างและอาหารกลางวัน",
@@ -867,7 +868,10 @@
     "eventTime": "เวลา",
     "venue": "สถานที่",
     "dressCode": "การแต่งกาย",
-    "formalAttire": "ชุดสุภาพ"
+    "formalAttire": "ชุดสุภาพ",
+    "loading": "กำลังโหลดตั๋วของคุณ...",
+    "loadError": "ไม่สามารถโหลดข้อมูลตั๋วได้ กรุณาลองใหม่อีกครั้ง",
+    "noTickets": "ยังไม่พบตั๋วที่ยืนยันแล้ว"
   },
   "abstractSubmission": {
     "pageTitle": "ส่งบทคัดย่อ",

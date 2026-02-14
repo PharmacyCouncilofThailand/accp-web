@@ -1,70 +1,150 @@
 'use client'
 import { useState, useEffect } from 'react';
-import { useTranslations } from 'next-intl';
-import Link from 'next/link';
+import { useTranslations, useLocale } from 'next-intl';
+import { useRouter } from 'next/navigation';
 import Layout from '@/components/layout/Layout';
+import { useAuth } from '@/context/AuthContext';
+import { api, type MyTicketsResponse } from '@/lib/api';
 
-    import { useCheckoutWizard } from '@/hooks/checkout/useCheckoutWizard';
-    import { workshopOptions } from '@/data/checkout';
-    import { useAuth } from '@/context/AuthContext';
-    import { useTickets } from '@/context/TicketContext';
+type TicketData = MyTicketsResponse['data'];
 
-    export default function MyTickets() {
+export default function MyTickets() {
     const t = useTranslations('tickets');
-    const tUser = useTranslations('userProfile');
-    const { checkoutData } = useCheckoutWizard();
-    const { user } = useAuth();
+    const locale = useLocale();
+    const router = useRouter();
+    const { isAuthenticated, token } = useAuth();
 
-    const { packages: apiPackages, addOns: apiAddOns } = useTickets();
+    const [ticketData, setTicketData] = useState<TicketData | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-    const selectedPackage = apiPackages.find(p => p.id === checkoutData.selectedPackage);
-    const hasGala = checkoutData.selectedAddOns.includes('gala');
-    const hasWorkshop = checkoutData.selectedAddOns.includes('workshop');
+    useEffect(() => {
+        if (!isAuthenticated) {
+            router.push(`/${locale}/login`);
+            return;
+        }
 
-    // Dynamic Ticket Data
-    const tickets = selectedPackage ? [{
-        id: `ACCP2026-REG-${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`,
-        type: selectedPackage.id,
-        category: 'earlyBird',
-        status: 'confirmed',
-        purchaseDate: new Date().toISOString().split('T')[0],
-        amount: user?.delegateType?.startsWith('th') ? `฿${selectedPackage.priceTHB}` : `$${selectedPackage.priceUSD} USD`,
-        includes: [
-            'fullAccess',
-            'conferenceMaterials',
-            'coffeeLunch',
-            'certificate',
-            ...(hasGala ? ['galaDinner'] : [])
-        ],
-        qrCode: true
-    }] : [];
+        if (!token) return;
 
-    // Dynamic Gala Ticket
-    const galaDinnerTicket = hasGala ? {
-        id: `ACCP2026-GALA-${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`,
-        eventName: 'galaDinnerEvent',
-        status: 'confirmed',
-        date: 'July 10, 2026',
-        time: '19:00 - 22:00',
-        venue: 'Centara Grand Ballroom',
-        dressCode: 'formalAttire',
-        dietary: checkoutData.dietaryRequirement === 'other' ? checkoutData.dietaryOtherText : checkoutData.dietaryRequirement,
-        qrCode: true
-    } : null;
+        let mounted = true;
+        setIsLoading(true);
+        setError(null);
 
-    // Dynamic Workshop Data
-    const workshopAddon = apiAddOns.find(a => a.id === 'workshop');
-    const selectedWorkshop = workshopOptions.find(w => w.value === checkoutData.selectedWorkshopTopic);
-    
-    const addons = hasWorkshop && selectedWorkshop ? [{
-        id: `ACCP2026-WS-${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`,
-        type: 'preWorkshop',
-        name: selectedWorkshop.label,
-        date: 'July 8, 2026',
-        time: '09:00 - 17:00',
-        status: 'confirmed',
-        amount: user?.delegateType?.startsWith('thai') ? `฿${workshopAddon?.priceTHB}` : `$${workshopAddon?.priceUSD} USD`
-    }] : [];
+        api.payments
+            .myTickets(token)
+            .then((res) => {
+                if (mounted) {
+                    setTicketData(res.data);
+                }
+            })
+            .catch((err) => {
+                console.error('Failed to fetch my tickets:', err);
+                if (mounted) {
+                    setError(t('loadError'));
+                }
+            })
+            .finally(() => {
+                if (mounted) {
+                    setIsLoading(false);
+                }
+            });
+
+        return () => {
+            mounted = false;
+        };
+    }, [isAuthenticated, token, locale, router, t]);
+
+    const formatAmount = (amount: string, currency: string) => {
+        const value = Number(amount) || 0;
+        if (currency === 'THB') {
+            return `฿${value.toLocaleString('th-TH', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+            })}`;
+        }
+        return `$${value.toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+        })} USD`;
+    };
+
+    const formatDate = (isoDate: string | null) => {
+        if (!isoDate) return '-';
+        return new Date(isoDate).toLocaleDateString(locale === 'th' ? 'th-TH' : 'en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+        });
+    };
+
+    const formatTimeRange = (start: string | null, end: string | null) => {
+        if (!start) return '-';
+
+        const startTime = new Date(start).toLocaleTimeString(locale === 'th' ? 'th-TH' : 'en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false,
+        });
+
+        if (!end) return startTime;
+
+        const endTime = new Date(end).toLocaleTimeString(locale === 'th' ? 'th-TH' : 'en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false,
+        });
+
+        return `${startTime} - ${endTime}`;
+    };
+
+    const resolveStatusLabel = (status: string) => {
+        if (status === 'confirmed') return t('confirmed');
+        return status;
+    };
+
+    const registration = ticketData?.registration || null;
+
+    const tickets = registration
+        ? [{
+            id: registration.regCode,
+            categoryLabel: registration.priority === 'early_bird' ? t('earlyBird') : t('regular'),
+            status: registration.status,
+            purchaseDate: formatDate(registration.purchasedAt),
+            amount: formatAmount(registration.amount, registration.currency),
+            includes:
+                registration.includes.length > 0
+                    ? registration.includes
+                    : [
+                        t('fullAccess'),
+                        t('conferenceMaterials'),
+                        t('coffeeLunch'),
+                        t('certificate'),
+                    ],
+        }]
+        : [];
+
+    const galaDinnerTicket = ticketData?.galaTicket
+        ? {
+            id: ticketData.galaTicket.id,
+            name: ticketData.galaTicket.name,
+            status: ticketData.galaTicket.status,
+            date: formatDate(ticketData.galaTicket.dateTimeStart),
+            time: formatTimeRange(ticketData.galaTicket.dateTimeStart, ticketData.galaTicket.dateTimeEnd),
+            venue: ticketData.galaTicket.venue || '-',
+            amount: formatAmount(ticketData.galaTicket.amount, ticketData.galaTicket.currency),
+            dietary: ticketData.galaTicket.dietary,
+        }
+        : null;
+
+    const addons = (ticketData?.workshops || []).map((workshop) => ({
+        id: workshop.id,
+        name: workshop.name,
+        status: workshop.status,
+        date: formatDate(workshop.dateTimeStart),
+        time: formatTimeRange(workshop.dateTimeStart, workshop.dateTimeEnd),
+        venue: workshop.venue || '-',
+        amount: formatAmount(workshop.amount, workshop.currency),
+    }));
 
     return (
         <Layout headerStyle={1} footerStyle={1} headerBgWhite={true}>
@@ -89,6 +169,24 @@ import Layout from '@/components/layout/Layout';
                         </p>
                     </div>
 
+                    {isLoading && (
+                        <div className="ticket-card" style={{ textAlign: 'center', color: '#666' }}>
+                            {t('loading')}
+                        </div>
+                    )}
+
+                    {!isLoading && error && (
+                        <div className="ticket-card" style={{ textAlign: 'center', color: '#d32f2f' }}>
+                            {error}
+                        </div>
+                    )}
+
+                    {!isLoading && !error && tickets.length === 0 && !galaDinnerTicket && addons.length === 0 && (
+                        <div className="ticket-card" style={{ textAlign: 'center', color: '#666' }}>
+                            {t('noTickets')}
+                        </div>
+                    )}
+
                     {/* Main Registration Ticket */}
                     {tickets.map((ticket) => (
                         <div key={ticket.id} className="ticket-card">
@@ -105,7 +203,7 @@ import Layout from '@/components/layout/Layout';
                             {/* Status Badge */}
                             <div className="ticket-status-badge">
                                 <i className="fa-solid fa-circle-check" style={{ marginRight: '6px' }} />
-                                {t(ticket.status)}
+                                {resolveStatusLabel(ticket.status)}
                             </div>
 
                             <div className="ticket-layout-grid">
@@ -123,7 +221,7 @@ import Layout from '@/components/layout/Layout';
                                         color: '#1a237e',
                                         marginBottom: '20px'
                                     }}>
-                                        {t(ticket.category)}
+                                        {ticket.categoryLabel}
                                     </div>
 
                                     <div className="ticket-details-grid">
@@ -156,7 +254,7 @@ import Layout from '@/components/layout/Layout';
                                                     marginBottom: '8px',
                                                     lineHeight: '1.6'
                                                 }}>
-                                                    {t(item)}
+                                                    {item}
                                                 </li>
                                             ))}
                                         </ul>
@@ -233,12 +331,12 @@ import Layout from '@/components/layout/Layout';
                                 gap: '12px'
                             }}>
                                 <i className="fa-solid fa-champagne-glasses" style={{ color: '#C2185B' }} />
-                                {t(galaDinnerTicket.eventName)}
+                                {galaDinnerTicket.name}
                             </h2>
 
                             <div className="gala-card">
                                 <div className="ticket-status-badge">
-                                    {t(galaDinnerTicket.status)}
+                                    {resolveStatusLabel(galaDinnerTicket.status)}
                                 </div>
 
                                 <h3 style={{
@@ -248,7 +346,7 @@ import Layout from '@/components/layout/Layout';
                                     marginBottom: '15px',
                                     paddingRight: '120px'
                                 }}>
-                                    An Elegant Evening of Fine Dining & Networking
+                                    {galaDinnerTicket.name}
                                 </h3>
 
                                 <div className="addon-details-flex">
@@ -265,8 +363,8 @@ import Layout from '@/components/layout/Layout';
                                         <span style={{ color: '#666' }}>{galaDinnerTicket.venue}</span>
                                     </div>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                        <i className="fa-solid fa-user-tie" style={{ color: '#C2185B' }} />
-                                        <span style={{ color: '#C2185B', fontWeight: '700' }}>{t(galaDinnerTicket.dressCode)}</span>
+                                        <i className="fa-solid fa-tag" style={{ color: '#C2185B' }} />
+                                        <span style={{ color: '#C2185B', fontWeight: '700' }}>{galaDinnerTicket.amount}</span>
                                     </div>
                                     {/* Dietary Info */}
                                     {galaDinnerTicket.dietary && (
@@ -299,7 +397,7 @@ import Layout from '@/components/layout/Layout';
                             {addons.map((addon) => (
                                 <div key={addon.id} className="addon-card">
                                     <div className="ticket-status-badge">
-                                        {t(addon.status)}
+                                        {resolveStatusLabel(addon.status)}
                                     </div>
 
                                     <h3 style={{
@@ -320,6 +418,10 @@ import Layout from '@/components/layout/Layout';
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                             <i className="fa-solid fa-clock" style={{ color: '#00695c' }} />
                                             <span style={{ color: '#666' }}>{addon.time}</span>
+                                        </div>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                            <i className="fa-solid fa-location-dot" style={{ color: '#00695c' }} />
+                                            <span style={{ color: '#666' }}>{addon.venue}</span>
                                         </div>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                             <i className="fa-solid fa-tag" style={{ color: '#00695c' }} />

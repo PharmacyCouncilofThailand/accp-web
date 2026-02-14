@@ -128,6 +128,45 @@ export interface TicketGroup {
     tickets: TicketType[];
 }
 
+export interface MyTicketsResponse {
+    success: boolean;
+    data: {
+        registration: {
+            regCode: string;
+            status: string;
+            ticketName: string;
+            priority: 'early_bird' | 'regular';
+            purchasedAt: string | null;
+            amount: string;
+            currency: string;
+            includes: string[];
+        } | null;
+        galaTicket: {
+            id: string;
+            status: string;
+            name: string;
+            purchasedAt: string | null;
+            amount: string;
+            currency: string;
+            dateTimeStart: string | null;
+            dateTimeEnd: string | null;
+            venue: string | null;
+            dietary: string | null;
+        } | null;
+        workshops: {
+            id: string;
+            status: string;
+            name: string;
+            purchasedAt: string | null;
+            amount: string;
+            currency: string;
+            dateTimeStart: string | null;
+            dateTimeEnd: string | null;
+            venue: string | null;
+        }[];
+    };
+}
+
 // ============================================================================
 // API Object
 // ============================================================================
@@ -224,6 +263,9 @@ export const api = {
                     purchasedAddOns: string[];
                 };
             }>('/api/payments/my-purchases', { token }),
+
+        myTickets: (token: string) =>
+            fetchAPI<MyTicketsResponse>('/api/payments/my-tickets', { token }),
 
         createIntent: (token: string, data: { packageId?: string; addOnIds: string[]; currency: 'THB' | 'USD'; promoCode?: string; paymentMethod?: string; workshopSessionId?: number }) =>
             fetchAPI<{

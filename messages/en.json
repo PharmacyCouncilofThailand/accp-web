@@ -825,6 +825,7 @@
     "confirmed": "Confirmed",
     "professionalRegistration": "Professional Registration",
     "earlyBird": "Early Bird",
+    "regular": "Regular",
     "fullAccess": "Full Conference Access (3 days)",
     "conferenceMaterials": "Conference Materials",
     "coffeeLunch": "Coffee Breaks & Lunch",
@@ -837,7 +838,10 @@
     "eventTime": "Event Time",
     "venue": "Venue",
     "dressCode": "Dress Code",
-    "formalAttire": "Formal Attire"
+    "formalAttire": "Formal Attire",
+    "loading": "Loading your tickets...",
+    "loadError": "Unable to load your tickets. Please try again.",
+    "noTickets": "No confirmed tickets found yet."
   },
   "abstractSubmission": {
     "pageTitle": "Abstract Submission",
