@@ -148,32 +148,35 @@ export default function UserProfileDropdown() {
 
           {/* Menu Items */}
           <div style={{ padding: "8px 0" }}>
-            {/* Temporarily hidden - My Tickets
-                        <Link
-                            href={`/${locale}/my-tickets`}
-                            onClick={() => setIsOpen(false)}
-                            style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '12px',
-                                padding: '12px 16px',
-                                color: '#333',
-                                textDecoration: 'none',
-                                transition: 'all 0.2s ease'
-                            }}
-                            onMouseEnter={(e) => {
-                                e.currentTarget.style.background = '#f8f8f8';
-                                e.currentTarget.style.paddingLeft = '20px';
-                            }}
-                            onMouseLeave={(e) => {
-                                e.currentTarget.style.background = 'transparent';
-                                e.currentTarget.style.paddingLeft = '16px';
-                            }}
-                        >
-                            <i className="fa-solid fa-ticket" style={{ color: '#1a237e', fontSize: '16px', width: '20px' }} />
-                            <span style={{ fontSize: '14px', fontWeight: '500' }}>{tUser('myTickets')}</span>
-                        </Link>
-                        */}
+            <Link
+              href={`/${locale}/my-tickets`}
+              onClick={() => setIsOpen(false)}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "12px",
+                padding: "12px 16px",
+                color: "#333",
+                textDecoration: "none",
+                transition: "all 0.2s ease",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "#f8f8f8";
+                e.currentTarget.style.paddingLeft = "20px";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "transparent";
+                e.currentTarget.style.paddingLeft = "16px";
+              }}
+            >
+              <i
+                className="fa-solid fa-ticket"
+                style={{ color: "#1a237e", fontSize: "16px", width: "20px" }}
+              />
+              <span style={{ fontSize: "14px", fontWeight: "500" }}>
+                {tUser("myTickets")}
+              </span>
+            </Link>
 
             <Link
               href={`/${locale}/abstract-status`}

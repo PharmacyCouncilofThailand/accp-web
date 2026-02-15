@@ -140,6 +140,7 @@ export interface MyTicketsResponse {
             amount: string;
             currency: string;
             includes: string[];
+            receiptUrl: string | null;
         } | null;
         galaTicket: {
             id: string;
