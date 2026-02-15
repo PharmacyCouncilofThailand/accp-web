@@ -246,26 +246,66 @@ export default function Header1({
                           </li>
                         </ul>
                       </li>
-                      <li>
-                        <Link href={`/${locale}/program`}>{t("program")}</Link>
+                      <li
+                        className={
+                          openDropdown === "program" ? "dropdown-open" : ""
+                        }
+                      >
+                        <a
+                          href="#"
+                          onClick={(e) => toggleDropdown("program", e)}
+                          style={{
+                            color:
+                              isActive(`/${locale}/program`) ||
+                              isActive(`/${locale}/gala-dinner`) ||
+                              isActive(`/${locale}/preconference-workshops`) ||
+                              openDropdown === "program"
+                                ? "#FFBA00"
+                                : isHeaderWhite
+                                  ? "#333"
+                                  : "#fff",
+                            fontWeight:
+                              isActive(`/${locale}/program`) ||
+                              isActive(`/${locale}/gala-dinner`) ||
+                              isActive(`/${locale}/preconference-workshops`)
+                                ? "600"
+                                : "normal",
+                            cursor: "pointer",
+                          }}
+                        >
+                          {t("program")}{" "}
+                          <i
+                            className={`fa-solid ${openDropdown === "program" ? "fa-angle-up" : "fa-angle-down"}`}
+                          />
+                        </a>
+                        <ul
+                          className="dropdown-padding"
+                          style={getDropdownStyle("program")}
+                        >
+                          <li>
+                            <Link href={`/${locale}/program`}>
+                              {t("programOverview")}
+                            </Link>
+                          </li>
+                          {/* Hidden Program submenu items (kept for future use) */}
+                          {/*
+                          <li><Link href={`/${locale}/program`}>{t("programOverview")}</Link></li>
+                          <li><Link href={`/${locale}/program-plenary`}>{t("plenaryKeynotes")}</Link></li>
+                          <li><Link href={`/${locale}/program-symposium`}>{t("symposia")}</Link></li>
+                          <li><Link href={`/${locale}/program-oral-poster`}>{t("oralPoster")}</Link></li>
+                          */}
+                          <li>
+                            <Link href={`/${locale}/gala-dinner`}>
+                              {t("galaDinner")}
+                            </Link>
+                          </li>
+                          <li>
+                            <Link href={`/${locale}/preconference-workshops`}>
+                              {t("workshops")}
+                            </Link>
+                          </li>
+                        </ul>
                       </li>
-                      {/*<li className={openDropdown === 'program' ? 'dropdown-open' : ''}>
-                                                <a
-                                                    href="#"
-                                                    onClick={(e) => toggleDropdown('program', e)}
-                                                    style={{ color: isActive(`/${locale}/program`) || isActive(`/${locale}/gala-dinner`) || isActive(`/${locale}/preconference-workshops`) || openDropdown === 'program' ? '#FFBA00' : isHeaderWhite ? '#333' : '#fff', fontWeight: isActive(`/${locale}/program`) || isActive(`/${locale}/gala-dinner`) || isActive(`/${locale}/preconference-workshops`) ? '600' : 'normal', cursor: 'pointer' }}
-                                                >
-                                                    {t('program')} <i className={`fa-solid ${openDropdown === 'program' ? 'fa-angle-up' : 'fa-angle-down'}`} />
-                                                </a>
-                                                <ul className="dropdown-padding" style={getDropdownStyle('program')}>
-                                                    <li><Link href={`/${locale}/program`}>{t('programOverview')}</Link></li>
-                                                    <li><Link href={`/${locale}/program-plenary`}>{t('plenaryKeynotes')}</Link></li>
-                                                    <li><Link href={`/${locale}/program-symposium`}>{t('symposia')}</Link></li>
-                                                    <li><Link href={`/${locale}/program-oral-poster`}>{t('oralPoster')}</Link></li>
-                                                    <li><Link href={`/${locale}/gala-dinner`}>{t('galaDinner')}</Link></li>
-                                                    <li><Link href={`/${locale}/preconference-workshops`}>{t('workshops')}</Link></li>
-                                                </ul>
-                                            </li>*/}
                       <li
                         className={
                           openDropdown === "abstracts" ? "dropdown-open" : ""
@@ -318,12 +358,7 @@ export default function Header1({
                           </li>
                         </ul>
                       </li>
-                      <li>
-                        <Link href={`/${locale}/registration`}>
-                          {t("registrationInfo")}
-                        </Link>
-                      </li>
-                      {/*<li className={openDropdown === 'registration' ? 'dropdown-open' : ''}>
+                      <li className={openDropdown === 'registration' ? 'dropdown-open' : ''}>
                                                 <a
                                                     href="#"
                                                     onClick={(e) => toggleDropdown('registration', e)}
@@ -335,7 +370,7 @@ export default function Header1({
                                                     <li><Link href={`/${locale}/registration`}>{t('registrationInfo')}</Link></li>
                                                     <li><Link href={`/${locale}/registration-policies`}>{t('policies')}</Link></li>
                                                 </ul>
-                                            </li>*/}
+                                            </li>
                       <li
                         className={
                           openDropdown === "travel" ? "dropdown-open" : ""
