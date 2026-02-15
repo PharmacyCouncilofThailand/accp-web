@@ -8,8 +8,14 @@ type TabType = 'accp2025' | 'venue' | 'bangkok';
 export default function GallerySection() {
     const t = useTranslations('gallery')
     const [activeTab, setActiveTab] = useState<TabType>('accp2025')
+    const [venueFilter, setVenueFilter] = useState('all')
     const [lightboxOpen, setLightboxOpen] = useState(false)
     const [lightboxImage, setLightboxImage] = useState({ src: '', alt: '' })
+
+    const currentGalleryData = galleryData[activeTab];
+    const displayImages = activeTab === 'venue' && venueFilter !== 'all'
+        ? currentGalleryData.images.filter((img: any) => img.category === venueFilter)
+        : currentGalleryData.images;
 
     const openLightbox = (src: string, alt: string) => {
         setLightboxImage({ src, alt })
@@ -69,7 +75,7 @@ export default function GallerySection() {
                             <i className="fa-solid fa-camera-retro"></i>
                             {t('accp2025Recap')}
                         </button>
-                        {/* Venue button temporarily hidden
+                        {/* Venue button temporarily*/}
                         <button
                             onClick={() => setActiveTab('venue')}
                             style={{
@@ -94,7 +100,8 @@ export default function GallerySection() {
                             <i className="fa-solid fa-building"></i>
                             {t('venue')}
                         </button>
-                        */}
+
+                        {/* Bangkok button temporarily*/}
                         <button
                             onClick={() => setActiveTab('bangkok')}
                             style={{
@@ -140,18 +147,50 @@ export default function GallerySection() {
                             color: '#666',
                             fontSize: '1.1rem',
                             maxWidth: '600px',
-                            margin: '0 auto'
+                            margin: '0 auto',
+                            marginBottom: '30px'
                         }}>
                             {tabTitles[activeTab].subtitle}
                         </p>
+
+                        {/* Venue Sub-navigation */}
+                        {activeTab === 'venue' && (galleryData.venue as any).categories && (
+                            <div style={{
+                                display: 'flex',
+                                flexWrap: 'wrap',
+                                justifyContent: 'center',
+                                gap: '10px',
+                                marginBottom: '20px'
+                            }}>
+                                {Object.entries((galleryData.venue as any).categories).map(([key, label]) => (
+                                    <button
+                                        key={key}
+                                        onClick={() => setVenueFilter(key)}
+                                        style={{
+                                            padding: '8px 20px',
+                                            borderRadius: '30px',
+                                            border: '1px solid #7B2D8E',
+                                            background: venueFilter === key ? '#7B2D8E' : 'transparent',
+                                            color: venueFilter === key ? '#fff' : '#7B2D8E',
+                                            fontWeight: '500',
+                                            fontSize: '0.9rem',
+                                            cursor: 'pointer',
+                                            transition: 'all 0.3s ease'
+                                        }}
+                                    >
+                                        {label as string}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
                     {/* Gallery Grid */}
                     <div className="masonry-gallery-grid">
-                        {galleryData[activeTab].images.map((image, index) => (
+                        {displayImages.map((image, index) => (
                             <div
                                 key={image.id}
-                                className={`gallery-item item-${index}`}
+                                className={`gallery-item ${venueFilter === 'all' ? `item-${index}` : ''}`}
                                 onClick={() => openLightbox(image.src, image.alt)}
                             >
                                 <div className="image-wrapper">
@@ -166,6 +205,8 @@ export default function GallerySection() {
                             </div>
                         ))}
                     </div>
+
+
 
 
                 </div>

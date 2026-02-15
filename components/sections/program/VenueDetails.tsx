@@ -65,12 +65,12 @@ export default function VenueDetails({ ticketPrice }: VenueDetailsProps) {
         {
             variant: 'yellow',
             icon: 'fa-solid fa-ticket',
-            title: t('ticketPrice'),
+            title: `${t('ticketPrice')} (July 10, 2026)`,
             content: (
-                <>
-                    <span className={styles.priceHighlight}>{ticketPrice}</span>
-                    <span className={styles.priceNote}>{t('priceDesc')}</span>
-                </>
+                <ul style={{ paddingLeft: '20px', margin: 0, textAlign: 'left', lineHeight: '1.6' }}>
+                    <li>health professional: 75 USD per person</li>
+                    <li>Thai health professional: 2,200 THB per person</li>
+                </ul>
             ),
         },
     ];

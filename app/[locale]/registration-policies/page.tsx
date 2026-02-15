@@ -2,9 +2,9 @@
 import Layout from "@/components/layout/Layout"
 import Link from "next/link"
 import { useTranslations } from 'next-intl'
-import RefundSchedule from "@/components/sections/policies/RefundSchedule"
+
 import PolicyDetails from "@/components/sections/policies/PolicyDetails"
-import PolicyFaq from "@/components/sections/policies/PolicyFaq"
+
 
 export default function RegistrationPolicies() {
     const t = useTranslations('policies')
@@ -48,9 +48,8 @@ export default function RegistrationPolicies() {
                         </div>
                     </div>
 
-                    <RefundSchedule />
                     <PolicyDetails />
-                    <PolicyFaq />
+
 
 
                 </div>

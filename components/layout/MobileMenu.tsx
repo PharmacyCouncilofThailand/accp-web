@@ -306,7 +306,7 @@ export default function MobileMenu({
 
             {isAuthenticated ? (
               <div style={{ padding: "20px 0" }}>
-                <UserProfileDropdown />
+                <UserProfileDropdown position="left" />
               </div>
             ) : (
               <div
