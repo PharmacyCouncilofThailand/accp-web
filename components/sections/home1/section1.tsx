@@ -68,8 +68,8 @@ export default function Section1() {
                       style={{ marginRight: "8px" }}
                     ></i>
                     {t(
-                      "เปิดให้ลงทะเบียน 18 ก.พ. 2569",
-                      "Available on 18 Feb 2026",
+                      "เปิดให้ลงทะเบียน 23 ก.พ. 2569",
+                      "Available on 23 Feb 2026",
                     )}
                   </span>
                   <Link href="/call-for-abstracts" className="vl-btn2">

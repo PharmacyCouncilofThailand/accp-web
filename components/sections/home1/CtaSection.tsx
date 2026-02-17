@@ -80,7 +80,7 @@ export default function CtaSection() {
                       className="fa-regular fa-calendar"
                       style={{ marginRight: "8px" }}
                     ></i>
-                    AVAILABLE ON 18 FEB 2026
+                    AVAILABLE ON 23 FEB 2026
                   </span>
                   <Link
                     href="/call-for-abstracts"

@@ -97,8 +97,8 @@ export default function Section9() {
                       style={{ marginRight: "8px" }}
                     ></i>
                     {t(
-                      "เปิดให้ลงทะเบียน 18 ก.พ. 2569",
-                      "AVAILABLE ON 18 FEB 2026",
+                      "เปิดให้ลงทะเบียน 23 ก.พ. 2569",
+                      "AVAILABLE ON 23 FEB 2026",
                     )}
                   </span>
                   <Link

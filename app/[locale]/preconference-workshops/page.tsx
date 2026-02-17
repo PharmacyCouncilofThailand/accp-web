@@ -414,10 +414,10 @@ export default function PreconferenceWorkshops() {
                       : true;
                     const formattedSaleDate = effectiveSaleStart
                       ? effectiveSaleStart.toLocaleDateString("en-GB", {
-                          day: "numeric",
-                          month: "long",
-                          year: "numeric",
-                        })
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      })
                       : "";
 
                     return (
@@ -817,7 +817,7 @@ export default function PreconferenceWorkshops() {
                                     className="fa-regular fa-calendar"
                                     style={{ marginRight: "6px" }}
                                   ></i>
-                                  Available on 18 Feb 2026
+                                  Available on 23 Feb 2026
                                 </span>
                               ) : (
                                 <div

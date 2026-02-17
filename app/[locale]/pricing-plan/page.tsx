@@ -115,7 +115,7 @@ export default function PricingPlan() {
                           className="fa-regular fa-calendar"
                           style={{ marginRight: "8px" }}
                         ></i>
-                        Available on 18 Feb 2026
+                        Available on 23 Feb 2026
                       </span>
                     </div>
                   </div>
@@ -198,7 +198,7 @@ export default function PricingPlan() {
                           className="fa-regular fa-calendar"
                           style={{ marginRight: "8px" }}
                         ></i>
-                        Available on 18 Feb 2026
+                        Available on 23 Feb 2026
                       </span>
                     </div>
                   </div>
@@ -293,7 +293,7 @@ export default function PricingPlan() {
                           className="fa-regular fa-calendar"
                           style={{ marginRight: "8px" }}
                         ></i>
-                        Available on 18 Feb 2026
+                        Available on 23 Feb 2026
                       </span>
                     </div>
                   </div>
