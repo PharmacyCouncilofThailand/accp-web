@@ -51,6 +51,17 @@ export default function Registration() {
   const isAddonOnly = searchParams.get("mode") === "addon";
   const [purchasedAddOns, setPurchasedAddOns] = useState<string[]>([]);
 
+  // Promo code state
+  const [promoInput, setPromoInput] = useState("");
+  const [promoLoading, setPromoLoading] = useState(false);
+  const [promoError, setPromoError] = useState<string | null>(null);
+  const [promoDiscount, setPromoDiscount] = useState<{
+    code: string;
+    discountType: "percentage" | "fixed";
+    discountValue: number;
+    discountAmount: number;
+  } | null>(null);
+
   // Fetch user's existing purchases to know which addons are already bought
   useEffect(() => {
     if (!isAuthenticated || !token) return;
@@ -175,6 +186,13 @@ export default function Registration() {
       option.value === checkoutData.selectedWorkshopTopic,
   );
 
+  const selectedAddOnCount = checkoutData.selectedAddOns.filter(
+    (id) => !purchasedAddOns.includes(id),
+  ).length;
+  const hasSelectedTickets = isAddonOnly
+    ? selectedAddOnCount > 0
+    : Boolean(checkoutData.selectedPackage);
+
   const validateStep = (): boolean => {
     const newErrors: Record<string, string> = {};
 
@@ -198,6 +216,47 @@ export default function Registration() {
     return Object.keys(newErrors).length === 0;
   };
 
+  const handleApplyPromo = async () => {
+    if (!promoInput.trim() || !token) return;
+    setPromoLoading(true);
+    setPromoError(null);
+
+    try {
+      const currency = isThai ? "THB" : "USD";
+      const res = await api.payments.preview(token, {
+        packageId: isAddonOnly ? undefined : checkoutData.selectedPackage,
+        addOnIds: checkoutData.selectedAddOns,
+        currency: currency as "THB" | "USD",
+        promoCode: promoInput.trim(),
+        paymentMethod: checkoutData.paymentMethod,
+      });
+
+      if (res.data?.promoValid) {
+        setPromoDiscount({
+          code: promoInput.trim().toUpperCase(),
+          discountType: res.data.discountType as "percentage" | "fixed",
+          discountValue: res.data.discountValue!,
+          discountAmount: res.data.discountAmount,
+        });
+        setPromoError(null);
+      } else {
+        setPromoDiscount(null);
+        setPromoError(res.data?.promoError || t("promoInvalid"));
+      }
+    } catch (err: any) {
+      setPromoDiscount(null);
+      setPromoError(err?.message || t("promoInvalid"));
+    } finally {
+      setPromoLoading(false);
+    }
+  };
+
+  const handleRemovePromo = () => {
+    setPromoDiscount(null);
+    setPromoInput("");
+    setPromoError(null);
+  };
+
   const handleNext = () => {
     if (validateStep()) {
       if (isLastStep) {
@@ -209,6 +268,8 @@ export default function Registration() {
   };
 
   const handleCheckout = () => {
+    if (!hasSelectedTickets) return;
+
     // Hard guard: never navigate to payment when workshop is selected without session
     if (isWorkshopSelected && !hasValidWorkshopSelection) {
       setErrors((prev) => ({
@@ -239,6 +300,7 @@ export default function Registration() {
       method: checkoutData.paymentMethod,
     });
     if (isAddonOnly) params.set("mode", "addon");
+    if (promoDiscount) params.set("promoCode", promoDiscount.code);
     router.push(`/${locale}/checkout/payment?${params.toString()}`);
   };
 
@@ -963,6 +1025,7 @@ export default function Registration() {
                     addOns={orderSummary.addOns}
                     isThai={isThai}
                     paymentMethod={checkoutData.paymentMethod}
+                    promoDiscount={promoDiscount}
                     onRemoveAddOn={(id) => {
                       const newAddOns = checkoutData.selectedAddOns.filter(
                         (addon) => addon !== id,
@@ -970,6 +1033,120 @@ export default function Registration() {
                       updateCheckoutData({ selectedAddOns: newAddOns });
                     }}
                   />
+
+                  {/* Promo Code Section */}
+                  <div
+                    style={{
+                      marginTop: "20px",
+                      padding: "20px",
+                      backgroundColor: "#fff",
+                      borderRadius: "12px",
+                      border: "1px solid #e0e0e0",
+                    }}
+                  >
+                    <h4
+                      style={{
+                        fontSize: "15px",
+                        fontWeight: "600",
+                        color: "#1a1a2e",
+                        marginBottom: "12px",
+                      }}
+                    >
+                      <i className="fa-solid fa-tag" style={{ marginRight: "8px", color: "#00C853" }} />
+                      {t("promoCode")}
+                    </h4>
+
+                    {promoDiscount ? (
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          padding: "10px 14px",
+                          backgroundColor: "#e8f5e9",
+                          borderRadius: "8px",
+                          border: "1px solid #00C853",
+                        }}
+                      >
+                        <div>
+                          <span style={{ fontWeight: "700", color: "#00C853", fontSize: "14px" }}>
+                            {promoDiscount.code}
+                          </span>
+                          <span style={{ fontSize: "12px", color: "#666", marginLeft: "8px" }}>
+                            {promoDiscount.discountType === "percentage"
+                              ? `${promoDiscount.discountValue}% off`
+                              : `${isThai ? "฿" : "$"}${promoDiscount.discountAmount.toLocaleString()} off`}
+                          </span>
+                        </div>
+                        <button
+                          onClick={handleRemovePromo}
+                          style={{
+                            background: "none",
+                            border: "none",
+                            color: "#d32f2f",
+                            cursor: "pointer",
+                            fontSize: "14px",
+                            padding: "4px",
+                          }}
+                          title="Remove"
+                        >
+                          <i className="fa-solid fa-times-circle" />
+                        </button>
+                      </div>
+                    ) : (
+                      <div style={{ display: "flex", gap: "8px" }}>
+                        <input
+                          type="text"
+                          value={promoInput}
+                          onChange={(e) => {
+                            setPromoInput(e.target.value.toUpperCase());
+                            if (promoError) setPromoError(null);
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") handleApplyPromo();
+                          }}
+                          placeholder={t("promoPlaceholder")}
+                          style={{
+                            flex: 1,
+                            padding: "10px 14px",
+                            border: promoError ? "1px solid #d32f2f" : "1px solid #e0e0e0",
+                            borderRadius: "8px",
+                            fontSize: "14px",
+                            outline: "none",
+                            textTransform: "uppercase",
+                          }}
+                        />
+                        <button
+                          onClick={handleApplyPromo}
+                          disabled={promoLoading || !promoInput.trim()}
+                          style={{
+                            padding: "10px 18px",
+                            backgroundColor: promoLoading || !promoInput.trim() ? "#ccc" : "#00C853",
+                            color: "#fff",
+                            border: "none",
+                            borderRadius: "8px",
+                            fontWeight: "600",
+                            fontSize: "14px",
+                            cursor: promoLoading || !promoInput.trim() ? "not-allowed" : "pointer",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          {promoLoading ? (
+                            <i className="fa-solid fa-spinner fa-spin" />
+                          ) : (
+                            t("promoApply")
+                          )}
+                        </button>
+                      </div>
+                    )}
+
+                    {promoError && (
+                      <p style={{ marginTop: "8px", color: "#d32f2f", fontSize: "13px", fontWeight: "500" }}>
+                        <i className="fa-solid fa-circle-exclamation" style={{ marginRight: "6px" }} />
+                        {promoError}
+                      </p>
+                    )}
+                  </div>
 
                   {/* Payment Method Section */}
                   <div className="checkout-card" style={{ marginTop: "20px" }}>
@@ -1018,12 +1195,29 @@ export default function Registration() {
                     <Button
                       variant="primary"
                       onClick={handleCheckout}
+                      disabled={!hasSelectedTickets}
                       icon="fa-solid fa-lock"
                       fullWidth={true}
                       style={{ padding: "16px 24px", fontSize: "16px" }}
                     >
                       {t("proceedToPayment")}
                     </Button>
+                    {!hasSelectedTickets && (
+                      <p
+                        style={{
+                          marginTop: "10px",
+                          color: "#d32f2f",
+                          fontSize: "13px",
+                          fontWeight: "500",
+                        }}
+                      >
+                        <i
+                          className="fa-solid fa-circle-exclamation"
+                          style={{ marginRight: "6px" }}
+                        />
+                        {t("validation.ticketRequired")}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>

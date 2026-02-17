@@ -240,6 +240,7 @@ export const api = {
                         saleStartDate: string | null;
                     }[];
                     instructors: { name: string; affiliation?: string }[];
+                    agenda: { time: string; topic: string }[] | null;
                     color: string;
                     icon: string;
                     isFull: boolean;
@@ -268,6 +269,28 @@ export const api = {
         myTickets: (token: string) =>
             fetchAPI<MyTicketsResponse>('/api/payments/my-tickets', { token }),
 
+        preview: (token: string, data: { packageId?: string; addOnIds: string[]; currency: 'THB' | 'USD'; promoCode?: string; paymentMethod?: string }) =>
+            fetchAPI<{
+                success: boolean;
+                data: {
+                    subtotal: number;
+                    discountAmount: number;
+                    discountType: string | null;
+                    discountValue: number | null;
+                    netAmount: number;
+                    fee: number;
+                    total: number;
+                    currency: string;
+                    feeMethod: string;
+                    promoValid: boolean;
+                    promoError: string | null;
+                };
+            }>('/api/payments/preview', {
+                method: 'POST',
+                body: JSON.stringify(data),
+                token,
+            }),
+
         createIntent: (token: string, data: { packageId?: string; addOnIds: string[]; currency: 'THB' | 'USD'; promoCode?: string; paymentMethod?: string; workshopSessionId?: number }) =>
             fetchAPI<{
                 success: boolean;
@@ -276,6 +299,10 @@ export const api = {
                     orderId: number;
                     orderNumber: string;
                     subtotal: number;
+                    discountAmount: number;
+                    discountType: string | null;
+                    discountValue: number | null;
+                    netAmount: number;
                     fee: number;
                     total: number;
                     currency: string;

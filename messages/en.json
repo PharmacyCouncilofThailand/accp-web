@@ -193,7 +193,7 @@
     "workshopScientificWriting": "Workshop I: Principles and Practical Tips for High-Quality Scientific Writing",
     "workshopAPOP": "Workshop II: Bridging the Gap: Clinical Excellence and Future Horizons in Oncology Pharmacy (APOPA)",
     "workshopTBA": "Workshop III & IV",
-    "workshopTBA3": "Workshop III",
+    "workshopTBA3": "Workshop III: Longevity and Sustainable Well-Being: Role of Strategic Model and Medication for Prevention",
     "workshopTBA4": "Workshop IV",
     "workshopsI_IV": "Workshop I, Workshop II, Workshop III, Workshop IV",
     "accpBoardMeeting": "ACCP Board meeting",
@@ -278,6 +278,7 @@
     "full": "FULL",
     "instructor": "Instructor(s)",
     "learningObjectives": "Learning Objectives",
+    "agenda": "Time & Agenda",
     "enrolled": "enrolled",
     "workshopFull": "Workshop Full",
     "registerNow": "Register Now",
@@ -981,6 +982,7 @@
       "phoneRequired": "Phone number is required",
       "countryRequired": "Country is required",
       "workshopRequired": "Please select a workshop session",
+      "ticketRequired": "Please select at least one ticket or add-on",
       "fillAllFields": "Please fill in all required fields correctly"
     },
     "packages": {
@@ -1005,6 +1007,10 @@
     "registrationPackage": "Registration Package",
     "subtotal": "Subtotal",
     "discount": "Discount",
+    "promoCode": "Promo Code",
+    "promoPlaceholder": "Enter promo code",
+    "promoApply": "Apply",
+    "promoInvalid": "Invalid promo code",
     "securePaymentFooter": "Secure payment powered by SSL encryption",
     "dietaryOptions": {
       "none": "No special requirements",

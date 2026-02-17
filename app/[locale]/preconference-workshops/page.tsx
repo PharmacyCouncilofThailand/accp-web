@@ -30,6 +30,7 @@ interface Workshop {
   fee: string; // Deprecated, use tickets logic
   tickets: WorkshopTicket[];
   instructors: { name: string; affiliation?: string }[];
+  agenda: { time: string; topic: string }[] | null;
   color: string;
   icon: string;
   isFull: boolean;
@@ -47,13 +48,16 @@ export default function PreconferenceWorkshops() {
   const [workshops, setWorkshops] = useState<Workshop[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [expandedWorkshops, setExpandedWorkshops] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     const fetchWorkshops = async () => {
       try {
         setIsLoading(true);
         const response = await api.workshops.list();
-        setWorkshops(response.workshops);
+        // เรียงตาม sessionId น้อยสุดก่อน
+        const sortedWorkshops = response.workshops.sort((a, b) => a.sessionId - b.sessionId);
+        setWorkshops(sortedWorkshops);
       } catch (err) {
         console.error("Failed to fetch workshops:", err);
         setError("Failed to load workshops");
@@ -210,7 +214,7 @@ export default function PreconferenceWorkshops() {
 
               {/* Workshops */}
               {!isLoading && !error && workshops.length > 0 && (
-                <div className="row">
+                <div className="row" style={{ display: 'flex', flexWrap: 'wrap', gap: '30px', alignItems: 'flex-start' }}>
                   {workshops.map((workshop, index) => {
                     // Calculate duration
                     const durationText =
@@ -420,36 +424,44 @@ export default function PreconferenceWorkshops() {
                         })
                       : "";
 
+                    const isExpanded = expandedWorkshops.has(workshop.sessionId);
+                    const toggleExpand = () => {
+                      setExpandedWorkshops((prev) => {
+                        const newSet = new Set(prev);
+                        if (newSet.has(workshop.sessionId)) {
+                          newSet.delete(workshop.sessionId);
+                        } else {
+                          newSet.add(workshop.sessionId);
+                        }
+                        return newSet;
+                      });
+                    };
+
                     return (
                       <div
                         key={workshop.id}
-                        className="col-lg-6"
+                        style={{
+                          flex: '1 1 calc(50% - 15px)',
+                          minWidth: '300px',
+                          maxWidth: 'calc(50% - 15px)',
+                        }}
                         data-aos="fade-up"
                         data-aos-duration={800}
                         data-aos-delay={index * 100}
                       >
                         <div
                           style={{
-                            marginBottom: "30px",
+                            height: '100%',
                             backgroundColor: "white",
                             borderRadius: "16px",
                             overflow: "hidden",
                             boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
                             transition: "all 0.3s ease",
                             position: "relative",
+                            display: 'flex',
+                            flexDirection: 'column',
                           }}
                           className="workshop-card"
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.boxShadow =
-                              "0 12px 40px rgba(0,0,0,0.15)";
-                            e.currentTarget.style.transform =
-                              "translateY(-4px)";
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.boxShadow =
-                              "0 4px 20px rgba(0,0,0,0.08)";
-                            e.currentTarget.style.transform = "translateY(0)";
-                          }}
                         >
                           {workshop.isFull && (
                             <div
@@ -470,12 +482,14 @@ export default function PreconferenceWorkshops() {
                             </div>
                           )}
 
-                          {/* Header with gradient */}
+                          {/* Header with gradient - Clickable */}
                           <div
+                            onClick={toggleExpand}
                             style={{
                               background: `linear-gradient(135deg, ${workshop.color} 0%, ${workshop.color}dd 100%)`,
                               color: "white",
                               padding: "25px",
+                              cursor: "pointer",
                             }}
                           >
                             <div
@@ -526,11 +540,27 @@ export default function PreconferenceWorkshops() {
                                   {workshop.title}
                                 </h5>
                               </div>
+                              <div
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                }}
+                              >
+                                <i
+                                  className={`fa-solid fa-chevron-${isExpanded ? "up" : "down"}`}
+                                  style={{
+                                    fontSize: "20px",
+                                    transition: "transform 0.3s ease",
+                                  }}
+                                />
+                              </div>
                             </div>
                           </div>
 
-                          {/* Content */}
-                          <div style={{ padding: "25px" }}>
+                          {/* Content - แสดงเมื่อขยาย */}
+                          {isExpanded && (
+                          <div style={{ padding: "25px", flex: 1, display: 'flex', flexDirection: 'column' }}>
                             {/* Info Grid */}
                             <div
                               style={{
@@ -636,6 +666,78 @@ export default function PreconferenceWorkshops() {
                               </div>
                             </div>
 
+                            {/* Time & Agenda */}
+                            {workshop.agenda && workshop.agenda.length > 0 && (
+                              <div style={{ marginBottom: "20px" }}>
+                                <p
+                                  style={{
+                                    margin: "0 0 10px 0",
+                                    fontSize: "11px",
+                                    color: "#999",
+                                    textTransform: "uppercase",
+                                    fontWeight: 600,
+                                  }}
+                                >
+                                  <i
+                                    className="fa-solid fa-clock"
+                                    style={{ marginRight: "5px" }}
+                                  />
+                                  {t("agenda")}
+                                </p>
+                                <div
+                                  style={{
+                                    backgroundColor: "#f8f9fa",
+                                    borderRadius: "10px",
+                                    padding: "14px 16px",
+                                    borderLeft: `3px solid ${workshop.color}`,
+                                  }}
+                                >
+                                  {workshop.agenda.map((item, i) => (
+                                    <div
+                                      key={i}
+                                      style={{
+                                        display: "flex",
+                                        gap: "10px",
+                                        marginBottom:
+                                          i < (workshop.agenda?.length ?? 0) - 1
+                                            ? "10px"
+                                            : 0,
+                                        paddingBottom:
+                                          i < (workshop.agenda?.length ?? 0) - 1
+                                            ? "10px"
+                                            : 0,
+                                        borderBottom:
+                                          i < (workshop.agenda?.length ?? 0) - 1
+                                            ? "1px dashed #e0e0e0"
+                                            : "none",
+                                      }}
+                                    >
+                                      <span
+                                        style={{
+                                          fontSize: "12px",
+                                          fontWeight: 700,
+                                          color: workshop.color,
+                                          whiteSpace: "nowrap",
+                                          minWidth: "120px",
+                                        }}
+                                      >
+                                        {item.time}
+                                      </span>
+                                      <span
+                                        style={{
+                                          fontSize: "12px",
+                                          color: "#444",
+                                          lineHeight: 1.4,
+                                        }}
+                                      >
+                                        {item.topic}
+                                      </span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
                             {/* Instructor(s) */}
                             <div style={{ marginBottom: "20px" }}>
                               <p
@@ -716,6 +818,7 @@ export default function PreconferenceWorkshops() {
                                     fontSize: "13px",
                                     color: "#555",
                                     lineHeight: 1.5,
+                                    whiteSpace: "pre-wrap",
                                   }}
                                 >
                                   {workshop.description}
@@ -837,6 +940,7 @@ export default function PreconferenceWorkshops() {
                               )}
                             </div>
                           </div>
+                          )}
                         </div>
                       </div>
                     );

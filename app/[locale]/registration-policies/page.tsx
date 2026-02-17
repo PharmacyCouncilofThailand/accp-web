@@ -34,7 +34,7 @@ export default function RegistrationPolicies() {
                         <div className="container">
                             <div className="row">
                                 <div className="col-lg-8 m-auto">
-                                    <div className="heading2 text-center space-margin60">
+                                    <div className="heading2 text-center">
                                         <h5 data-aos="fade-up" data-aos-duration={800}>{t('overview')}</h5>
                                         <div className="space16" />
                                         <h2>{t('pageTitle')}</h2>

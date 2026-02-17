@@ -9,11 +9,19 @@ interface OrderItem {
   details?: string;
 }
 
+interface PromoDiscount {
+  code: string;
+  discountType: "percentage" | "fixed";
+  discountValue: number;
+  discountAmount: number;
+}
+
 interface OrderSummaryProps {
   packageItem: OrderItem;
   addOns: OrderItem[];
   isThai: boolean;
   discount?: number;
+  promoDiscount?: PromoDiscount | null;
   onRemoveAddOn?: (id: string) => void;
   paymentMethod?: "qr" | "card";
 }
@@ -49,6 +57,7 @@ export default function OrderSummary({
   addOns,
   isThai,
   discount = 0,
+  promoDiscount,
   onRemoveAddOn,
   paymentMethod = "card",
 }: OrderSummaryProps) {
@@ -58,7 +67,15 @@ export default function OrderSummary({
 
   const subtotal =
     packageItem.price + addOns.reduce((sum, addon) => sum + addon.price, 0);
-  const discountAmount = subtotal * (discount / 100);
+
+  // Promo discount takes priority over legacy percentage discount
+  let discountAmount: number;
+  if (promoDiscount) {
+    discountAmount = promoDiscount.discountAmount;
+  } else {
+    discountAmount = subtotal * (discount / 100);
+  }
+
   const netAmount = subtotal - discountAmount;
   const { fee, total: totalWithFee } =
     netAmount > 0
@@ -277,7 +294,7 @@ export default function OrderSummary({
       </div>
 
       {/* Discount */}
-      {discount > 0 && (
+      {discountAmount > 0 && (
         <div
           style={{
             display: "flex",
@@ -289,7 +306,9 @@ export default function OrderSummary({
             style={{ fontSize: "14px", color: "#00C853", fontWeight: "600" }}
           >
             <i className="fa-solid fa-tag" style={{ marginRight: "6px" }} />
-            {t("discount")} ({discount}%)
+            {promoDiscount
+              ? `${t("discount")} (${promoDiscount.code}${promoDiscount.discountType === "percentage" ? ` ${promoDiscount.discountValue}%` : ""})`
+              : `${t("discount")} (${discount}%)`}
           </span>
           <span
             style={{ fontSize: "15px", fontWeight: "600", color: "#00C853" }}

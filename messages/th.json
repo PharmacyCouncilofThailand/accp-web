@@ -278,6 +278,7 @@
     "full": "เต็ม",
     "instructor": "วิทยากร",
     "learningObjectives": "วัตถุประสงค์การเรียนรู้",
+    "agenda": "กำหนดการ",
     "enrolled": "ลงทะเบียนแล้ว",
     "workshopFull": "เวิร์คช็อปเต็ม",
     "registerNow": "ลงทะเบียนเลย",
@@ -995,6 +996,7 @@
       "phoneRequired": "กรุณากรอกเบอร์โทรศัพท์",
       "countryRequired": "กรุณากรอกประเทศ",
       "workshopRequired": "กรุณาเลือก session ของ workshop",
+      "ticketRequired": "กรุณาเลือกตั๋วหรือบริการเสริมอย่างน้อย 1 รายการ",
       "fillAllFields": "กรุณากรอกข้อมูลที่จำเป็นทั้งหมดให้ถูกต้อง"
     },
     "packages": {
@@ -1019,6 +1021,10 @@
     "registrationPackage": "แพ็กเกจลงทะเบียน",
     "subtotal": "ยอดรวมย่อย",
     "discount": "ส่วนลด",
+    "promoCode": "โค้ดส่วนลด",
+    "promoPlaceholder": "กรอกโค้ดส่วนลด",
+    "promoApply": "ใช้โค้ด",
+    "promoInvalid": "โค้ดส่วนลดไม่ถูกต้อง",
     "securePaymentFooter": "การชำระเงินปลอดภัยด้วยการเข้ารหัส SSL",
     "dietaryOptions": {
       "none": "ไม่มีความต้องการพิเศษ",

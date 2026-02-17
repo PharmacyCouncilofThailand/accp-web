@@ -156,8 +156,67 @@ export default function Payment() {
   const [chargeTotal, setChargeTotal] = useState<number>(0);
   const [isCancelling, setIsCancelling] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
+  const [showRefreshModal, setShowRefreshModal] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [promoDiscount, setPromoDiscount] = useState<{
+    code: string;
+    discountType: "percentage" | "fixed";
+    discountValue: number;
+    discountAmount: number;
+  } | null>(null);
 
-  // Cancel payment handler — called when user confirms in modal
+  // Refresh detection and warning
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (clientSecret && orderId) {
+        e.preventDefault();
+        e.returnValue = '';
+        setShowRefreshModal(true);
+        return '';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [clientSecret, orderId]);
+
+  // Confirm refresh with cancellation
+  const confirmRefresh = async () => {
+    if (!orderId || !token) return;
+
+    setShowRefreshModal(false);
+    setIsRefreshing(true);
+    
+    try {
+      // Cancel the payment intent
+      await fetch(`${API_URL}/api/payments/cancel-intent`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ orderId }),
+      });
+
+      // Reset checkout and redirect
+      resetCheckout();
+      router.push(`/${locale}/registration`);
+    } catch (err) {
+      console.error("Failed to cancel on refresh:", err);
+      // Still redirect even if cancellation fails
+      router.push(`/${locale}/registration`);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
+  // Cancel refresh action (stay on page)
+  const cancelRefresh = () => {
+    setShowRefreshModal(false);
+  };
   const confirmCancelPayment = async () => {
     if (!orderId || !token) return;
 
@@ -219,6 +278,7 @@ export default function Payment() {
             addOnIds: checkoutData.selectedAddOns,
             currency,
             paymentMethod: checkoutData.paymentMethod,
+            promoCode: searchParams.get("promoCode") || undefined,
             workshopSessionId: checkoutData.selectedWorkshopTopic
               ? parseInt(checkoutData.selectedWorkshopTopic)
               : undefined,
@@ -237,6 +297,17 @@ export default function Payment() {
         setOrderNumber(data.data.orderNumber);
         setFeeAmount(data.data.fee || 0);
         setChargeTotal(data.data.total || totalAmount);
+
+        // Set promo discount info if present
+        if (data.data.discountAmount > 0 && data.data.discountType) {
+          const promoCodeParam = searchParams.get("promoCode") || "";
+          setPromoDiscount({
+            code: promoCodeParam,
+            discountType: data.data.discountType as "percentage" | "fixed",
+            discountValue: data.data.discountValue || 0,
+            discountAmount: data.data.discountAmount,
+          });
+        }
       } catch (err) {
         console.error("Failed to create payment intent:", err);
         setIntentError("Failed to connect to payment server");
@@ -275,13 +346,11 @@ export default function Payment() {
                   <div className="heading1 text-center">
                     <h1>{t("pageTitle")}</h1>
                     <div className="space20" />
-                    <Link href={`/${locale}`}>{tCommon("home")}</Link>{" "}
-                    <i className="fa-solid fa-angle-right" />{" "}
-                    <Link href={`/${locale}/checkout`}>
-                      {tCheckout("breadcrumb")}
-                    </Link>{" "}
-                    <i className="fa-solid fa-angle-right" />{" "}
+                    <Link href={`/${locale}`}>
+                    {tCommon("home")} <i className="fa-solid fa-angle-right" />{" "}
+                    {tCheckout("breadcrumb")} <i className="fa-solid fa-angle-right" />{" "}
                     <span>{t("breadcrumb")}</span>
+                  </Link>
                   </div>
                 </div>
               </div>
@@ -483,6 +552,7 @@ export default function Payment() {
                     addOns={orderAddOns}
                     isThai={isThaiPayment}
                     paymentMethod={checkoutData.paymentMethod}
+                    promoDiscount={promoDiscount}
                   />
                 </div>
               </div>
@@ -490,6 +560,149 @@ export default function Payment() {
           </div>
         </div>
       </Layout>
+
+      {/* Refresh Warning Modal */}
+      {showRefreshModal && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 9999,
+            backdropFilter: "blur(4px)",
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              backgroundColor: "#fff",
+              borderRadius: "16px",
+              padding: "32px",
+              maxWidth: "420px",
+              width: "90%",
+              boxShadow: "0 20px 60px rgba(0, 0, 0, 0.3)",
+              textAlign: "center",
+              animation: "fadeInScale 0.2s ease-out",
+            }}
+          >
+            <div
+              style={{
+                width: "64px",
+                height: "64px",
+                borderRadius: "50%",
+                backgroundColor: "#fff3cd",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                margin: "0 auto 20px",
+              }}
+            >
+              <i
+                className="fa-solid fa-arrows-rotate"
+                style={{ fontSize: "28px", color: "#856404" }}
+              />
+            </div>
+
+            <h3
+              style={{
+                fontSize: "20px",
+                fontWeight: "700",
+                color: "#1a1a2e",
+                marginBottom: "12px",
+              }}
+            >
+              {locale === "th" ? "เตือนการรีเฟรชหน้า" : "Refresh Warning"}
+            </h3>
+            <p
+              style={{
+                fontSize: "15px",
+                color: "#666",
+                lineHeight: 1.6,
+                marginBottom: "28px",
+              }}
+            >
+              {locale === "th"
+                ? "การรีเฟรชหน้านี้จะทำให้การชำระเงินถูกยกเลิก คุณต้องการดำเนินการต่อหรือไม่?"
+                : "Refreshing this page will cancel your payment. Do you want to continue?"}
+            </p>
+
+            <div
+              style={{ display: "flex", gap: "12px", justifyContent: "center" }}
+            >
+              <button
+                onClick={cancelRefresh}
+                disabled={isRefreshing}
+                style={{
+                  flex: 1,
+                  padding: "12px 24px",
+                  border: "1px solid #e0e0e0",
+                  borderRadius: "10px",
+                  backgroundColor: "#fff",
+                  color: "#666",
+                  fontSize: "15px",
+                  fontWeight: "600",
+                  cursor: isRefreshing ? "not-allowed" : "pointer",
+                  transition: "all 0.2s",
+                  opacity: isRefreshing ? 0.6 : 1,
+                }}
+                onMouseEnter={(e) => {
+                  if (!isRefreshing) e.currentTarget.style.backgroundColor = "#f5f5f5";
+                }}
+                onMouseLeave={(e) => {
+                  if (!isRefreshing) e.currentTarget.style.backgroundColor = "#fff";
+                }}
+              >
+                {locale === "th" ? "อยู่บนหน้านี้ต่อ" : "Stay on Page"}
+              </button>
+              <button
+                onClick={confirmRefresh}
+                disabled={isRefreshing}
+                style={{
+                  flex: 1,
+                  padding: "12px 24px",
+                  border: "none",
+                  borderRadius: "10px",
+                  backgroundColor: "#ff9800",
+                  color: "#fff",
+                  fontSize: "15px",
+                  fontWeight: "600",
+                  cursor: isRefreshing ? "not-allowed" : "pointer",
+                  transition: "all 0.2s",
+                  opacity: isRefreshing ? 0.6 : 1,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "8px",
+                }}
+                onMouseEnter={(e) => {
+                  if (!isRefreshing) e.currentTarget.style.backgroundColor = "#e68900";
+                }}
+                onMouseLeave={(e) => {
+                  if (!isRefreshing) e.currentTarget.style.backgroundColor = "#ff9800";
+                }}
+              >
+                {isRefreshing ? (
+                  <>
+                    <i className="fa-solid fa-spinner fa-spin" />
+                    {locale === "th" ? "กำลังยกเลิก..." : "Cancelling..."}
+                  </>
+                ) : (
+                  <>
+                    <i className="fa-solid fa-arrows-rotate" />
+                    {locale === "th" ? "รีเฟรชและยกเลิก" : "Refresh & Cancel"}
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Cancel Payment Confirmation Modal */}
       {showCancelModal && (

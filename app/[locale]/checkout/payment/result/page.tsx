@@ -121,6 +121,12 @@ export default function PaymentResult() {
     setStatus("processing");
   };
 
+  const sortedItems = [...(paymentData?.items || [])].sort((a, b) => {
+    const aRank = a.type === "ticket" ? 0 : 1;
+    const bRank = b.type === "ticket" ? 0 : 1;
+    return aRank - bRank;
+  });
+
   return (
     <Layout headerStyle={1} footerStyle={1}>
       <div
@@ -224,13 +230,13 @@ export default function PaymentResult() {
                       )}
 
                       {/* Itemized Breakdown */}
-                      {paymentData?.items && paymentData.items.length > 0 && (
+                      {sortedItems.length > 0 && (
                         <>
                           <div style={{ borderTop: "1px solid #e0e0e0", margin: "16px 0", paddingTop: "16px" }}>
                             <p style={{ fontWeight: "700", fontSize: "14px", color: "#333", marginBottom: "12px", textTransform: "uppercase", letterSpacing: "0.5px" }}>
                               {locale === "th" ? "รายละเอียด" : "Items"}
                             </p>
-                            {paymentData.items.map((item, idx) => (
+                            {sortedItems.map((item, idx) => (
                               <div key={idx} style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px", fontSize: "14px" }}>
                                 <span style={{ color: "#555" }}>
                                   {item.name}
@@ -249,13 +255,13 @@ export default function PaymentResult() {
                             {/* Subtotal */}
                             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px", fontSize: "14px", color: "#666" }}>
                               <span>{locale === "th" ? "ราคารวม" : "Subtotal"}</span>
-                              <span>฿{Number(paymentData.subtotal).toLocaleString()}</span>
+                              <span>฿{Number(paymentData?.subtotal ?? 0).toLocaleString()}</span>
                             </div>
                             {/* Fee */}
-                            {Number(paymentData.fee) > 0 && (
+                            {Number(paymentData?.fee ?? 0) > 0 && (
                               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px", fontSize: "14px", color: "#666" }}>
                                 <span>{locale === "th" ? "ค่าธรรมเนียมชำระเงิน" : "Payment Processing Fee"}</span>
-                                <span>฿{Number(paymentData.fee).toLocaleString()}</span>
+                                <span>฿{Number(paymentData?.fee ?? 0).toLocaleString()}</span>
                               </div>
                             )}
                             {/* Total */}
@@ -264,7 +270,7 @@ export default function PaymentResult() {
                                 {locale === "th" ? "ยอดชำระทั้งหมด" : "Total Paid"}
                               </span>
                               <span style={{ fontSize: "20px", fontWeight: "bold", color: "#00C853" }}>
-                                ฿{Number(paymentData.payment?.amount).toLocaleString()}
+                                ฿{Number(paymentData?.payment?.amount ?? 0).toLocaleString()}
                               </span>
                             </div>
                           </div>
@@ -272,7 +278,7 @@ export default function PaymentResult() {
                       )}
 
                       {/* Fallback: no items (old orders) */}
-                      {(!paymentData?.items || paymentData.items.length === 0) && paymentData?.payment?.amount && (
+                      {sortedItems.length === 0 && paymentData?.payment?.amount && (
                         <div style={{ display: "flex", justifyContent: "space-between", borderTop: "1px solid #e0e0e0", paddingTop: "12px", marginTop: "12px" }}>
                           <span style={{ fontWeight: "700", color: "#333" }}>
                             {locale === "th" ? "ยอดชำระทั้งหมด" : "Total Paid"}
@@ -287,7 +293,7 @@ export default function PaymentResult() {
                     {paymentData?.receiptDownloadUrl && (
                       <div style={{ marginBottom: "20px" }}>
                         <a
-                          href={paymentData.receiptDownloadUrl}
+                          href={`${paymentData.receiptDownloadUrl}${paymentData.receiptDownloadUrl.includes("?") ? "&" : "?"}v=${Date.now()}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           style={{

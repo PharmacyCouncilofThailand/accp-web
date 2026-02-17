@@ -403,7 +403,11 @@ export default function MyTickets() {
 
                   {ticket.receiptUrl && (
                     <button
-                      onClick={() => window.open(ticket.receiptUrl!, "_blank")}
+                      onClick={() => {
+                        const separator = ticket.receiptUrl!.includes("?") ? "&" : "?";
+                        const receiptUrl = `${ticket.receiptUrl!}${separator}v=${Date.now()}`;
+                        window.open(receiptUrl, "_blank");
+                      }}
                       style={{
                         width: "calc(100% - 20px)",
                         padding: "10px 16px",
