@@ -10,8 +10,6 @@ import { useCheckoutWizard } from "@/hooks/checkout/useCheckoutWizard";
 import OrderSummary from "@/components/checkout/OrderSummary";
 import { useTickets } from "@/context/TicketContext";
 import type { LinkedSession } from "@/lib/api";
-import StripeProvider from "@/components/providers/StripeProvider";
-import StripePaymentForm from "@/components/checkout/StripePaymentForm";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
@@ -146,12 +144,14 @@ export default function Payment() {
     tCheckout,
   ]);
 
-  // Stripe PaymentIntent state
-  const [clientSecret, setClientSecret] = useState<string | null>(null);
+  // Payment gateway state
+  const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
+  const [paymentRefNo, setPaymentRefNo] = useState<string | null>(null);
   const [orderId, setOrderId] = useState<number | null>(null);
   const [orderNumber, setOrderNumber] = useState<string>("");
   const [intentError, setIntentError] = useState<string | null>(null);
   const [isCreatingIntent, setIsCreatingIntent] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
   const [feeAmount, setFeeAmount] = useState<number>(0);
   const [chargeTotal, setChargeTotal] = useState<number>(0);
   const [isCancelling, setIsCancelling] = useState(false);
@@ -168,7 +168,7 @@ export default function Payment() {
   // Refresh detection and warning
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (clientSecret && orderId) {
+      if (paymentUrl && orderId) {
         e.preventDefault();
         e.returnValue = '';
         setShowRefreshModal(true);
@@ -181,7 +181,7 @@ export default function Payment() {
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
-  }, [clientSecret, orderId]);
+  }, [paymentUrl, orderId]);
 
   // Confirm refresh with cancellation
   const confirmRefresh = async () => {
@@ -257,7 +257,7 @@ export default function Payment() {
 
   // Create PaymentIntent on mount
   useEffect(() => {
-    if (!isInitialized || !token || clientSecret) return;
+    if (!isInitialized || !token || paymentUrl) return;
     // For full mode, need selectedPackage; for addon-only, need at least one addon
     if (!isAddonOnly && !checkoutData.selectedPackage) return;
     if (isAddonOnly && checkoutData.selectedAddOns.length === 0) return;
@@ -292,7 +292,8 @@ export default function Payment() {
           return;
         }
 
-        setClientSecret(data.data.clientSecret);
+        setPaymentUrl(data.data.paymentUrl);
+        setPaymentRefNo(data.data.refno || null);
         setOrderId(data.data.orderId);
         setOrderNumber(data.data.orderNumber);
         setFeeAmount(data.data.fee || 0);
@@ -308,9 +309,15 @@ export default function Payment() {
             discountAmount: data.data.discountAmount,
           });
         }
+
+        if (data.data.paymentUrl) {
+          setIsRedirecting(true);
+          window.location.assign(data.data.paymentUrl);
+        }
       } catch (err) {
         console.error("Failed to create payment intent:", err);
         setIntentError("Failed to connect to payment server");
+        setIsRedirecting(false);
       } finally {
         setIsCreatingIntent(false);
       }
@@ -323,8 +330,9 @@ export default function Payment() {
     checkoutData.selectedPackage,
     checkoutData.selectedAddOns,
     currency,
-    clientSecret,
+    paymentUrl,
     isAddonOnly,
+    locale,
   ]);
 
   if (!isAuthenticated) {
@@ -361,7 +369,7 @@ export default function Payment() {
           <div className="sp1">
             <div className="container">
               <div className="row">
-                {/* Left Column - Stripe Payment */}
+                {/* Left Column - Payment Gateway */}
                 <div className="col-lg-8">
                   {/* Loading state */}
                   {isCreatingIntent && (
@@ -423,7 +431,8 @@ export default function Payment() {
                       </p>
                       <button
                         onClick={() => {
-                          setClientSecret(null);
+                          setPaymentUrl(null);
+                          setPaymentRefNo(null);
                           setIntentError(null);
                         }}
                         style={{
@@ -441,8 +450,8 @@ export default function Payment() {
                     </div>
                   )}
 
-                  {/* Stripe Payment Form */}
-                  {clientSecret && orderId && (
+                  {/* Pay Solutions Redirect Panel */}
+                  {paymentUrl && orderId && (
                     <div
                       style={{
                         padding: "30px",
@@ -458,8 +467,14 @@ export default function Payment() {
                           fontWeight: "600",
                         }}
                       >
-                        {locale === "th" ? "ชำระเงิน" : "Payment"}
+                        {locale === "th" ? "กำลังไปยังหน้าชำระเงิน" : "Redirecting to Payment"}
                       </h4>
+
+                      {paymentRefNo && (
+                        <p style={{ marginBottom: "16px", fontSize: "13px", color: "#666" }}>
+                          {locale === "th" ? "รหัสอ้างอิง" : "Reference No."}: <strong>{paymentRefNo}</strong>
+                        </p>
+                      )}
 
                       {/* Fee Breakdown */}
                       {feeAmount > 0 && (
@@ -530,17 +545,54 @@ export default function Payment() {
                         </div>
                       )}
 
-                      <StripeProvider clientSecret={clientSecret}>
-                        <StripePaymentForm
-                          amount={chargeTotal}
-                          currency={currency}
-                          orderId={orderId}
-                          orderNumber={orderNumber}
-                          preferredMethod={checkoutData.paymentMethod}
-                          onCancel={() => setShowCancelModal(true)}
-                          isCancelling={isCancelling}
-                        />
-                      </StripeProvider>
+                      <div style={{ display: "grid", gap: "10px" }}>
+                        <button
+                          onClick={() => {
+                            setIsRedirecting(true);
+                            window.location.assign(paymentUrl);
+                          }}
+                          disabled={isRedirecting}
+                          style={{
+                            width: "100%",
+                            padding: "14px 16px",
+                            borderRadius: "10px",
+                            border: "none",
+                            background: "linear-gradient(135deg, #00C853 0%, #69F0AE 100%)",
+                            color: "#fff",
+                            fontSize: "16px",
+                            fontWeight: "700",
+                            cursor: isRedirecting ? "not-allowed" : "pointer",
+                            opacity: isRedirecting ? 0.8 : 1,
+                          }}
+                        >
+                          {isRedirecting
+                            ? locale === "th"
+                              ? "กำลังเปิดหน้าชำระเงิน..."
+                              : "Opening payment page..."
+                            : locale === "th"
+                              ? "ไปยังหน้าชำระเงิน"
+                              : "Continue to Payment"}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setShowCancelModal(true)}
+                          disabled={isCancelling}
+                          style={{
+                            width: "100%",
+                            padding: "12px 16px",
+                            borderRadius: "10px",
+                            border: "1px solid #ff6b6b",
+                            backgroundColor: "#fff",
+                            color: "#ff6b6b",
+                            fontSize: "14px",
+                            fontWeight: "600",
+                            cursor: isCancelling ? "not-allowed" : "pointer",
+                          }}
+                        >
+                          {locale === "th" ? "ยกเลิกรายการชำระเงิน" : "Cancel Payment"}
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>

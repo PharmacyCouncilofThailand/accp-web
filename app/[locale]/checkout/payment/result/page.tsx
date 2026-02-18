@@ -23,6 +23,7 @@ interface OrderItem {
 interface PaymentData {
   orderNumber?: string;
   orderStatus?: string;
+  currency?: string;
   payment?: {
     status: string;
     amount: string;
@@ -50,6 +51,7 @@ export default function PaymentResult() {
   const paramsRef = useRef({
     orderNumber: searchParams.get("orderNumber") || "",
     redirectStatus: searchParams.get("redirect_status"),
+    refNo: searchParams.get("refno"),
     paymentIntentId: searchParams.get("payment_intent"),
   });
   const verifyStarted = useRef(false);
@@ -58,39 +60,50 @@ export default function PaymentResult() {
 
   useEffect(() => {
     // Update refs if searchParams become available after initial render
+    const refNoParam = searchParams.get("refno");
     const piId = searchParams.get("payment_intent");
     const rs = searchParams.get("redirect_status");
     const on = searchParams.get("orderNumber");
-    if (piId && !paramsRef.current.paymentIntentId) {
-      paramsRef.current = { paymentIntentId: piId, redirectStatus: rs, orderNumber: on || "" };
+    if ((refNoParam && !paramsRef.current.refNo) || (piId && !paramsRef.current.paymentIntentId)) {
+      paramsRef.current = {
+        refNo: refNoParam || paramsRef.current.refNo,
+        paymentIntentId: piId || paramsRef.current.paymentIntentId,
+        redirectStatus: rs,
+        orderNumber: on || "",
+      };
     }
 
     if (verifyStarted.current) return;
     if (!token) return; // Still loading auth — don't set failed yet
 
-    const { paymentIntentId, redirectStatus } = paramsRef.current;
+    const { refNo, paymentIntentId, redirectStatus } = paramsRef.current;
 
     if (redirectStatus === "failed") {
       setStatus("failed");
       return;
     }
 
-    if (!paymentIntentId) {
+    const verifyKey = refNo || paymentIntentId;
+    if (!verifyKey) {
       setStatus("failed");
       return;
     }
 
     verifyStarted.current = true;
-    verifyPayment(paymentIntentId, token);
+    verifyPayment(verifyKey, token, !!refNo);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, searchParams]);
 
-  const verifyPayment = async (piId: string, authToken: string) => {
+  const verifyPayment = async (verifyKey: string, authToken: string, isRefNo: boolean) => {
+    const verifyQuery = isRefNo
+      ? `refno=${encodeURIComponent(verifyKey)}`
+      : `payment_intent=${encodeURIComponent(verifyKey)}`;
+
     // Poll up to 10 times (30 seconds total)
     for (let i = 0; i < 10; i++) {
       try {
         const res = await fetch(
-          `${API_URL}/api/payments/verify?payment_intent=${piId}`,
+          `${API_URL}/api/payments/verify?${verifyQuery}`,
           {
             headers: { Authorization: `Bearer ${authToken}` },
           }
@@ -120,6 +133,16 @@ export default function PaymentResult() {
     // If still processing after 30 seconds
     setStatus("processing");
   };
+
+  const currencyCode = paymentData?.currency || "THB";
+  const currencySymbol = currencyCode === "USD" ? "$" : "฿";
+
+  const paymentChannelText = (() => {
+    const channel = (paymentData?.payment?.paymentChannel || "").toLowerCase();
+    if (channel === "promptpay") return "PromptPay (QR)";
+    if (channel === "amex") return "American Express";
+    return "Credit / Debit Card";
+  })();
 
   const sortedItems = [...(paymentData?.items || [])].sort((a, b) => {
     const aRank = a.type === "ticket" ? 0 : 1;
@@ -225,7 +248,7 @@ export default function PaymentResult() {
                           <span style={{ fontWeight: "600", color: "#333" }}>
                             {locale === "th" ? "ช่องทางชำระเงิน" : "Payment Method"}
                           </span>
-                          <span>{paymentData.payment.paymentChannel === "promptpay" ? "PromptPay (QR)" : "Credit/Debit Card"}</span>
+                          <span>{paymentChannelText}</span>
                         </div>
                       )}
 
@@ -245,7 +268,7 @@ export default function PaymentResult() {
                                   </span>
                                 </span>
                                 <span style={{ fontWeight: "500", color: "#333", whiteSpace: "nowrap", marginLeft: "12px" }}>
-                                  ฿{Number(item.price).toLocaleString()}
+                                  {currencySymbol}{Number(item.price).toLocaleString()}
                                 </span>
                               </div>
                             ))}
@@ -255,13 +278,13 @@ export default function PaymentResult() {
                             {/* Subtotal */}
                             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px", fontSize: "14px", color: "#666" }}>
                               <span>{locale === "th" ? "ราคารวม" : "Subtotal"}</span>
-                              <span>฿{Number(paymentData?.subtotal ?? 0).toLocaleString()}</span>
+                              <span>{currencySymbol}{Number(paymentData?.subtotal ?? 0).toLocaleString()}</span>
                             </div>
                             {/* Fee */}
                             {Number(paymentData?.fee ?? 0) > 0 && (
                               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px", fontSize: "14px", color: "#666" }}>
                                 <span>{locale === "th" ? "ค่าธรรมเนียมชำระเงิน" : "Payment Processing Fee"}</span>
-                                <span>฿{Number(paymentData?.fee ?? 0).toLocaleString()}</span>
+                                <span>{currencySymbol}{Number(paymentData?.fee ?? 0).toLocaleString()}</span>
                               </div>
                             )}
                             {/* Total */}
@@ -270,7 +293,7 @@ export default function PaymentResult() {
                                 {locale === "th" ? "ยอดชำระทั้งหมด" : "Total Paid"}
                               </span>
                               <span style={{ fontSize: "20px", fontWeight: "bold", color: "#00C853" }}>
-                                ฿{Number(paymentData?.payment?.amount ?? 0).toLocaleString()}
+                                {currencySymbol}{Number(paymentData?.payment?.amount ?? 0).toLocaleString()}
                               </span>
                             </div>
                           </div>
@@ -284,7 +307,7 @@ export default function PaymentResult() {
                             {locale === "th" ? "ยอดชำระทั้งหมด" : "Total Paid"}
                           </span>
                           <span style={{ fontSize: "20px", fontWeight: "bold", color: "#00C853" }}>
-                            ฿{Number(paymentData.payment.amount).toLocaleString()}
+                            {currencySymbol}{Number(paymentData.payment.amount).toLocaleString()}
                           </span>
                         </div>
                       )}

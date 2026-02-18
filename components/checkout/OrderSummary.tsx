@@ -23,33 +23,81 @@ interface OrderSummaryProps {
   discount?: number;
   promoDiscount?: PromoDiscount | null;
   onRemoveAddOn?: (id: string) => void;
-  paymentMethod?: "qr" | "card";
+  paymentMethod?: "qr" | "card" | "amex";
 }
 
-// Fee config matching backend stripeFee.ts exactly
+// Fee config matching backend paySolutionsFee.ts
 const FEE_CONFIG = {
-  promptpay: { rate: 0.0165, fixedFee: 0, vat: 0.07 },
-  thai_card: { rate: 0.0365, fixedFee: 10, vat: 0.07 },
-  international_card: { rate: 0.0675, fixedFee: 0.3, vat: 0.07 },
+  promptpay: { rate: 0.01, vat: 0.07 },
+  card: { rate: 0.028, vat: 0.07 },
+  amex: { rate: 0.04, vat: 0.07 },
+  usd_card: { rate: 0.03, vat: 0.07 },
 } as const;
+
+type FeeMethod = keyof typeof FEE_CONFIG;
+
+function round2(value: number): number {
+  return Math.round((value + Number.EPSILON) * 100) / 100;
+}
+
+function toSatang(value: number): number {
+  return Math.round(round2(value) * 100);
+}
+
+function calculateNetFromGross(grossSatang: number, method: FeeMethod) {
+  const cfg = FEE_CONFIG[method];
+  const gross = grossSatang / 100;
+  const processingFee = round2(gross * cfg.rate);
+  const processingVat = round2(processingFee * cfg.vat);
+  const net = round2(gross - processingFee - processingVat);
+
+  return {
+    netSatang: toSatang(net),
+    total: gross,
+    fee: round2(processingFee + processingVat),
+  };
+}
 
 function calculateFee(
   netAmount: number,
   isThai: boolean,
-  paymentMethod: "qr" | "card",
+  paymentMethod: "qr" | "card" | "amex",
 ) {
-  let method: keyof typeof FEE_CONFIG;
-  if (!isThai) method = "international_card";
+  let method: FeeMethod;
+  if (!isThai) method = "usd_card";
   else if (paymentMethod === "qr") method = "promptpay";
-  else method = "thai_card";
+  else if (paymentMethod === "amex") method = "amex";
+  else method = "card";
 
-  const config = FEE_CONFIG[method];
-  const vatMultiplier = 1 + config.vat;
-  const denominator = 1 - config.rate * vatMultiplier;
-  const numerator = netAmount + config.fixedFee * vatMultiplier;
-  const total = Math.ceil((numerator / denominator) * 100) / 100;
-  const fee = Math.round((total - netAmount) * 100) / 100;
-  return { fee, total };
+  const targetNetSatang = toSatang(netAmount);
+  if (targetNetSatang <= 0) {
+    return { fee: 0, total: 0 };
+  }
+
+  const cfg = FEE_CONFIG[method];
+  const approxGross = Math.ceil(
+    (targetNetSatang / 100) / (1 - cfg.rate * (1 + cfg.vat)) * 100,
+  );
+
+  const minGross = Math.max(1, approxGross - 10000);
+  const maxGross = approxGross + 10000;
+
+  for (let grossSatang = minGross; grossSatang <= maxGross; grossSatang++) {
+    const calc = calculateNetFromGross(grossSatang, method);
+    if (calc.netSatang === targetNetSatang) {
+      return { fee: calc.fee, total: calc.total };
+    }
+  }
+
+  for (let grossSatang = approxGross; grossSatang <= maxGross; grossSatang++) {
+    const calc = calculateNetFromGross(grossSatang, method);
+    if (calc.netSatang >= targetNetSatang) {
+      return { fee: calc.fee, total: calc.total };
+    }
+  }
+
+  const fallback = calculateNetFromGross(maxGross, method);
+  return { fee: fallback.fee, total: fallback.total };
 }
 
 export default function OrderSummary({

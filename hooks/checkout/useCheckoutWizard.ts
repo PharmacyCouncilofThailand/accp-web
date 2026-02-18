@@ -23,7 +23,7 @@ export interface CheckoutData {
   dietaryOtherText: string;
 
   // Step 4: Payment
-  paymentMethod: "qr" | "card";
+  paymentMethod: "qr" | "card" | "amex";
 
   // Dynamic fields
   currency?: "THB" | "USD";

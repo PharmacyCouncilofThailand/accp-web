@@ -269,7 +269,7 @@ export const api = {
         myTickets: (token: string) =>
             fetchAPI<MyTicketsResponse>('/api/payments/my-tickets', { token }),
 
-        preview: (token: string, data: { packageId?: string; addOnIds: string[]; currency: 'THB' | 'USD'; promoCode?: string; paymentMethod?: string }) =>
+        preview: (token: string, data: { packageId?: string; addOnIds: string[]; currency: 'THB' | 'USD'; promoCode?: string; paymentMethod?: 'qr' | 'card' | 'amex' }) =>
             fetchAPI<{
                 success: boolean;
                 data: {
@@ -291,11 +291,12 @@ export const api = {
                 token,
             }),
 
-        createIntent: (token: string, data: { packageId?: string; addOnIds: string[]; currency: 'THB' | 'USD'; promoCode?: string; paymentMethod?: string; workshopSessionId?: number }) =>
+        createIntent: (token: string, data: { packageId?: string; addOnIds: string[]; currency: 'THB' | 'USD'; promoCode?: string; paymentMethod?: 'qr' | 'card' | 'amex'; workshopSessionId?: number }) =>
             fetchAPI<{
                 success: boolean;
                 data: {
-                    clientSecret: string;
+                    paymentUrl: string;
+                    refno: string;
                     orderId: number;
                     orderNumber: string;
                     subtotal: number;
@@ -307,6 +308,7 @@ export const api = {
                     total: number;
                     currency: string;
                     feeMethod: string;
+                    paymentChannel: string;
                 };
             }>('/api/payments/create-intent', {
                 method: 'POST',

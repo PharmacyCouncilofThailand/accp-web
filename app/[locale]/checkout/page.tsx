@@ -38,6 +38,14 @@ export default function Registration() {
   } = useCheckoutWizard();
 
   const isThai = user?.delegateType?.startsWith("thai") ?? false;
+
+  // Auto-switch QR to card for USD users (QR is THB-only)
+  useEffect(() => {
+    if (!isThai && checkoutData.paymentMethod === "qr") {
+      updateCheckoutData({ paymentMethod: "card" });
+    }
+  }, [isThai, checkoutData.paymentMethod, updateCheckoutData]);
+
   const [isLoading, setIsLoading] = useState(true);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const {
@@ -1161,19 +1169,22 @@ export default function Registration() {
                       {t("paymentMethod")}
                     </h3>
                     <div className="checkout-grid-2">
-                      <PaymentMethodCard
-                        id="qr"
-                        title={t("qrPayment")}
-                        description={t("qrPaymentDesc")}
-                        icon="fa-solid fa-mobile-screen-button"
-                        isSelected={checkoutData.paymentMethod === "qr"}
-                        onSelect={(id) =>
-                          updateCheckoutData({
-                            paymentMethod: id as "qr" | "card",
-                          })
-                        }
-                        processingTime={t("instant")}
-                      />
+                      {/* QR PromptPay — only available for THB */}
+                      {isThai && (
+                        <PaymentMethodCard
+                          id="qr"
+                          title={t("qrPayment")}
+                          description={t("qrPaymentDesc")}
+                          icon="fa-solid fa-mobile-screen-button"
+                          isSelected={checkoutData.paymentMethod === "qr"}
+                          onSelect={(id) =>
+                            updateCheckoutData({
+                              paymentMethod: id as "qr" | "card" | "amex",
+                            })
+                          }
+                          processingTime={t("instant")}
+                        />
+                      )}
                       <PaymentMethodCard
                         id="card"
                         title={t("cardPayment")}
@@ -1182,7 +1193,20 @@ export default function Registration() {
                         isSelected={checkoutData.paymentMethod === "card"}
                         onSelect={(id) =>
                           updateCheckoutData({
-                            paymentMethod: id as "qr" | "card",
+                            paymentMethod: id as "qr" | "card" | "amex",
+                          })
+                        }
+                        processingTime={t("processingTimeCard")}
+                      />
+                      <PaymentMethodCard
+                        id="amex"
+                        title={t("amexPayment")}
+                        description={t("amexPaymentDesc")}
+                        icon="fa-brands fa-cc-amex"
+                        isSelected={checkoutData.paymentMethod === "amex"}
+                        onSelect={(id) =>
+                          updateCheckoutData({
+                            paymentMethod: id as "qr" | "card" | "amex",
                           })
                         }
                         processingTime={t("processingTimeCard")}
