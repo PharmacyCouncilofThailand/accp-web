@@ -2,6 +2,7 @@
 
 // Centralized API Client for ACCP Web
 const API_URL = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
+const AUTH_UNAUTHORIZED_EVENT = 'accp-auth:unauthorized';
 
 interface ApiOptions {
     method?: string;
@@ -13,6 +14,12 @@ interface ApiOptions {
 interface ApiError extends Error {
     code?: string;
     status?: number;
+}
+
+function dispatchUnauthorizedEvent() {
+    if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event(AUTH_UNAUTHORIZED_EVENT));
+    }
 }
 
 /**
@@ -44,6 +51,10 @@ async function fetchAPI<T>(endpoint: string, options: ApiOptions = {}): Promise<
     const data = await response.json();
 
     if (!response.ok) {
+        if (response.status === 401) {
+            dispatchUnauthorizedEvent();
+        }
+
         const error: ApiError = new Error(data.error || data.message || 'API request failed');
         error.code = data.code;
         error.status = response.status;
@@ -269,7 +280,7 @@ export const api = {
         myTickets: (token: string) =>
             fetchAPI<MyTicketsResponse>('/api/payments/my-tickets', { token }),
 
-        preview: (token: string, data: { packageId?: string; addOnIds: string[]; currency: 'THB' | 'USD'; promoCode?: string; paymentMethod?: 'qr' | 'card' | 'amex' }) =>
+        preview: (token: string, data: { packageId?: string; addOnIds: string[]; currency: 'THB' | 'USD'; promoCode?: string; paymentMethod?: 'qr' | 'card' }) =>
             fetchAPI<{
                 success: boolean;
                 data: {
@@ -291,11 +302,15 @@ export const api = {
                 token,
             }),
 
-        createIntent: (token: string, data: { packageId?: string; addOnIds: string[]; currency: 'THB' | 'USD'; promoCode?: string; paymentMethod?: 'qr' | 'card' | 'amex'; workshopSessionId?: number }) =>
+        createIntent: (token: string, data: { packageId?: string; addOnIds: string[]; currency: 'THB' | 'USD'; promoCode?: string; paymentMethod?: 'qr' | 'card'; workshopSessionId?: number }) =>
             fetchAPI<{
                 success: boolean;
                 data: {
-                    paymentUrl: string;
+                    redirectForm: {
+                        actionUrl: string;
+                        method: 'POST';
+                        fields: Record<string, string>;
+                    };
                     refno: string;
                     orderId: number;
                     orderNumber: string;

@@ -23,7 +23,7 @@ export interface CheckoutData {
   dietaryOtherText: string;
 
   // Step 4: Payment
-  paymentMethod: "qr" | "card" | "amex";
+  paymentMethod: "qr" | "card";
 
   // Dynamic fields
   currency?: "THB" | "USD";
@@ -67,7 +67,18 @@ export function useCheckoutWizard(totalSteps: number = 4) {
     if (saved) {
       try {
         const data = JSON.parse(saved);
-        setCheckoutData((prev) => data.checkoutData || prev);
+        const savedCheckoutData = data.checkoutData || {};
+        const normalizedPaymentMethod =
+          savedCheckoutData.paymentMethod === "qr" ||
+          savedCheckoutData.paymentMethod === "card"
+            ? savedCheckoutData.paymentMethod
+            : "card";
+
+        setCheckoutData((prev) => ({
+          ...prev,
+          ...savedCheckoutData,
+          paymentMethod: normalizedPaymentMethod,
+        }));
         setCurrentStep(data.currentStep || 1);
       } catch (e) {
         console.error("Failed to load checkout data:", e);

@@ -23,14 +23,13 @@ interface OrderSummaryProps {
   discount?: number;
   promoDiscount?: PromoDiscount | null;
   onRemoveAddOn?: (id: string) => void;
-  paymentMethod?: "qr" | "card" | "amex";
+  paymentMethod?: "qr" | "card";
 }
 
 // Fee config matching backend paySolutionsFee.ts
 const FEE_CONFIG = {
   promptpay: { rate: 0.01, vat: 0.07 },
   card: { rate: 0.028, vat: 0.07 },
-  amex: { rate: 0.04, vat: 0.07 },
   usd_card: { rate: 0.03, vat: 0.07 },
 } as const;
 
@@ -61,12 +60,11 @@ function calculateNetFromGross(grossSatang: number, method: FeeMethod) {
 function calculateFee(
   netAmount: number,
   isThai: boolean,
-  paymentMethod: "qr" | "card" | "amex",
+  paymentMethod: "qr" | "card",
 ) {
   let method: FeeMethod;
   if (!isThai) method = "usd_card";
   else if (paymentMethod === "qr") method = "promptpay";
-  else if (paymentMethod === "amex") method = "amex";
   else method = "card";
 
   const targetNetSatang = toSatang(netAmount);

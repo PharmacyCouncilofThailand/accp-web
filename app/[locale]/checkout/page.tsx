@@ -1179,7 +1179,7 @@ export default function Registration() {
                           isSelected={checkoutData.paymentMethod === "qr"}
                           onSelect={(id) =>
                             updateCheckoutData({
-                              paymentMethod: id as "qr" | "card" | "amex",
+                              paymentMethod: id as "qr" | "card",
                             })
                           }
                           processingTime={t("instant")}
@@ -1193,20 +1193,7 @@ export default function Registration() {
                         isSelected={checkoutData.paymentMethod === "card"}
                         onSelect={(id) =>
                           updateCheckoutData({
-                            paymentMethod: id as "qr" | "card" | "amex",
-                          })
-                        }
-                        processingTime={t("processingTimeCard")}
-                      />
-                      <PaymentMethodCard
-                        id="amex"
-                        title={t("amexPayment")}
-                        description={t("amexPaymentDesc")}
-                        icon="fa-brands fa-cc-amex"
-                        isSelected={checkoutData.paymentMethod === "amex"}
-                        onSelect={(id) =>
-                          updateCheckoutData({
-                            paymentMethod: id as "qr" | "card" | "amex",
+                            paymentMethod: id as "qr" | "card",
                           })
                         }
                         processingTime={t("processingTimeCard")}

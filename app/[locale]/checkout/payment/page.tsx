@@ -13,6 +13,38 @@ import type { LinkedSession } from "@/lib/api";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
+interface RedirectFormPayload {
+  actionUrl: string;
+  method: "POST";
+  fields: Record<string, string>;
+}
+
+function submitRedirectForm(payload: RedirectFormPayload) {
+  const form = document.createElement("form");
+  form.method = payload.method || "POST";
+  form.action = payload.actionUrl;
+  form.style.display = "none";
+
+  for (const [name, value] of Object.entries(payload.fields || {})) {
+    const input = document.createElement("input");
+    input.type = "hidden";
+    input.name = name;
+    input.value = String(value ?? "");
+    form.appendChild(input);
+  }
+
+  document.body.appendChild(form);
+  form.submit();
+  document.body.removeChild(form);
+}
+
+const PAY_SOLUTIONS_REFNO_STORAGE_KEY = "accp:last-pay-solutions-refno";
+
+function clearStoredPaySolutionsRefno() {
+  if (typeof window === "undefined") return;
+  sessionStorage.removeItem(PAY_SOLUTIONS_REFNO_STORAGE_KEY);
+}
+
 export default function Payment() {
   const t = useTranslations("payment");
   const tCheckout = useTranslations("checkout");
@@ -145,10 +177,9 @@ export default function Payment() {
   ]);
 
   // Payment gateway state
-  const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
+  const [redirectForm, setRedirectForm] = useState<RedirectFormPayload | null>(null);
   const [paymentRefNo, setPaymentRefNo] = useState<string | null>(null);
   const [orderId, setOrderId] = useState<number | null>(null);
-  const [orderNumber, setOrderNumber] = useState<string>("");
   const [intentError, setIntentError] = useState<string | null>(null);
   const [isCreatingIntent, setIsCreatingIntent] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
@@ -168,7 +199,7 @@ export default function Payment() {
   // Refresh detection and warning
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (paymentUrl && orderId) {
+      if (redirectForm && orderId) {
         e.preventDefault();
         e.returnValue = '';
         setShowRefreshModal(true);
@@ -181,7 +212,7 @@ export default function Payment() {
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
-  }, [paymentUrl, orderId]);
+  }, [redirectForm, orderId]);
 
   // Confirm refresh with cancellation
   const confirmRefresh = async () => {
@@ -200,6 +231,8 @@ export default function Payment() {
         },
         body: JSON.stringify({ orderId }),
       });
+
+      clearStoredPaySolutionsRefno();
 
       // Reset checkout and redirect
       resetCheckout();
@@ -234,6 +267,7 @@ export default function Payment() {
 
       const data = await res.json();
       if (res.ok && data.success) {
+        clearStoredPaySolutionsRefno();
         toast.success("Payment cancelled successfully");
         resetCheckout();
         router.push(`/${locale}/registration`);
@@ -257,7 +291,7 @@ export default function Payment() {
 
   // Create PaymentIntent on mount
   useEffect(() => {
-    if (!isInitialized || !token || paymentUrl) return;
+    if (!isInitialized || !token || redirectForm) return;
     // For full mode, need selectedPackage; for addon-only, need at least one addon
     if (!isAddonOnly && !checkoutData.selectedPackage) return;
     if (isAddonOnly && checkoutData.selectedAddOns.length === 0) return;
@@ -265,6 +299,7 @@ export default function Payment() {
     const createIntent = async () => {
       setIsCreatingIntent(true);
       setIntentError(null);
+      clearStoredPaySolutionsRefno();
 
       try {
         const res = await fetch(`${API_URL}/api/payments/create-intent`, {
@@ -292,12 +327,18 @@ export default function Payment() {
           return;
         }
 
-        setPaymentUrl(data.data.paymentUrl);
+        const receivedRedirectForm: RedirectFormPayload | null =
+          data.data.redirectForm || null;
+
+        setRedirectForm(receivedRedirectForm);
         setPaymentRefNo(data.data.refno || null);
         setOrderId(data.data.orderId);
-        setOrderNumber(data.data.orderNumber);
         setFeeAmount(data.data.fee || 0);
         setChargeTotal(data.data.total || totalAmount);
+
+        if (data.data.refno) {
+          sessionStorage.setItem(PAY_SOLUTIONS_REFNO_STORAGE_KEY, data.data.refno);
+        }
 
         // Set promo discount info if present
         if (data.data.discountAmount > 0 && data.data.discountType) {
@@ -310,10 +351,13 @@ export default function Payment() {
           });
         }
 
-        if (data.data.paymentUrl) {
+        if (receivedRedirectForm) {
           setIsRedirecting(true);
-          window.location.assign(data.data.paymentUrl);
+          submitRedirectForm(receivedRedirectForm);
+          return;
         }
+
+        setIntentError("Payment redirect payload is missing");
       } catch (err) {
         console.error("Failed to create payment intent:", err);
         setIntentError("Failed to connect to payment server");
@@ -330,7 +374,7 @@ export default function Payment() {
     checkoutData.selectedPackage,
     checkoutData.selectedAddOns,
     currency,
-    paymentUrl,
+    redirectForm,
     isAddonOnly,
     locale,
   ]);
@@ -431,9 +475,11 @@ export default function Payment() {
                       </p>
                       <button
                         onClick={() => {
-                          setPaymentUrl(null);
+                          clearStoredPaySolutionsRefno();
+                          setRedirectForm(null);
                           setPaymentRefNo(null);
                           setIntentError(null);
+                          setIsRedirecting(false);
                         }}
                         style={{
                           padding: "10px 25px",
@@ -451,7 +497,7 @@ export default function Payment() {
                   )}
 
                   {/* Pay Solutions Redirect Panel */}
-                  {paymentUrl && orderId && (
+                  {redirectForm && orderId && (
                     <div
                       style={{
                         padding: "30px",
@@ -549,7 +595,8 @@ export default function Payment() {
                         <button
                           onClick={() => {
                             setIsRedirecting(true);
-                            window.location.assign(paymentUrl);
+                            submitRedirectForm(redirectForm);
+
                           }}
                           disabled={isRedirecting}
                           style={{

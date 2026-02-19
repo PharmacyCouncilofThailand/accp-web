@@ -9,6 +9,12 @@ import { useAuth } from "@/context/AuthContext";
 import { useCheckoutWizard } from "@/hooks/checkout/useCheckoutWizard";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
+const PAY_SOLUTIONS_REFNO_STORAGE_KEY = "accp:last-pay-solutions-refno";
+
+function getStoredPaySolutionsRefno(): string {
+  if (typeof window === "undefined") return "";
+  return sessionStorage.getItem(PAY_SOLUTIONS_REFNO_STORAGE_KEY) || "";
+}
 
 type PaymentStatus = "loading" | "success" | "failed" | "processing";
 
@@ -47,11 +53,13 @@ export default function PaymentResult() {
   const [status, setStatus] = useState<PaymentStatus>("loading");
   const [paymentData, setPaymentData] = useState<PaymentData | null>(null);
 
+  const fallbackStoredRefNo = getStoredPaySolutionsRefno();
+
   // Capture search params once to prevent re-render issues
   const paramsRef = useRef({
     orderNumber: searchParams.get("orderNumber") || "",
     redirectStatus: searchParams.get("redirect_status"),
-    refNo: searchParams.get("refno"),
+    refNo: searchParams.get("refno") || fallbackStoredRefNo,
     paymentIntentId: searchParams.get("payment_intent"),
   });
   const verifyStarted = useRef(false);
@@ -61,15 +69,26 @@ export default function PaymentResult() {
   useEffect(() => {
     // Update refs if searchParams become available after initial render
     const refNoParam = searchParams.get("refno");
+    if (refNoParam) {
+      sessionStorage.setItem(PAY_SOLUTIONS_REFNO_STORAGE_KEY, refNoParam);
+    }
+
     const piId = searchParams.get("payment_intent");
     const rs = searchParams.get("redirect_status");
     const on = searchParams.get("orderNumber");
+
+    const fallbackRefNo = getStoredPaySolutionsRefno();
     if ((refNoParam && !paramsRef.current.refNo) || (piId && !paramsRef.current.paymentIntentId)) {
       paramsRef.current = {
-        refNo: refNoParam || paramsRef.current.refNo,
+        refNo: refNoParam || paramsRef.current.refNo || fallbackRefNo,
         paymentIntentId: piId || paramsRef.current.paymentIntentId,
         redirectStatus: rs,
         orderNumber: on || "",
+      };
+    } else if (!paramsRef.current.refNo && fallbackRefNo) {
+      paramsRef.current = {
+        ...paramsRef.current,
+        refNo: fallbackRefNo,
       };
     }
 
@@ -140,7 +159,6 @@ export default function PaymentResult() {
   const paymentChannelText = (() => {
     const channel = (paymentData?.payment?.paymentChannel || "").toLowerCase();
     if (channel === "promptpay") return "PromptPay (QR)";
-    if (channel === "amex") return "American Express";
     return "Credit / Debit Card";
   })();
 
