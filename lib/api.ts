@@ -302,7 +302,22 @@ export const api = {
                 token,
             }),
 
-        createIntent: (token: string, data: { packageId?: string; addOnIds: string[]; currency: 'THB' | 'USD'; promoCode?: string; paymentMethod?: 'qr' | 'card'; workshopSessionId?: number }) =>
+        createIntent: (token: string, data: {
+            packageId?: string;
+            addOnIds: string[];
+            currency: 'THB' | 'USD';
+            promoCode?: string;
+            paymentMethod?: 'qr' | 'card';
+            workshopSessionId?: number;
+            needTaxInvoice?: boolean;
+            taxName?: string;
+            taxId?: string;
+            taxAddress?: string;
+            taxSubDistrict?: string;
+            taxDistrict?: string;
+            taxProvince?: string;
+            taxPostalCode?: string;
+        }) =>
             fetchAPI<{
                 success: boolean;
                 data: {

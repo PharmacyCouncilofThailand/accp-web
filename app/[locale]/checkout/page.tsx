@@ -9,6 +9,7 @@ import StepIndicator from "@/components/checkout/StepIndicator";
 import PackageCard from "@/components/checkout/PackageCard";
 import OrderSummary from "@/components/checkout/OrderSummary";
 import PaymentMethodCard from "@/components/checkout/PaymentMethodCard";
+import TaxInvoiceSection from "@/components/checkout/TaxInvoiceSection";
 import { useCheckoutWizard } from "@/hooks/checkout/useCheckoutWizard";
 import FormInput from "@/components/common/FormInput";
 import Button from "@/components/common/Button";
@@ -22,6 +23,17 @@ export default function Registration() {
   const t = useTranslations("checkout");
   const tCommon = useTranslations("common");
   const locale = useLocale();
+  const tCheckoutFallback = (
+    key: string,
+    fallbackEn: string,
+    fallbackTh?: string,
+  ) => {
+    try {
+      return t(key);
+    } catch {
+      return locale === "th" ? fallbackTh || fallbackEn : fallbackEn;
+    }
+  };
   const { isAuthenticated, user, token } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -220,6 +232,96 @@ export default function Registration() {
       newErrors.workshop = t("validation.workshopRequired");
     }
 
+    if (checkoutData.needTaxInvoice) {
+      if (!checkoutData.taxName.trim()) {
+        newErrors.taxName = tCheckoutFallback(
+          "validation.taxNameRequired",
+          "Name / Company is required",
+          "กรุณากรอกชื่อ / บริษัท",
+        );
+      }
+      if (isThai) {
+        if (!/^\d{13}$/.test(checkoutData.taxId.trim())) {
+          newErrors.taxId = tCheckoutFallback(
+            "validation.taxIdInvalid",
+            "Tax ID must be 13 digits",
+            "เลขประจำตัวผู้เสียภาษีต้องเป็นตัวเลข 13 หลัก",
+          );
+        }
+      } else {
+        if (!checkoutData.taxId.trim()) {
+          newErrors.taxId = tCheckoutFallback(
+            "validation.taxIdInterRequired",
+            "Tax ID / VAT Number is required",
+            "Tax ID / VAT Number is required",
+          );
+        }
+      }
+      if (!checkoutData.taxAddress.trim()) {
+        newErrors.taxAddress = tCheckoutFallback(
+          "validation.taxAddressRequired",
+          "Address is required",
+          "กรุณากรอกที่อยู่",
+        );
+      }
+      if (!checkoutData.taxSubDistrict.trim()) {
+        newErrors.taxSubDistrict = isThai
+          ? tCheckoutFallback(
+              "validation.taxSubDistrictRequired",
+              "Sub-district is required",
+              "กรุณากรอกตำบล/แขวง",
+            )
+          : tCheckoutFallback(
+              "validation.taxCityRequired",
+              "City / Town is required",
+              "City / Town is required",
+            );
+      }
+      if (!checkoutData.taxDistrict.trim()) {
+        newErrors.taxDistrict = isThai
+          ? tCheckoutFallback(
+              "validation.taxDistrictRequired",
+              "District is required",
+              "กรุณากรอกอำเภอ/เขต",
+            )
+          : tCheckoutFallback(
+              "validation.taxStateRequired",
+              "State / Province is required",
+              "State / Province is required",
+            );
+      }
+      if (!checkoutData.taxProvince.trim()) {
+        newErrors.taxProvince = isThai
+          ? tCheckoutFallback(
+              "validation.taxProvinceRequired",
+              "Province is required",
+              "กรุณากรอกจังหวัด",
+            )
+          : tCheckoutFallback(
+              "validation.taxCountryRequired",
+              "Country is required",
+              "Country is required",
+            );
+      }
+      if (isThai) {
+        if (!/^\d{5}$/.test(checkoutData.taxPostalCode.trim())) {
+          newErrors.taxPostalCode = tCheckoutFallback(
+            "validation.taxPostalCodeInvalid",
+            "Postal code must be 5 digits",
+            "รหัสไปรษณีย์ต้องเป็นตัวเลข 5 หลัก",
+          );
+        }
+      } else {
+        if (!checkoutData.taxPostalCode.trim()) {
+          newErrors.taxPostalCode = tCheckoutFallback(
+            "validation.taxPostalCodeRequired",
+            "Postal code is required",
+            "Postal code is required",
+          );
+        }
+      }
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -307,6 +409,10 @@ export default function Registration() {
       package: isAddonOnly ? "" : checkoutData.selectedPackage,
       method: checkoutData.paymentMethod,
     });
+
+    if (isThai && checkoutData.needTaxInvoice) {
+      params.set("needTaxInvoice", "true");
+    }
     if (isAddonOnly) params.set("mode", "addon");
     if (promoDiscount) params.set("promoCode", promoDiscount.code);
     router.push(`/${locale}/checkout/payment?${params.toString()}`);
@@ -501,6 +607,13 @@ export default function Registration() {
                     required
                   />
                 </div>
+
+                <TaxInvoiceSection
+                  checkoutData={checkoutData}
+                  updateCheckoutData={updateCheckoutData}
+                  errors={errors}
+                  isThai={isThai}
+                />
 
                 {/* Section 2: Package (Locked) — hidden in addon-only mode */}
                 {isAddonOnly ? (

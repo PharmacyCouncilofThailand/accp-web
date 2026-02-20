@@ -65,6 +65,11 @@ export default function Payment() {
   const isThaiPayment = user?.delegateType?.startsWith("thai") ?? false;
   const currency: "THB" | "USD" = isThaiPayment ? "THB" : "USD";
 
+  const needTaxInvoice =
+    isThaiPayment &&
+    (checkoutData.needTaxInvoice || searchParams.get("needTaxInvoice") === "true");
+  const promoCode = searchParams.get("promoCode") || undefined;
+
   // Ticket data from context (cached, single fetch)
   const { tickets, packages: apiPackages, addOns: apiAddOns } = useTickets();
 
@@ -195,6 +200,7 @@ export default function Payment() {
     discountValue: number;
     discountAmount: number;
   } | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
 
   // Refresh detection and warning
   useEffect(() => {
@@ -291,7 +297,8 @@ export default function Payment() {
 
   // Create PaymentIntent on mount
   useEffect(() => {
-    if (!isInitialized || !token || redirectForm) return;
+    if (!isInitialized || !token) return;
+    if (redirectForm) return;
     // For full mode, need selectedPackage; for addon-only, need at least one addon
     if (!isAddonOnly && !checkoutData.selectedPackage) return;
     if (isAddonOnly && checkoutData.selectedAddOns.length === 0) return;
@@ -313,9 +320,27 @@ export default function Payment() {
             addOnIds: checkoutData.selectedAddOns,
             currency,
             paymentMethod: checkoutData.paymentMethod,
-            promoCode: searchParams.get("promoCode") || undefined,
+            promoCode,
             workshopSessionId: checkoutData.selectedWorkshopTopic
               ? parseInt(checkoutData.selectedWorkshopTopic)
+              : undefined,
+            needTaxInvoice,
+            taxName: needTaxInvoice ? checkoutData.taxName.trim() : undefined,
+            taxId: needTaxInvoice ? checkoutData.taxId.trim() : undefined,
+            taxAddress: needTaxInvoice
+              ? checkoutData.taxAddress.trim()
+              : undefined,
+            taxSubDistrict: needTaxInvoice
+              ? checkoutData.taxSubDistrict.trim()
+              : undefined,
+            taxDistrict: needTaxInvoice
+              ? checkoutData.taxDistrict.trim()
+              : undefined,
+            taxProvince: needTaxInvoice
+              ? checkoutData.taxProvince.trim()
+              : undefined,
+            taxPostalCode: needTaxInvoice
+              ? checkoutData.taxPostalCode.trim()
               : undefined,
           }),
         });
@@ -373,10 +398,22 @@ export default function Payment() {
     token,
     checkoutData.selectedPackage,
     checkoutData.selectedAddOns,
+    checkoutData.paymentMethod,
+    checkoutData.selectedWorkshopTopic,
+    checkoutData.needTaxInvoice,
+    checkoutData.taxName,
+    checkoutData.taxId,
+    checkoutData.taxAddress,
+    checkoutData.taxSubDistrict,
+    checkoutData.taxDistrict,
+    checkoutData.taxProvince,
+    checkoutData.taxPostalCode,
     currency,
-    redirectForm,
+    promoCode,
     isAddonOnly,
+    needTaxInvoice,
     locale,
+    retryCount,
   ]);
 
   if (!isAuthenticated) {
@@ -474,12 +511,28 @@ export default function Payment() {
                         {intentError}
                       </p>
                       <button
-                        onClick={() => {
+                        onClick={async () => {
                           clearStoredPaySolutionsRefno();
+                          if (orderId && token) {
+                            try {
+                              await fetch(`${API_URL}/api/payments/cancel-intent`, {
+                                method: "POST",
+                                headers: {
+                                  "Content-Type": "application/json",
+                                  Authorization: `Bearer ${token}`,
+                                },
+                                body: JSON.stringify({ orderId }),
+                              });
+                            } catch (_) {
+                              // best-effort cancel
+                            }
+                          }
                           setRedirectForm(null);
                           setPaymentRefNo(null);
+                          setOrderId(null);
                           setIntentError(null);
                           setIsRedirecting(false);
+                          setRetryCount((c) => c + 1);
                         }}
                         style={{
                           padding: "10px 25px",

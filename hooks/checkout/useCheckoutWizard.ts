@@ -32,6 +32,16 @@ export interface CheckoutData {
   // Addon-only mode
   isAddonOnly?: boolean;
   purchasedAddOns?: string[];
+
+  // Tax invoice
+  needTaxInvoice: boolean;
+  taxName: string;
+  taxId: string;
+  taxAddress: string;
+  taxSubDistrict: string;
+  taxDistrict: string;
+  taxProvince: string;
+  taxPostalCode: string;
 }
 
 const STORAGE_KEY = "accp_checkout_data_v2";
@@ -59,6 +69,14 @@ export function useCheckoutWizard(totalSteps: number = 4) {
     paymentMethod: "card",
     currency: "USD",
     selectedWorkshopTopic: "",
+    needTaxInvoice: false,
+    taxName: "",
+    taxId: "",
+    taxAddress: "",
+    taxSubDistrict: "",
+    taxDistrict: "",
+    taxProvince: "",
+    taxPostalCode: "",
   });
 
   // Load saved data from localStorage
@@ -73,11 +91,13 @@ export function useCheckoutWizard(totalSteps: number = 4) {
           savedCheckoutData.paymentMethod === "card"
             ? savedCheckoutData.paymentMethod
             : "card";
+        const normalizedNeedTaxInvoice = savedCheckoutData.needTaxInvoice === true;
 
         setCheckoutData((prev) => ({
           ...prev,
           ...savedCheckoutData,
           paymentMethod: normalizedPaymentMethod,
+          needTaxInvoice: normalizedNeedTaxInvoice,
         }));
         setCurrentStep(data.currentStep || 1);
       } catch (e) {
@@ -139,6 +159,14 @@ export function useCheckoutWizard(totalSteps: number = 4) {
       paymentMethod: "card",
       currency: "USD",
       selectedWorkshopTopic: "",
+      needTaxInvoice: false,
+      taxName: "",
+      taxId: "",
+      taxAddress: "",
+      taxSubDistrict: "",
+      taxDistrict: "",
+      taxProvince: "",
+      taxPostalCode: "",
     });
     localStorage.removeItem(STORAGE_KEY);
   }, []);
