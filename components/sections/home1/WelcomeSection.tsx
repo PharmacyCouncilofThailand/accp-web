@@ -104,6 +104,14 @@ export default function WelcomeSection() {
             positionTh: "ประธานวิทยาลัยเภสัชบำบัดแห่งประเทศไทย",
             image: "/assets/img/all-images/team/BCP.png"
         },
+        {
+            name: "Mr. Preecha Bhandtivej",
+            nameTh: "Mr. Preecha Bhandtivej",
+            titleKey: 'welcome.conferenceInvitation',
+            position: "The Pharmacy Council of Thailand",
+            positionTh: "สภาเภสัชกรรม",
+            image: "/assets/img/all-images/team/3 (1).png"
+        },
     ];
 
     return (

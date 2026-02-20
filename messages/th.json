@@ -67,6 +67,7 @@
     "organizingChair": "ประธานฝ่ายจัดงาน",
     "hostOrg": "Host Organization",
     "accpPresident": "ACCP President",
+    "conferenceInvitation": "President",
     "committeeMember": "Committee Member"
   },
   "about": {
@@ -186,7 +187,7 @@
     "workshopScientificWriting": "Workshop I: Principles and Practical Tips for High-Quality Scientific Writing",
     "workshopAPOP": "Workshop II: Bridging the Gap: Clinical Excellence and Future Horizons in Oncology Pharmacy (APOPA)",
     "workshopTBA": "Workshop III & IV",
-    "workshopTBA3": "Workshop III",
+    "workshopTBA3": "Workshop III: Longevity and Sustainable Well-Being: Role of Strategic Model and Medication for Prevention",
     "workshopTBA4": "Workshop IV",
     "workshopsI_IV": "Workshop I, Workshop II, Workshop III, Workshop IV",
     "accpBoardMeeting": "ACCP Board Meeting",

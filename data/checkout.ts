@@ -65,6 +65,6 @@ export const workshopOptions = [
     count: 32,
   },
   { value: "workshop2", label: "Workshop II : APOP", isFull: true, count: 50 },
-  { value: "workshop3", label: "Workshop III : TBA", isFull: false, count: 12 },
+  { value: "workshop3", label: "Workshop III: Longevity and Sustainable Well-Being: Role of Strategic Model and Medication for Prevention", isFull: false, count: 12 },
   { value: "workshop4", label: "Workshop IV : TBA", isFull: false, count: 5 },
 ];
