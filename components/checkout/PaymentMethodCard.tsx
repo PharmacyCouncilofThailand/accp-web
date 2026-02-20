@@ -1,149 +1,162 @@
-'use client'
-import React from 'react'
+"use client";
+import React from "react";
 
 interface PaymentMethodCardProps {
-  id: string
-  title: string
-  description: string
-  icon: string
-  isSelected: boolean
-  onSelect: (id: string) => void
-  processingTime?: string
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  isSelected: boolean;
+  onSelect: (id: string) => void;
+  processingTime?: string;
+  currency?: "THB" | "USD";
 }
+
+const PAYMENT_ICONS: Record<
+  string,
+  { src: string; href: string; maxWidth: number; maxHeight: number }
+> = {
+  qr: {
+    src: "https://s3-payso-images.s3.ap-southeast-1.amazonaws.com/image-logocode/PromptPay-3.png",
+    href: "https://www.paysolutions.asia",
+    maxWidth: 160,
+    maxHeight: 40,
+  },
+  card: {
+    src: "https://s3-payso-images.s3.ap-southeast-1.amazonaws.com/image-logocode/credit-3.png",
+    href: "https://www.paysolutions.asia",
+    maxWidth: 240,
+    maxHeight: 90,
+  },
+};
+
+// Fee rate labels — rate + VAT 7%, matching paySolutionsFee.ts FEE_CONFIG
+const FEE_LABEL: Record<string, string> = {
+  qr: "Fee 1%",
+  card_thb: "Fee 2.8%",
+  card_usd: "Fee 3%",
+};
 
 export default function PaymentMethodCard({
   id,
   title,
   description,
-  icon,
   isSelected,
   onSelect,
-  processingTime
+  currency = "THB",
 }: PaymentMethodCardProps) {
-  const isFontAwesome = icon.includes('fa-');
+  const payIcon = PAYMENT_ICONS[id];
+  const feeLabel =
+    id === "qr"
+      ? FEE_LABEL.qr
+      : currency === "USD"
+        ? FEE_LABEL.card_usd
+        : FEE_LABEL.card_thb;
 
   return (
     <div
       onClick={() => onSelect(id)}
-      className="payment-method-card-interactive" // Hook for potential global CSS or just distinct class
+      role="radio"
+      aria-checked={isSelected}
       style={{
-        width: '100%',
-        minHeight: '180px',
-        height: '100%',
-        padding: '24px 20px',
-        border: isSelected ? '2px solid #00C853' : '1px solid #e0e0e0',
-        borderRadius: '16px',
-        cursor: 'pointer',
-        backgroundColor: isSelected ? '#f5fcf8' : '#fff',
-        textAlign: 'center',
-        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-        position: 'relative',
-        boxShadow: isSelected 
-          ? '0 10px 25px -5px rgba(0, 200, 83, 0.15), 0 8px 10px -6px rgba(0, 200, 83, 0.1)' 
-          : '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        transform: isSelected ? 'translateY(-2px)' : 'none'
+        width: "100%",
+        padding: "20px 16px 16px",
+        border: isSelected ? "2px solid #00C853" : "1px solid #e0e0e0",
+        borderRadius: "12px",
+        cursor: "pointer",
+        backgroundColor: isSelected ? "#f5fcf8" : "#fff",
+        transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+        boxShadow: isSelected
+          ? "0 6px 16px -4px rgba(0, 200, 83, 0.15)"
+          : "0 2px 6px -1px rgba(0, 0, 0, 0.05)",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "flex-start",
+        position: "relative",
       }}
       onMouseEnter={(e) => {
         if (!isSelected) {
-          e.currentTarget.style.borderColor = '#b9e6ca';
-          e.currentTarget.style.transform = 'translateY(-2px)';
-          e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025)';
+          e.currentTarget.style.borderColor = "#b9e6ca";
+          e.currentTarget.style.transform = "translateY(-1px)";
+          e.currentTarget.style.boxShadow = "0 6px 12px -3px rgba(0,0,0,0.07)";
         }
       }}
       onMouseLeave={(e) => {
         if (!isSelected) {
-          e.currentTarget.style.borderColor = '#e0e0e0';
-          e.currentTarget.style.transform = 'none';
-          e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)';
+          e.currentTarget.style.borderColor = "#e0e0e0";
+          e.currentTarget.style.transform = "none";
+          e.currentTarget.style.boxShadow =
+            "0 2px 6px -1px rgba(0, 0, 0, 0.05)";
         }
       }}
     >
-      {/* Selection Checkmark */}
-      <div style={{
-        position: 'absolute',
-        top: '16px',
-        right: '16px',
-        width: '24px',
-        height: '24px',
-        borderRadius: '50%',
-        border: isSelected ? 'none' : '2px solid #ddd',
-        backgroundColor: isSelected ? '#00C853' : 'transparent',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        transition: 'all 0.2s ease'
-      }}>
-        {isSelected && <i className="fa-solid fa-check" style={{ color: '#fff', fontSize: '12px' }} />}
+      {/* Fee badge — top right corner */}
+      <span
+        style={{
+          position: "absolute",
+          top: "10px",
+          right: "12px",
+          display: "inline-flex",
+          alignItems: "center",
+          gap: "4px",
+          padding: "3px 9px",
+          borderRadius: "100px",
+          backgroundColor: "#fff1f1",
+          color: "#c62828",
+          fontSize: "11px",
+          fontWeight: "600",
+          whiteSpace: "nowrap",
+        }}
+      >
+        <i className="fa-solid fa-percent" style={{ fontSize: "9px" }} />
+        {feeLabel}
+      </span>
+
+      {/* Row 1: Logo */}
+      <div style={{ marginBottom: "14px" }}>
+        {payIcon ? (
+          <a
+            href={payIcon.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={payIcon.src}
+              alt={title}
+              style={{
+                maxWidth: `${payIcon.maxWidth}px`,
+                maxHeight: `${payIcon.maxHeight}px`,
+                objectFit: "contain",
+              }}
+            />
+          </a>
+        ) : (
+          <i
+            className="fa-solid fa-credit-card"
+            style={{ fontSize: "40px", color: "#64748b" }}
+          />
+        )}
       </div>
 
-      {/* Content Wrapper */}
-      <div style={{ 
-        flex: 1, 
-        display: 'flex', 
-        flexDirection: 'column', 
-        alignItems: 'center', 
-        justifyContent: 'center',
-        width: '100%',
-        marginBottom: '16px',
-        marginTop: '8px'
-      }}>
-        {/* Icon */}
-        <div style={{
-          fontSize: '32px',
-          marginBottom: '16px',
-          color: isSelected ? '#00C853' : '#64748b',
-          transition: 'color 0.2s ease',
-          height: '40px',
-          display: 'flex',
-          alignItems: 'center'
-        }}>
-          {isFontAwesome ? <i className={icon} /> : icon}
-        </div>
-
-        {/* Title */}
-        <h4 style={{
-          margin: '0 0 8px 0',
-          fontSize: '16px',
-          fontWeight: '700',
-          color: '#1a1a2e',
-          letterSpacing: '-0.3px'
-        }}>
+      {/* Title + Description on same line */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "baseline",
+          gap: "6px",
+          flexWrap: "wrap",
+        }}
+      >
+        <span style={{ fontWeight: "700", fontSize: "15px", color: "#1a1a2e" }}>
           {title}
-        </h4>
-
-        {/* Description */}
-        <p style={{
-          color: '#64748b',
-          fontSize: '13px',
-          margin: 0,
-          lineHeight: 1.5,
-          maxWidth: '90%'
-        }}>
+        </span>
+        <span style={{ color: "#cbd5e1", fontSize: "12px" }}>·</span>
+        <span style={{ fontSize: "12px", color: "#64748b", lineHeight: 1.4 }}>
           {description}
-        </p>
+        </span>
       </div>
-
-      {/* Processing Time Badge */}
-      {processingTime && (
-        <div style={{
-          marginTop: 'auto',
-          display: 'inline-flex',
-          alignItems: 'center',
-          padding: '6px 12px',
-          backgroundColor: isSelected ? '#e8f5e9' : '#f1f5f9',
-          borderRadius: '100px',
-          fontSize: '11px',
-          color: isSelected ? '#1b5e20' : '#475569',
-          fontWeight: '600',
-          letterSpacing: '0.3px'
-        }}>
-          <i className="fa-solid fa-clock" style={{ marginRight: '6px', fontSize: '10px' }} />
-          {processingTime}
-        </div>
-      )}
     </div>
-  )
+  );
 }

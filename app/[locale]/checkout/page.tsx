@@ -202,8 +202,7 @@ export default function Registration() {
   const isWorkshopSelected = checkoutData.selectedAddOns.includes("workshop");
   const hasValidWorkshopSelection = workshopOptions.some(
     (option) =>
-      !option.isFull &&
-      option.value === checkoutData.selectedWorkshopTopic,
+      !option.isFull && option.value === checkoutData.selectedWorkshopTopic,
   );
 
   const selectedAddOnCount = checkoutData.selectedAddOns.filter(
@@ -976,10 +975,16 @@ export default function Registration() {
                                       gridTemplateColumns:
                                         "repeat(auto-fit, minmax(280px, 1fr))",
                                       gap: "12px",
-                                      padding: errors.workshop ? '12px' : undefined,
-                                      border: errors.workshop ? '2px solid #d32f2f' : undefined,
-                                      borderRadius: errors.workshop ? '16px' : undefined,
-                                      transition: 'border 0.3s ease',
+                                      padding: errors.workshop
+                                        ? "12px"
+                                        : undefined,
+                                      border: errors.workshop
+                                        ? "2px solid #d32f2f"
+                                        : undefined,
+                                      borderRadius: errors.workshop
+                                        ? "16px"
+                                        : undefined,
+                                      transition: "border 0.3s ease",
                                     }}
                                   >
                                     {workshopOptions.map((option) => (
@@ -993,7 +998,8 @@ export default function Registration() {
                                                 option.value,
                                             });
                                             setErrors((prev) => {
-                                              const { workshop, ...rest } = prev;
+                                              const { workshop, ...rest } =
+                                                prev;
                                               return rest;
                                             });
                                           }
@@ -1173,7 +1179,10 @@ export default function Registration() {
                         marginBottom: "12px",
                       }}
                     >
-                      <i className="fa-solid fa-tag" style={{ marginRight: "8px", color: "#00C853" }} />
+                      <i
+                        className="fa-solid fa-tag"
+                        style={{ marginRight: "8px", color: "#00C853" }}
+                      />
                       {t("promoCode")}
                     </h4>
 
@@ -1190,10 +1199,22 @@ export default function Registration() {
                         }}
                       >
                         <div>
-                          <span style={{ fontWeight: "700", color: "#00C853", fontSize: "14px" }}>
+                          <span
+                            style={{
+                              fontWeight: "700",
+                              color: "#00C853",
+                              fontSize: "14px",
+                            }}
+                          >
                             {promoDiscount.code}
                           </span>
-                          <span style={{ fontSize: "12px", color: "#666", marginLeft: "8px" }}>
+                          <span
+                            style={{
+                              fontSize: "12px",
+                              color: "#666",
+                              marginLeft: "8px",
+                            }}
+                          >
                             {promoDiscount.discountType === "percentage"
                               ? `${promoDiscount.discountValue}% off`
                               : `${isThai ? "฿" : "$"}${promoDiscount.discountAmount.toLocaleString()} off`}
@@ -1230,7 +1251,9 @@ export default function Registration() {
                           style={{
                             flex: 1,
                             padding: "10px 14px",
-                            border: promoError ? "1px solid #d32f2f" : "1px solid #e0e0e0",
+                            border: promoError
+                              ? "1px solid #d32f2f"
+                              : "1px solid #e0e0e0",
                             borderRadius: "8px",
                             fontSize: "14px",
                             outline: "none",
@@ -1242,13 +1265,19 @@ export default function Registration() {
                           disabled={promoLoading || !promoInput.trim()}
                           style={{
                             padding: "10px 18px",
-                            backgroundColor: promoLoading || !promoInput.trim() ? "#ccc" : "#00C853",
+                            backgroundColor:
+                              promoLoading || !promoInput.trim()
+                                ? "#ccc"
+                                : "#00C853",
                             color: "#fff",
                             border: "none",
                             borderRadius: "8px",
                             fontWeight: "600",
                             fontSize: "14px",
-                            cursor: promoLoading || !promoInput.trim() ? "not-allowed" : "pointer",
+                            cursor:
+                              promoLoading || !promoInput.trim()
+                                ? "not-allowed"
+                                : "pointer",
                             whiteSpace: "nowrap",
                           }}
                         >
@@ -1262,8 +1291,18 @@ export default function Registration() {
                     )}
 
                     {promoError && (
-                      <p style={{ marginTop: "8px", color: "#d32f2f", fontSize: "13px", fontWeight: "500" }}>
-                        <i className="fa-solid fa-circle-exclamation" style={{ marginRight: "6px" }} />
+                      <p
+                        style={{
+                          marginTop: "8px",
+                          color: "#d32f2f",
+                          fontSize: "13px",
+                          fontWeight: "500",
+                        }}
+                      >
+                        <i
+                          className="fa-solid fa-circle-exclamation"
+                          style={{ marginRight: "6px" }}
+                        />
                         {promoError}
                       </p>
                     )}
@@ -1281,7 +1320,13 @@ export default function Registration() {
                     >
                       {t("paymentMethod")}
                     </h3>
-                    <div className="checkout-grid-2">
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "12px",
+                      }}
+                    >
                       {/* QR PromptPay — only available for THB */}
                       {isThai && (
                         <PaymentMethodCard
@@ -1296,6 +1341,7 @@ export default function Registration() {
                             })
                           }
                           processingTime={t("instant")}
+                          currency="THB"
                         />
                       )}
                       <PaymentMethodCard
@@ -1310,6 +1356,7 @@ export default function Registration() {
                           })
                         }
                         processingTime={t("processingTimeCard")}
+                        currency={isThai ? "THB" : "USD"}
                       />
                     </div>
                   </div>
