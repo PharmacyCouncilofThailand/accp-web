@@ -98,6 +98,18 @@ export default function PricingPlan() {
                         Valid Student ID Required
                       </li>
                     </ul>
+                    <p
+                      style={{
+                        color: "#FFBA00",
+                        fontSize: "14px",
+                        fontWeight: "600",
+                        fontStyle: "italic",
+                        marginTop: "12px",
+                        marginBottom: "0",
+                      }}
+                    >
+                      Include 2026 ACCP membership
+                    </p>
                     <div className="space28" />
                     <div className="btn-area1">
                       {/* <Link href={`/${locale}/checkout?package=student`} className="vl-btn1">Register Now</Link> */}
@@ -181,6 +193,18 @@ export default function PricingPlan() {
                         Networking Events
                       </li>
                     </ul>
+                    <p
+                      style={{
+                        color: "#FFBA00",
+                        fontSize: "14px",
+                        fontWeight: "600",
+                        fontStyle: "italic",
+                        marginTop: "12px",
+                        marginBottom: "0",
+                      }}
+                    >
+                      Include 2026 ACCP membership
+                    </p>
                     <div className="space28" />
                     <div className="btn-area1">
                       {/* <Link href={`/${locale}/checkout?package=professional`} className="vl-btn1">Register Now</Link> */}

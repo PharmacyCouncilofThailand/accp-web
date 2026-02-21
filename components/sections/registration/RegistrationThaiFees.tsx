@@ -299,6 +299,19 @@ export default function RegistrationThaiFees({
                 )}
                 {option.type !== "addons" && (
                   <div className="mt-auto">
+                    <span
+                      style={{
+                        color: "#FFBA00",
+                        fontSize: "18px",
+                        fontWeight: "600",
+                        fontStyle: "italic",
+                        marginTop: "12px",
+                        marginBottom: "0",
+                        display: "block",
+                      }}
+                    >
+                      Include 2026 ACCP membership
+                    </span>
                     <div className="space28" />
                     <div className="btn-area1">
                       {isAuthenticated && hasPrimaryTicket ? (
