@@ -27,9 +27,9 @@ export const galleryData = {
         images: [
             // Centara Grand & Bangkok Convention Centre at CentralWorld
             { id: 1, src: "/assets/img/gallery/venue/Centara Grand & Bangkok Convention Centre at CentralWorld/Centara Grand Central World - City Center (2).jpg", alt: "Centara Grand Central World", category: "centara" },
-            { id: 2, src: "/assets/img/gallery/venue/Centara Grand & Bangkok Convention Centre at CentralWorld/Present_Centralworld_06++ copy 2.jpg", alt: "Centara Grand Exterior", category: "centara" },
-            { id: 3, src: "/assets/img/gallery/venue/Centara Grand & Bangkok Convention Centre at CentralWorld/Present_Centralworld_07++ copy 2 16-9.jpg", alt: "Centara Grand View", category: "centara" },
-            { id: 4, src: "/assets/img/gallery/venue/Centara Grand & Bangkok Convention Centre at CentralWorld/Present_Centralworld_08++ copy 16-9 (1).jpg", alt: "Centara Grand at Night", category: "centara" },
+            { id: 2, src: "/assets/img/gallery/venue/Centara Grand & Bangkok Convention Centre at CentralWorld/Present_Centralworld_06.jpg", alt: "Centara Grand Exterior", category: "centara" },
+            { id: 3, src: "/assets/img/gallery/venue/Centara Grand & Bangkok Convention Centre at CentralWorld/Present_Centralworld_07.jpg", alt: "Centara Grand View", category: "centara" },
+            { id: 4, src: "/assets/img/gallery/venue/Centara Grand & Bangkok Convention Centre at CentralWorld/Present_Centralworld_08.jpg", alt: "Centara Grand at Night", category: "centara" },
 
             // World Ballroom
             { id: 5, src: "/assets/img/gallery/venue/World Ballroom/World Ballroom.jpg", alt: "World Ballroom", category: "world_ballroom" },
