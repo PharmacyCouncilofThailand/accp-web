@@ -15,8 +15,8 @@ const getPartsOfTimeDuration = (duration: number) => {
 	return { days, hours, minutes, seconds }
 }
 
-// ACCP 2026 Conference Date: July 10, 2026 at 9:00 AM Bangkok time
-const CONFERENCE_DATE = new Date('2026-07-10T09:00:00+07:00').getTime()
+// ACCP 2026 Conference Date: July 09, 2026 at 9:00 AM Bangkok time
+const CONFERENCE_DATE = new Date('2026-07-09T09:00:00+07:00').getTime()
 
 export default function Countdown({ style }: any) {
 	const [timeDif, setTimeDif] = useState<number | null>(null)
