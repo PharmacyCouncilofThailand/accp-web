@@ -48,8 +48,11 @@ export default function PreconferenceWorkshops() {
   const [workshops, setWorkshops] = useState<Workshop[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [expandedWorkshops, setExpandedWorkshops] = useState<Set<number>>(new Set());
-  const [registeredWorkshopSessionIds, setRegisteredWorkshopSessionIds] = useState<Set<number>>(new Set());
+  const [expandedWorkshops, setExpandedWorkshops] = useState<Set<number>>(
+    new Set(),
+  );
+  const [registeredWorkshopSessionIds, setRegisteredWorkshopSessionIds] =
+    useState<Set<number>>(new Set());
 
   useEffect(() => {
     const fetchWorkshops = async () => {
@@ -57,7 +60,9 @@ export default function PreconferenceWorkshops() {
         setIsLoading(true);
         const response = await api.workshops.list();
         // เรียงตาม sessionId น้อยสุดก่อน
-        const sortedWorkshops = response.workshops.sort((a, b) => a.sessionId - b.sessionId);
+        const sortedWorkshops = response.workshops.sort(
+          (a, b) => a.sessionId - b.sessionId,
+        );
         setWorkshops(sortedWorkshops);
       } catch (err) {
         console.error("Failed to fetch workshops:", err);
@@ -80,7 +85,7 @@ export default function PreconferenceWorkshops() {
         const res = await api.payments.myTickets(token);
         if (res.success && res.data.workshops.length > 0) {
           setRegisteredWorkshopSessionIds(
-            new Set(res.data.workshops.map((w) => w.sessionId))
+            new Set(res.data.workshops.map((w) => w.sessionId)),
           );
         } else {
           setRegisteredWorkshopSessionIds(new Set());
@@ -237,7 +242,15 @@ export default function PreconferenceWorkshops() {
 
               {/* Workshops */}
               {!isLoading && !error && workshops.length > 0 && (
-                <div className="row" style={{ display: 'flex', flexWrap: 'wrap', gap: '30px', alignItems: 'flex-start' }}>
+                <div
+                  className="row"
+                  style={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: "30px",
+                    alignItems: "flex-start",
+                  }}
+                >
                   {workshops.map((workshop, index) => {
                     // Calculate duration
                     const durationText =
@@ -448,7 +461,9 @@ export default function PreconferenceWorkshops() {
                         })
                       : "";
 
-                    const isExpanded = expandedWorkshops.has(workshop.sessionId);
+                    const isExpanded = expandedWorkshops.has(
+                      workshop.sessionId,
+                    );
                     const toggleExpand = () => {
                       setExpandedWorkshops((prev) => {
                         const newSet = new Set(prev);
@@ -465,9 +480,9 @@ export default function PreconferenceWorkshops() {
                       <div
                         key={workshop.id}
                         style={{
-                          flex: '1 1 calc(50% - 15px)',
-                          minWidth: '300px',
-                          maxWidth: 'calc(50% - 15px)',
+                          flex: "1 1 calc(50% - 15px)",
+                          minWidth: "300px",
+                          maxWidth: "calc(50% - 15px)",
                         }}
                         data-aos="fade-up"
                         data-aos-duration={800}
@@ -475,15 +490,15 @@ export default function PreconferenceWorkshops() {
                       >
                         <div
                           style={{
-                            height: '100%',
+                            height: "100%",
                             backgroundColor: "white",
                             borderRadius: "16px",
                             overflow: "hidden",
                             boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
                             transition: "all 0.3s ease",
                             position: "relative",
-                            display: 'flex',
-                            flexDirection: 'column',
+                            display: "flex",
+                            flexDirection: "column",
                           }}
                           className="workshop-card"
                         >
@@ -584,114 +599,196 @@ export default function PreconferenceWorkshops() {
 
                           {/* Content - แสดงเมื่อขยาย */}
                           {isExpanded && (
-                          <div style={{ padding: "25px", flex: 1, display: 'flex', flexDirection: 'column' }}>
-                            {/* Info Grid */}
                             <div
                               style={{
-                                display: "grid",
-                                gridTemplateColumns: "1fr 1fr",
-                                gap: "15px",
-                                marginBottom: "20px",
+                                padding: "25px",
+                                flex: 1,
+                                display: "flex",
+                                flexDirection: "column",
                               }}
                             >
-                              <div>
-                                <p
-                                  style={{
-                                    margin: "0 0 3px 0",
-                                    fontSize: "11px",
-                                    color: "#999",
-                                    textTransform: "uppercase",
-                                    fontWeight: 600,
-                                  }}
-                                >
-                                  {t("date")}
-                                </p>
-                                <p
-                                  style={{
-                                    margin: 0,
-                                    fontWeight: 600,
-                                    fontSize: "13px",
-                                  }}
-                                >
-                                  {workshop.date}
-                                  <br />
-                                  {workshop.time}
-                                </p>
+                              {/* Info Grid */}
+                              <div
+                                style={{
+                                  display: "grid",
+                                  gridTemplateColumns: "1fr 1fr",
+                                  gap: "15px",
+                                  marginBottom: "20px",
+                                }}
+                              >
+                                <div>
+                                  <p
+                                    style={{
+                                      margin: "0 0 3px 0",
+                                      fontSize: "11px",
+                                      color: "#999",
+                                      textTransform: "uppercase",
+                                      fontWeight: 600,
+                                    }}
+                                  >
+                                    {t("date")}
+                                  </p>
+                                  <p
+                                    style={{
+                                      margin: 0,
+                                      fontWeight: 600,
+                                      fontSize: "13px",
+                                    }}
+                                  >
+                                    {workshop.date}
+                                    <br />
+                                    {workshop.time}
+                                  </p>
+                                </div>
+                                <div>
+                                  <p
+                                    style={{
+                                      margin: "0 0 3px 0",
+                                      fontSize: "11px",
+                                      color: "#999",
+                                      textTransform: "uppercase",
+                                      fontWeight: 600,
+                                    }}
+                                  >
+                                    {t("duration")}
+                                  </p>
+                                  <p
+                                    style={{
+                                      margin: 0,
+                                      fontWeight: 600,
+                                      fontSize: "13px",
+                                    }}
+                                  >
+                                    {durationHours || durationText}
+                                  </p>
+                                </div>
+                                <div>
+                                  <p
+                                    style={{
+                                      margin: "0 0 3px 0",
+                                      fontSize: "11px",
+                                      color: "#999",
+                                      textTransform: "uppercase",
+                                      fontWeight: 600,
+                                    }}
+                                  >
+                                    {tContact("venue")}
+                                  </p>
+                                  <p
+                                    style={{
+                                      margin: 0,
+                                      fontWeight: 600,
+                                      fontSize: "13px",
+                                    }}
+                                  >
+                                    {workshop.venue || "TBA"}
+                                  </p>
+                                </div>
+                                <div>
+                                  <p
+                                    style={{
+                                      margin: "0 0 3px 0",
+                                      fontSize: "11px",
+                                      color: "#999",
+                                      textTransform: "uppercase",
+                                      fontWeight: 600,
+                                    }}
+                                  >
+                                    {t("fee")}
+                                  </p>
+                                  <p
+                                    style={{
+                                      margin: 0,
+                                      fontWeight: 700,
+                                      fontSize: "16px",
+                                      color:
+                                        workshop.fee === "Free"
+                                          ? "#10B981"
+                                          : workshop.color,
+                                    }}
+                                  >
+                                    {finalDisplayFee}
+                                  </p>
+                                </div>
                               </div>
-                              <div>
-                                <p
-                                  style={{
-                                    margin: "0 0 3px 0",
-                                    fontSize: "11px",
-                                    color: "#999",
-                                    textTransform: "uppercase",
-                                    fontWeight: 600,
-                                  }}
-                                >
-                                  {t("duration")}
-                                </p>
-                                <p
-                                  style={{
-                                    margin: 0,
-                                    fontWeight: 600,
-                                    fontSize: "13px",
-                                  }}
-                                >
-                                  {durationHours || durationText}
-                                </p>
-                              </div>
-                              <div>
-                                <p
-                                  style={{
-                                    margin: "0 0 3px 0",
-                                    fontSize: "11px",
-                                    color: "#999",
-                                    textTransform: "uppercase",
-                                    fontWeight: 600,
-                                  }}
-                                >
-                                  {tContact("venue")}
-                                </p>
-                                <p
-                                  style={{
-                                    margin: 0,
-                                    fontWeight: 600,
-                                    fontSize: "13px",
-                                  }}
-                                >
-                                  {workshop.venue || "TBA"}
-                                </p>
-                              </div>
-                              <div>
-                                <p
-                                  style={{
-                                    margin: "0 0 3px 0",
-                                    fontSize: "11px",
-                                    color: "#999",
-                                    textTransform: "uppercase",
-                                    fontWeight: 600,
-                                  }}
-                                >
-                                  {t("fee")}
-                                </p>
-                                <p
-                                  style={{
-                                    margin: 0,
-                                    fontWeight: 700,
-                                    fontSize: "16px",
-                                    color:
-                                      workshop.fee === "Free"
-                                        ? "#10B981"
-                                        : workshop.color,
-                                  }}
-                                >
-                                  {finalDisplayFee}
-                                </p>
-                              </div>
-                            </div>
 
-                            {/* Time & Agenda */}
-                            {workshop.agenda && workshop.agenda.length > 0 && (
+                              {/* Time & Agenda */}
+                              {workshop.agenda &&
+                                workshop.agenda.length > 0 && (
+                                  <div style={{ marginBottom: "20px" }}>
+                                    <p
+                                      style={{
+                                        margin: "0 0 10px 0",
+                                        fontSize: "11px",
+                                        color: "#999",
+                                        textTransform: "uppercase",
+                                        fontWeight: 600,
+                                      }}
+                                    >
+                                      <i
+                                        className="fa-solid fa-clock"
+                                        style={{ marginRight: "5px" }}
+                                      />
+                                      {t("agenda")}
+                                    </p>
+                                    <div
+                                      style={{
+                                        backgroundColor: "#f8f9fa",
+                                        borderRadius: "10px",
+                                        padding: "14px 16px",
+                                        borderLeft: `3px solid ${workshop.color}`,
+                                      }}
+                                    >
+                                      {workshop.agenda.map((item, i) => (
+                                        <div
+                                          key={i}
+                                          style={{
+                                            display: "flex",
+                                            gap: "10px",
+                                            marginBottom:
+                                              i <
+                                              (workshop.agenda?.length ?? 0) - 1
+                                                ? "10px"
+                                                : 0,
+                                            paddingBottom:
+                                              i <
+                                              (workshop.agenda?.length ?? 0) - 1
+                                                ? "10px"
+                                                : 0,
+                                            borderBottom:
+                                              i <
+                                              (workshop.agenda?.length ?? 0) - 1
+                                                ? "1px dashed #e0e0e0"
+                                                : "none",
+                                          }}
+                                        >
+                                          <span
+                                            style={{
+                                              fontSize: "12px",
+                                              fontWeight: 700,
+                                              color: workshop.color,
+                                              whiteSpace: "nowrap",
+                                              minWidth: "120px",
+                                            }}
+                                          >
+                                            {item.time}
+                                          </span>
+                                          <span
+                                            style={{
+                                              fontSize: "12px",
+                                              color: "#444",
+                                              lineHeight: 1.4,
+                                            }}
+                                          >
+                                            {item.topic}
+                                          </span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+
+                              {/* Instructor(s) */}
                               <div style={{ marginBottom: "20px" }}>
                                 <p
                                   style={{
@@ -703,247 +800,265 @@ export default function PreconferenceWorkshops() {
                                   }}
                                 >
                                   <i
-                                    className="fa-solid fa-clock"
+                                    className="fa-solid fa-microphone"
                                     style={{ marginRight: "5px" }}
                                   />
-                                  {t("agenda")}
+                                  {t("instructor")}
                                 </p>
-                                <div
-                                  style={{
-                                    backgroundColor: "#f8f9fa",
-                                    borderRadius: "10px",
-                                    padding: "14px 16px",
-                                    borderLeft: `3px solid ${workshop.color}`,
-                                  }}
-                                >
-                                  {workshop.agenda.map((item, i) => (
+                                {workshop.instructors.length > 0 ? (
+                                  workshop.instructors.map((instructor, i) => (
                                     <div
                                       key={i}
-                                      style={{
-                                        display: "flex",
-                                        gap: "10px",
-                                        marginBottom:
-                                          i < (workshop.agenda?.length ?? 0) - 1
-                                            ? "10px"
-                                            : 0,
-                                        paddingBottom:
-                                          i < (workshop.agenda?.length ?? 0) - 1
-                                            ? "10px"
-                                            : 0,
-                                        borderBottom:
-                                          i < (workshop.agenda?.length ?? 0) - 1
-                                            ? "1px dashed #e0e0e0"
-                                            : "none",
-                                      }}
+                                      style={{ marginBottom: "8px" }}
                                     >
-                                      <span
-                                        style={{
-                                          fontSize: "12px",
-                                          fontWeight: 700,
-                                          color: workshop.color,
-                                          whiteSpace: "nowrap",
-                                          minWidth: "120px",
-                                        }}
-                                      >
-                                        {item.time}
-                                      </span>
-                                      <span
-                                        style={{
-                                          fontSize: "12px",
-                                          color: "#444",
-                                          lineHeight: 1.4,
-                                        }}
-                                      >
-                                        {item.topic}
-                                      </span>
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                            )}
-
-                            {/* Instructor(s) */}
-                            <div style={{ marginBottom: "20px" }}>
-                              <p
-                                style={{
-                                  margin: "0 0 10px 0",
-                                  fontSize: "11px",
-                                  color: "#999",
-                                  textTransform: "uppercase",
-                                  fontWeight: 600,
-                                }}
-                              >
-                                <i
-                                  className="fa-solid fa-microphone"
-                                  style={{ marginRight: "5px" }}
-                                />
-                                {t("instructor")}
-                              </p>
-                              {workshop.instructors.length > 0 ? (
-                                workshop.instructors.map((instructor, i) => (
-                                  <div key={i} style={{ marginBottom: "8px" }}>
-                                    <p
-                                      style={{
-                                        margin: 0,
-                                        fontSize: "14px",
-                                        fontWeight: 600,
-                                      }}
-                                    >
-                                      {instructor.name}
-                                    </p>
-                                    {instructor.affiliation && (
                                       <p
                                         style={{
                                           margin: 0,
-                                          fontSize: "12px",
-                                          color: "#666",
+                                          fontSize: "14px",
+                                          fontWeight: 600,
+                                          whiteSpace: "pre-line",
+                                          lineHeight: 1.4,
                                         }}
                                       >
-                                        {instructor.affiliation}
+                                        {instructor.name}
                                       </p>
-                                    )}
-                                  </div>
-                                ))
-                              ) : (
-                                <p
-                                  style={{
-                                    margin: 0,
-                                    fontSize: "13px",
-                                    color: "#999",
-                                    fontStyle: "italic",
-                                  }}
-                                >
-                                  No instructors assigned
-                                </p>
-                              )}
-                            </div>
-
-                            {/* Learning Objectives (Description) */}
-                            <div style={{ marginBottom: "20px" }}>
-                              <p
-                                style={{
-                                  margin: "0 0 10px 0",
-                                  fontSize: "11px",
-                                  color: "#999",
-                                  textTransform: "uppercase",
-                                  fontWeight: 600,
-                                }}
-                              >
-                                <i
-                                  className="fa-solid fa-bullseye"
-                                  style={{ marginRight: "5px" }}
-                                />
-                                {t("learningObjectives")}
-                              </p>
-                              {workshop.description ? (
-                                <p
-                                  style={{
-                                    margin: 0,
-                                    fontSize: "13px",
-                                    color: "#555",
-                                    lineHeight: 1.5,
-                                    whiteSpace: "pre-wrap",
-                                  }}
-                                >
-                                  {workshop.description}
-                                </p>
-                              ) : (
-                                <p
-                                  style={{
-                                    margin: 0,
-                                    fontSize: "13px",
-                                    color: "#999",
-                                    fontStyle: "italic",
-                                  }}
-                                >
-                                  No objectives specified
-                                </p>
-                              )}
-                            </div>
-
-                            {/* Footer - Enrolled + Button */}
-                            <div
-                              style={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                                alignItems: "center",
-                                flexWrap: "wrap",
-                                gap: "15px",
-                                borderTop: "1px solid #eee",
-                                paddingTop: "20px",
-                              }}
-                            >
-                              <div>
-                                <span
-                                  style={{ fontSize: "12px", color: "#666" }}
-                                >
-                                  <i
-                                    className="fa-solid fa-users"
-                                    style={{ marginRight: "5px" }}
-                                  />
-                                  {workshop.enrolled}/{workshop.capacity || "∞"}{" "}
-                                  {t("enrolled")}
-                                </span>
-                                {workshop.capacity > 0 && (
-                                  <div
+                                      {instructor.affiliation && (
+                                        <p
+                                          style={{
+                                            margin: 0,
+                                            fontSize: "12px",
+                                            color: "#666",
+                                          }}
+                                        >
+                                          {instructor.affiliation}
+                                        </p>
+                                      )}
+                                    </div>
+                                  ))
+                                ) : (
+                                  <p
                                     style={{
-                                      backgroundColor: "#e0e0e0",
-                                      height: "6px",
-                                      width: "100px",
-                                      borderRadius: "3px",
-                                      marginTop: "5px",
+                                      margin: 0,
+                                      fontSize: "13px",
+                                      color: "#999",
+                                      fontStyle: "italic",
                                     }}
                                   >
-                                    <div
-                                      style={{
-                                        backgroundColor: workshop.isFull
-                                          ? "#EF4444"
-                                          : workshop.color,
-                                        height: "100%",
-                                        width: `${Math.min(100, (workshop.enrolled / workshop.capacity) * 100)}%`,
-                                        borderRadius: "3px",
-                                      }}
-                                    />
-                                  </div>
+                                    No instructors assigned
+                                  </p>
                                 )}
                               </div>
 
-                              {(() => {
-                                const isThisSessionRegistered = registeredWorkshopSessionIds.has(workshop.sessionId);
-                                const hasAnyWorkshopRegistered = registeredWorkshopSessionIds.size > 0;
+                              {/* Learning Objectives (Description) */}
+                              <div style={{ marginBottom: "20px" }}>
+                                <p
+                                  style={{
+                                    margin: "0 0 10px 0",
+                                    fontSize: "11px",
+                                    color: "#999",
+                                    textTransform: "uppercase",
+                                    fontWeight: 600,
+                                  }}
+                                >
+                                  <i
+                                    className="fa-solid fa-bullseye"
+                                    style={{ marginRight: "5px" }}
+                                  />
+                                  {t("learningObjectives")}
+                                </p>
+                                {workshop.description ? (
+                                  <p
+                                    style={{
+                                      margin: 0,
+                                      fontSize: "13px",
+                                      color: "#555",
+                                      lineHeight: 1.5,
+                                      whiteSpace: "pre-wrap",
+                                    }}
+                                  >
+                                    {workshop.description}
+                                  </p>
+                                ) : (
+                                  <p
+                                    style={{
+                                      margin: 0,
+                                      fontSize: "13px",
+                                      color: "#999",
+                                      fontStyle: "italic",
+                                    }}
+                                  >
+                                    No objectives specified
+                                  </p>
+                                )}
+                              </div>
 
-                                if (isThisSessionRegistered) {
-                                  // This exact session — show green Registered
-                                  return (
-                                    <span
+                              {/* Footer - Enrolled + Button */}
+                              <div
+                                style={{
+                                  display: "flex",
+                                  justifyContent: "space-between",
+                                  alignItems: "center",
+                                  flexWrap: "wrap",
+                                  gap: "15px",
+                                  borderTop: "1px solid #eee",
+                                  paddingTop: "20px",
+                                }}
+                              >
+                                <div>
+                                  <span
+                                    style={{ fontSize: "12px", color: "#666" }}
+                                  >
+                                    <i
+                                      className="fa-solid fa-users"
+                                      style={{ marginRight: "5px" }}
+                                    />
+                                    {workshop.enrolled}/
+                                    {workshop.capacity || "∞"} {t("enrolled")}
+                                  </span>
+                                  {workshop.capacity > 0 && (
+                                    <div
                                       style={{
-                                        background: "linear-gradient(135deg, #10B981 0%, #059669 100%)",
-                                        color: "white",
-                                        padding: "10px 20px",
-                                        borderRadius: "8px",
-                                        fontSize: "13px",
-                                        fontWeight: 600,
-                                        cursor: "default",
-                                        display: "inline-block",
-                                        boxShadow: "0 4px 15px rgba(16, 185, 129, 0.4)",
+                                        backgroundColor: "#e0e0e0",
+                                        height: "6px",
+                                        width: "100px",
+                                        borderRadius: "3px",
+                                        marginTop: "5px",
                                       }}
                                     >
-                                      <i
-                                        className="fa-solid fa-circle-check"
-                                        style={{ marginRight: "6px" }}
-                                      ></i>
-                                      {locale === "th" ? "ลงทะเบียนแล้ว" : "Registered"}
-                                    </span>
-                                  );
-                                }
+                                      <div
+                                        style={{
+                                          backgroundColor: workshop.isFull
+                                            ? "#EF4444"
+                                            : workshop.color,
+                                          height: "100%",
+                                          width: `${Math.min(100, (workshop.enrolled / workshop.capacity) * 100)}%`,
+                                          borderRadius: "3px",
+                                        }}
+                                      />
+                                    </div>
+                                  )}
+                                </div>
 
-                                if (hasAnyWorkshopRegistered) {
-                                  // Another session already registered — block this one
+                                {(() => {
+                                  const isThisSessionRegistered =
+                                    registeredWorkshopSessionIds.has(
+                                      workshop.sessionId,
+                                    );
+                                  const hasAnyWorkshopRegistered =
+                                    registeredWorkshopSessionIds.size > 0;
+
+                                  if (isThisSessionRegistered) {
+                                    // This exact session — show green Registered
+                                    return (
+                                      <span
+                                        style={{
+                                          background:
+                                            "linear-gradient(135deg, #10B981 0%, #059669 100%)",
+                                          color: "white",
+                                          padding: "10px 20px",
+                                          borderRadius: "8px",
+                                          fontSize: "13px",
+                                          fontWeight: 600,
+                                          cursor: "default",
+                                          display: "inline-block",
+                                          boxShadow:
+                                            "0 4px 15px rgba(16, 185, 129, 0.4)",
+                                        }}
+                                      >
+                                        <i
+                                          className="fa-solid fa-circle-check"
+                                          style={{ marginRight: "6px" }}
+                                        ></i>
+                                        {locale === "th"
+                                          ? "ลงทะเบียนแล้ว"
+                                          : "Registered"}
+                                      </span>
+                                    );
+                                  }
+
+                                  if (hasAnyWorkshopRegistered) {
+                                    // Another session already registered — block this one
+                                    return (
+                                      <span
+                                        style={{
+                                          backgroundColor: "#f3f4f6",
+                                          color: "#9ca3af",
+                                          padding: "10px 20px",
+                                          borderRadius: "8px",
+                                          fontSize: "13px",
+                                          fontWeight: 600,
+                                          border: "1px solid #e5e7eb",
+                                          cursor: "not-allowed",
+                                          display: "inline-block",
+                                        }}
+                                      >
+                                        <i
+                                          className="fa-solid fa-lock"
+                                          style={{ marginRight: "6px" }}
+                                        ></i>
+                                        {locale === "th"
+                                          ? "ลงทะเบียน session อื่นแล้ว"
+                                          : "Already Registered"}
+                                      </span>
+                                    );
+                                  }
+
+                                  if (workshop.isFull) {
+                                    return (
+                                      <span
+                                        style={{
+                                          backgroundColor: "#e5e7eb",
+                                          color: "#6b7280",
+                                          padding: "10px 20px",
+                                          borderRadius: "8px",
+                                          fontSize: "13px",
+                                          fontWeight: 600,
+                                          cursor: "not-allowed",
+                                          display: "inline-block",
+                                        }}
+                                      >
+                                        <i
+                                          className="fa-solid fa-ban"
+                                          style={{ marginRight: "6px" }}
+                                        ></i>
+                                        {t("full")}
+                                      </span>
+                                    );
+                                  }
+
+                                  if (isAvailable) {
+                                    return (
+                                      <Link
+                                        href={`/${locale}/checkout`}
+                                        style={{
+                                          background:
+                                            "linear-gradient(135deg, #FFBA00 0%, #FF8C00 100%)",
+                                          color: "white",
+                                          padding: "10px 20px",
+                                          borderRadius: "8px",
+                                          fontSize: "13px",
+                                          fontWeight: 600,
+                                          cursor: "pointer",
+                                          display: "inline-block",
+                                          textDecoration: "none",
+                                          boxShadow:
+                                            "0 4px 15px rgba(255, 186, 0, 0.4)",
+                                        }}
+                                      >
+                                        <i
+                                          className="fa-solid fa-ticket"
+                                          style={{ marginRight: "6px" }}
+                                        ></i>
+                                        {tCommon("registerNow")}
+                                      </Link>
+                                    );
+                                  }
+
                                   return (
                                     <span
                                       style={{
                                         backgroundColor: "#f3f4f6",
-                                        color: "#9ca3af",
+                                        color: "#6b7280",
                                         padding: "10px 20px",
                                         borderRadius: "8px",
                                         fontSize: "13px",
@@ -954,89 +1069,17 @@ export default function PreconferenceWorkshops() {
                                       }}
                                     >
                                       <i
-                                        className="fa-solid fa-lock"
+                                        className="fa-regular fa-calendar"
                                         style={{ marginRight: "6px" }}
                                       ></i>
-                                      {locale === "th" ? "ลงทะเบียน session อื่นแล้ว" : "Already Registered"}
+                                      {locale === "th"
+                                        ? `เปิดจำหน่าย ${formattedSaleDate || "เร็วๆ นี้"}`
+                                        : `Available on ${formattedSaleDate || "Coming Soon"}`}
                                     </span>
                                   );
-                                }
-
-                                if (workshop.isFull) {
-                                  return (
-                                    <span
-                                      style={{
-                                        backgroundColor: "#e5e7eb",
-                                        color: "#6b7280",
-                                        padding: "10px 20px",
-                                        borderRadius: "8px",
-                                        fontSize: "13px",
-                                        fontWeight: 600,
-                                        cursor: "not-allowed",
-                                        display: "inline-block",
-                                      }}
-                                    >
-                                      <i
-                                        className="fa-solid fa-ban"
-                                        style={{ marginRight: "6px" }}
-                                      ></i>
-                                      {t("full")}
-                                    </span>
-                                  );
-                                }
-
-                                if (isAvailable) {
-                                  return (
-                                    <Link
-                                      href={`/${locale}/checkout`}
-                                      style={{
-                                        background: "linear-gradient(135deg, #FFBA00 0%, #FF8C00 100%)",
-                                        color: "white",
-                                        padding: "10px 20px",
-                                        borderRadius: "8px",
-                                        fontSize: "13px",
-                                        fontWeight: 600,
-                                        cursor: "pointer",
-                                        display: "inline-block",
-                                        textDecoration: "none",
-                                        boxShadow: "0 4px 15px rgba(255, 186, 0, 0.4)",
-                                      }}
-                                    >
-                                      <i
-                                        className="fa-solid fa-ticket"
-                                        style={{ marginRight: "6px" }}
-                                      ></i>
-                                      {tCommon("registerNow")}
-                                    </Link>
-                                  );
-                                }
-
-                                return (
-                                  <span
-                                    style={{
-                                      backgroundColor: "#f3f4f6",
-                                      color: "#6b7280",
-                                      padding: "10px 20px",
-                                      borderRadius: "8px",
-                                      fontSize: "13px",
-                                      fontWeight: 600,
-                                      border: "1px solid #e5e7eb",
-                                      cursor: "not-allowed",
-                                      display: "inline-block",
-                                    }}
-                                  >
-                                    <i
-                                      className="fa-regular fa-calendar"
-                                      style={{ marginRight: "6px" }}
-                                    ></i>
-                                    {locale === "th"
-                                      ? `เปิดจำหน่าย ${formattedSaleDate || "เร็วๆ นี้"}`
-                                      : `Available on ${formattedSaleDate || "Coming Soon"}`}
-                                  </span>
-                                );
-                              })()}
+                                })()}
+                              </div>
                             </div>
-                          </div>
                           )}
                         </div>
                       </div>
