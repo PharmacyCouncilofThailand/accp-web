@@ -3,6 +3,7 @@ import { getMessages } from 'next-intl/server';
 import { routing } from '@/i18n/routing';
 import { notFound } from 'next/navigation';
 import { AuthProvider } from '@/context/AuthContext';
+import { TicketProvider } from '@/context/TicketContext';
 
 type Props = {
     children: React.ReactNode;
@@ -29,7 +30,9 @@ export default async function LocaleLayout({
     return (
         <NextIntlClientProvider messages={messages}>
             <AuthProvider>
-                {children}
+                <TicketProvider>
+                    {children}
+                </TicketProvider>
             </AuthProvider>
         </NextIntlClientProvider>
     )

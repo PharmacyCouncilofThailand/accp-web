@@ -53,7 +53,7 @@ export default function GalaDinner() {
                     }}>
                         <div className="container">
                             <div className="row align-items-center">
-                                <div className="col-lg-6" data-aos="fade-right" data-aos-duration={800}>
+                                <div className="col-lg-10 m-auto text-center" data-aos="fade-up" data-aos-duration={800}>
                                     <div className="about-header-area">
                                         <span style={{
                                             backgroundColor: '#FFBA00',
@@ -71,7 +71,7 @@ export default function GalaDinner() {
                                         <p style={{ fontSize: '17px', color: 'white', lineHeight: '1.8', marginBottom: '30px' }}>
                                             {t('celebrationDesc')}
                                         </p>
-                                        <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+                                        <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', justifyContent: 'center' }}>
                                             <div className="gala-info-box">
                                                 <div style={{
                                                     width: '45px',
@@ -85,7 +85,7 @@ export default function GalaDinner() {
                                                 }}>
                                                     <i className="fa-regular fa-calendar" style={{ color: '#FFBA00', fontSize: '20px' }} />
                                                 </div>
-                                                <div>
+                                                <div style={{ textAlign: 'left' }}>
                                                     <span style={{ fontSize: '13px', display: 'block', marginBottom: '2px', color: 'rgba(255, 255, 255, 0.8)' }}>{tCommon('days')}</span>
                                                     <p style={{ margin: 0, fontWeight: '600', fontSize: '16px', color: '#ffffff' }}>July 10, 2026</p>
                                                 </div>
@@ -104,9 +104,9 @@ export default function GalaDinner() {
                                                 }}>
                                                     <i className="fa-regular fa-clock" style={{ color: '#FFBA00', fontSize: '20px' }} />
                                                 </div>
-                                                <div>
+                                                <div style={{ textAlign: 'left' }}>
                                                     <span style={{ fontSize: '13px', display: 'block', marginBottom: '2px', color: 'rgba(255, 255, 255, 0.8)' }}>{tCommon('hours')}</span>
-                                                    <p style={{ margin: 0, fontWeight: '600', fontSize: '16px', color: '#ffffff' }}>19:00 - 22:00</p>
+                                                    <p style={{ margin: 0, fontWeight: '600', fontSize: '16px', color: '#ffffff' }}>19:00 - 21:30</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -118,7 +118,8 @@ export default function GalaDinner() {
                                         borderRadius: '20px',
                                         padding: '35px',
                                         backdropFilter: 'blur(10px)',
-                                        border: '1px solid rgba(255,255,255,0.1)'
+                                        border: '1px solid rgba(255,255,255,0.1)',
+                                        display: 'none'
                                     }}>
                                         <div style={{ textAlign: 'center', marginBottom: '25px' }}>
                                             <div style={{
@@ -162,7 +163,7 @@ export default function GalaDinner() {
                     <VenueDetails ticketPrice={ticketPrice} />
 
                     {/* Menu Preview */}
-                    <div className="pricing1-section-area sp2" style={{ backgroundColor: '#f8f9fa' }}>
+                    <div className="pricing1-section-area sp2" style={{ backgroundColor: '#f8f9fa', display: 'none' }}>
                         <div className="container">
                             <div className="row">
                                 <div className="col-lg-6 m-auto">

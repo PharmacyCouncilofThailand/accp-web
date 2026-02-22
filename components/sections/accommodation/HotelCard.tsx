@@ -5,6 +5,7 @@ interface HotelProps {
     distance: string;
     features: string[];
     image?: string;
+    priceRange?: string;
 }
 
 // Extract styles to constants to avoid recreating objects on each render
@@ -41,6 +42,7 @@ const CONTAINER_STYLE = { marginBottom: '30px' } as const;
 const TITLE_STYLE = { marginBottom: '10px', color: '#1a237e' } as const;
 const LOCATION_STYLE = { margin: '0 0 15px 0', color: '#666', fontSize: '14px' } as const;
 const FEATURES_CONTAINER_STYLE = { display: 'flex', flexWrap: 'wrap', gap: '8px' } as const;
+const PRICE_STYLE = { color: '#1a237e', fontWeight: 'bold', fontSize: '1.1rem', marginBottom: '5px' } as const;
 
 function HotelCard({ hotel }: { hotel: HotelProps }) {
     return (
@@ -51,10 +53,10 @@ function HotelCard({ hotel }: { hotel: HotelProps }) {
                         <div className="col-md-3">
                             <div style={HOTEL_IMAGE_STYLE}>
                                 {hotel.image ? (
-                                    <img 
-                                        src={hotel.image} 
-                                        alt={hotel.name} 
-                                        style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '12px' }} 
+                                    <img
+                                        src={hotel.image}
+                                        alt={hotel.name}
+                                        style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '12px' }}
                                     />
                                 ) : (
                                     <i className="fa-solid fa-hotel" style={ICON_STYLE} />
@@ -63,19 +65,26 @@ function HotelCard({ hotel }: { hotel: HotelProps }) {
                         </div>
                         <div className="col-md-6">
                             <h4 style={TITLE_STYLE}>{hotel.name}</h4>
-                            <p style={LOCATION_STYLE}>
-                                <i className="fa-solid fa-location-dot" style={LOCATION_ICON_STYLE} />
-                                {hotel.distance} from venue
-                            </p>
-                            <div style={FEATURES_CONTAINER_STYLE}>
-                                {hotel.features.map((feature, fi) => (
-                                    <span key={fi} style={FEATURE_BADGE_STYLE}>
-                                        <i className="fa-solid fa-check" style={CHECK_ICON_STYLE} />
-                                        {feature}
-                                    </span>
-                                ))}
-                            </div>
+                            {hotel.name !== 'Centara Grand & Bangkok Convention Centre at CentralWorld' && (
+                                <div className="mt-3">
+                                    <div className="d-flex align-items-center mb-2">
+                                        <span style={{ minWidth: '180px', fontSize: '15px', color: '#555' }}>Distance to venue:</span>
+                                        <span style={{ fontWeight: 600, color: '#333' }}>{hotel.distance}</span>
+                                    </div>
+                                    <div className="d-flex align-items-center mb-2">
+                                        <span style={{ minWidth: '180px', fontSize: '15px', color: '#555' }}>Room per night (THB):</span>
+                                        <span style={{ fontWeight: 600, color: '#1a237e' }}>{hotel.priceRange?.replace('THB ', '').replace('/night', '')}</span>
+                                    </div>
+                                    <div className="d-flex align-items-center">
+                                        <span style={{ minWidth: '180px', fontSize: '15px', color: '#555' }}>Breakfast Included:</span>
+                                        <span style={{ fontWeight: 600, color: '#333' }}>
+                                            {hotel.features.find(f => f.toLowerCase().includes('breakfast'))?.replace(/Breakfast /i, '') || 'Included'}
+                                        </span>
+                                    </div>
+                                </div>
+                            )}
                         </div>
+
                     </div>
                 </div>
             </div>

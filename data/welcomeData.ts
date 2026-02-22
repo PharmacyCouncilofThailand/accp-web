@@ -19,6 +19,26 @@ export const welcomeMessages = [
         message: `Welcome to the 2026 Asian Conference on Clinical Pharmacy (ACCP 2026) in Bangkok, Thailand. Held under the theme “Borderless Pharmacy Practice: Collaboration for Sustainability and Cultural Integration,”ACCP 2026 brings together science, collaboration, and culture in a truly international setting. The conference features a comprehensive scientific program in clinical pharmacy and pharmacotherapy.
                   Topics span diverse disease states, innovative practices, digital health, and pharmaceutical education. Participants will engage with high-quality research through poster and oral presentations. The meeting offers opportunities to connect with leading clinical pharmacy professionals worldwide. It also fosters academic and research collaborations shaping the future of pharmacy practice. ACCP 2026 serves as a global platform for learning, sharing, and professional networking. The experience is enriched by Bangkok’s renowned warmth and hospitality. Attendees can enjoy Thailand’s rich culture, iconic attractions, and world-famous cuisine. Join us at ACCP 2026 and be part of a borderless community advancing clinical pharmacy.`
     },
+    {
+        id: 'pharmacyCouncilPresident',
+        name: 'Mr. Preecha Bhandtivej',
+        title: 'President, The Pharmacy Council of Thailand',
+        role: 'Pharmacy Council President',
+        image: '/assets/img/all-images/team/President The Pharmacy Council of Thailand.png',
+        message: `Experience the future of clinical pharmacy at ACCP 2026 in Bangkok, Thailand.
+
+The 2026 Asian Conference on Clinical Pharmacy (ACCP) is the must-attend event for clinical pharmacists and healthcare professionals who want to stay ahead in an evolving, interconnected world. Under the theme "Borderless Pharmacy Practice: Collaboration for Sustainability and Cultural Integration," ACCP 2026 brings together global expertise, innovative science, and real-world clinical impact in one dynamic meeting.
+
+Discover a comprehensive scientific program covering clinical pharmacy and pharmacotherapy across diverse disease states, breakthrough innovations, digital health solutions, and advances in pharmaceutical education. Gain insights from leading experts, and explore high-quality research by clinical pharmacists.
+
+More than a conference, ACCP 2026 is a powerful networking hub—offering unparalleled opportunities to connect with international leaders, build academic and research collaborations, and expand your professional horizons beyond borders.
+
+Learn. Connect. Innovate. Experience.
+
+Be part of a truly borderless pharmacy practice at ACCP 2026—where knowledge meets opportunity, and collaboration shapes the future.
+
+We look forward to welcoming you to Bangkok for an unforgettable ACCP 2026.`
+    },
     
     // Temporarily hidden - Organizing Chair section
     // {

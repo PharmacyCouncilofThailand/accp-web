@@ -1,3 +1,4 @@
+/** @deprecated Use api.tickets.list() from lib/api.ts instead. Pricing is now managed via the backoffice ticket system. */
 export interface RegistrationPackage {
   id: string;
   priceUSD: number;
@@ -7,12 +8,14 @@ export interface RegistrationPackage {
   features: string[];
 }
 
+/** @deprecated Use api.tickets.list() from lib/api.ts instead. Pricing is now managed via the backoffice ticket system. */
 export interface AddOn {
   id: string;
   priceUSD: number;
   priceTHB: number;
 }
 
+/** @deprecated Use api.tickets.list() from lib/api.ts instead. Pricing is now managed via the backoffice ticket system. */
 export const registrationPackages: RegistrationPackage[] = [
   {
     id: "student",
@@ -44,6 +47,7 @@ export const registrationPackages: RegistrationPackage[] = [
   },
 ];
 
+/** @deprecated Use api.tickets.list() from lib/api.ts instead. Pricing is now managed via the backoffice ticket system. */
 export const addOns: AddOn[] = [
   {
     id: "workshop",

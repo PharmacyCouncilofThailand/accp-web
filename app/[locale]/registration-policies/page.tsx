@@ -2,9 +2,9 @@
 import Layout from "@/components/layout/Layout"
 import Link from "next/link"
 import { useTranslations } from 'next-intl'
-import RefundSchedule from "@/components/sections/policies/RefundSchedule"
+
 import PolicyDetails from "@/components/sections/policies/PolicyDetails"
-import PolicyFaq from "@/components/sections/policies/PolicyFaq"
+
 
 export default function RegistrationPolicies() {
     const t = useTranslations('policies')
@@ -34,7 +34,7 @@ export default function RegistrationPolicies() {
                         <div className="container">
                             <div className="row">
                                 <div className="col-lg-8 m-auto">
-                                    <div className="heading2 text-center space-margin60">
+                                    <div className="heading2 text-center">
                                         <h5 data-aos="fade-up" data-aos-duration={800}>{t('overview')}</h5>
                                         <div className="space16" />
                                         <h2>{t('pageTitle')}</h2>
@@ -48,9 +48,8 @@ export default function RegistrationPolicies() {
                         </div>
                     </div>
 
-                    <RefundSchedule />
                     <PolicyDetails />
-                    <PolicyFaq />
+
 
 
                 </div>
