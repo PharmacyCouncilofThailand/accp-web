@@ -1,602 +1,986 @@
-'use client'
-import { useState, useEffect } from 'react'
-import Layout from "@/components/layout/Layout"
-import Link from "next/link"
-import { useTranslations, useLocale } from 'next-intl';
-import { useAuth } from '@/context/AuthContext'
-import { useRouter, useSearchParams } from 'next/navigation'
-import Image from 'next/image'
-import { useCheckoutWizard } from '@/hooks/checkout/useCheckoutWizard'
-import { registrationPackages, addOns, workshopOptions } from '@/data/checkout'
-import { formatCurrency } from "@/utils/currency"
-import OrderSummary from '@/components/checkout/OrderSummary'
+"use client";
+import { useState, useEffect, useMemo } from "react";
+import Layout from "@/components/layout/Layout";
+import Link from "next/link";
+import toast from "react-hot-toast";
+import { useTranslations, useLocale } from "next-intl";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useCheckoutWizard } from "@/hooks/checkout/useCheckoutWizard";
+import OrderSummary from "@/components/checkout/OrderSummary";
+import { useTickets } from "@/context/TicketContext";
+import type { LinkedSession } from "@/lib/api";
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
+
+interface RedirectFormPayload {
+  actionUrl: string;
+  method: "POST";
+  fields: Record<string, string>;
+}
+
+function submitRedirectForm(payload: RedirectFormPayload) {
+  const form = document.createElement("form");
+  form.method = payload.method || "POST";
+  form.action = payload.actionUrl;
+  form.style.display = "none";
+
+  for (const [name, value] of Object.entries(payload.fields || {})) {
+    const input = document.createElement("input");
+    input.type = "hidden";
+    input.name = name;
+    input.value = String(value ?? "");
+    form.appendChild(input);
+  }
+
+  document.body.appendChild(form);
+  form.submit();
+  document.body.removeChild(form);
+}
+
+const PAY_SOLUTIONS_REFNO_STORAGE_KEY = "accp:last-pay-solutions-refno";
+
+function clearStoredPaySolutionsRefno() {
+  if (typeof window === "undefined") return;
+  sessionStorage.removeItem(PAY_SOLUTIONS_REFNO_STORAGE_KEY);
+}
 
 export default function Payment() {
-	const t = useTranslations('payment');
-	const tCheckout = useTranslations('checkout');
-	const tCommon = useTranslations('common');
-	const locale = useLocale();
-	const { isAuthenticated, user } = useAuth();
-	const router = useRouter();
-	const searchParams = useSearchParams();
+  const t = useTranslations("payment");
+  const tCheckout = useTranslations("checkout");
+  const tCommon = useTranslations("common");
+  const locale = useLocale();
+  const { isAuthenticated, token, user } = useAuth();
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
-	// Use checkout data from hook instead of URL params
-	const { checkoutData } = useCheckoutWizard();
+  // Use checkout data from hook
+  const { checkoutData, resetCheckout, isInitialized } = useCheckoutWizard();
 
-	// Determine currency based on payment country (Thailand = THB, Others = USD)
-	const isThaiPayment = checkoutData.country?.trim().toLowerCase() === 'thailand';
-	const currencySymbol = isThaiPayment ? '฿' : '$';
+  // Addon-only mode
+  const isAddonOnly =
+    searchParams.get("mode") === "addon" || checkoutData.isAddonOnly === true;
 
-	// Calculate total amount from checkout data
-	const currentPackage = registrationPackages.find(p => p.id === checkoutData.selectedPackage);
-	const packagePrice = isThaiPayment ? currentPackage?.priceTHB || 0 : currentPackage?.priceUSD || 0;
-	const addOnsPrice = addOns
-		.filter(a => checkoutData.selectedAddOns.includes(a.id))
-		.reduce((sum, a) => (isThaiPayment ? sum + a.priceTHB : sum + a.priceUSD), 0);
-	const totalAmount = packagePrice + addOnsPrice;
+  // Determine currency based on delegate type (role)
+  const isThaiPayment = user?.delegateType?.startsWith("thai") ?? false;
+  const currency: "THB" | "USD" = isThaiPayment ? "THB" : "USD";
 
-	// Use data from hook
-	const amount = totalAmount.toString();
-  
-  // Prepare OrderSummary props
-  const orderPackageItem = {
-    id: checkoutData.selectedPackage || 'professional',
-    name: tCheckout(`packages.${checkoutData.selectedPackage || 'professional'}`),
-    price: packagePrice
-  };
+  const needTaxInvoice =
+    isThaiPayment &&
+    (checkoutData.needTaxInvoice || searchParams.get("needTaxInvoice") === "true");
+  const promoCode = searchParams.get("promoCode") || undefined;
 
-  const orderAddOns = checkoutData.selectedAddOns.map(addOnId => {
-    const addon = addOns.find(a => a.id === addOnId);
-    if (!addon) return null;
+  // Ticket data from context (cached, single fetch)
+  const { tickets, packages: apiPackages, addOns: apiAddOns } = useTickets();
 
-    let details = '';
-    if (addOnId === 'workshop' && checkoutData.selectedWorkshopTopic) {
-      const option = workshopOptions.find(o => o.value === checkoutData.selectedWorkshopTopic);
-      if (option) details = option.label;
-    } else if (addOnId === 'gala' && checkoutData.dietaryRequirement) {
-      if (checkoutData.dietaryRequirement === 'other' && checkoutData.dietaryOtherText) {
-        details = checkoutData.dietaryOtherText;
-      } else {
-        details = tCheckout(`dietaryOptions.${checkoutData.dietaryRequirement}`);
+  // Derive workshop options dynamically from ticket sessions
+  const workshopOptions = useMemo(() => {
+    const workshopTickets = tickets.filter(
+      (t) =>
+        t.category === "addon" &&
+        (t.groupName || "").toLowerCase() === "workshop" &&
+        t.sessions &&
+        t.sessions.length > 0,
+    );
+    const sessionMap = new Map<number, LinkedSession>();
+    for (const t of workshopTickets) {
+      for (const s of t.sessions!) {
+        if (!sessionMap.has(s.sessionId)) sessionMap.set(s.sessionId, s);
       }
     }
+    return Array.from(sessionMap.values()).map((s) => ({
+      value: String(s.sessionId),
+      label: s.sessionName,
+      isFull: s.isFull,
+      count: s.enrolledCount,
+      maxCapacity: s.maxCapacity,
+    }));
+  }, [tickets]);
 
-    return {
-      id: addOnId,
-      name: tCheckout(`addOns.${addOnId}`),
-      price: isThaiPayment ? addon.priceTHB : addon.priceUSD,
-      details
+  // Calculate total amount from API data
+  const currentPackage = apiPackages.find(
+    (p) => p.id === checkoutData.selectedPackage,
+  );
+  const packagePrice = isAddonOnly
+    ? 0
+    : isThaiPayment
+      ? currentPackage?.priceTHB || 0
+      : currentPackage?.priceUSD || 0;
+  const addOnsPrice = apiAddOns
+    .filter((a) => checkoutData.selectedAddOns.includes(a.id))
+    .reduce(
+      (sum, a) => (isThaiPayment ? sum + a.priceTHB : sum + a.priceUSD),
+      0,
+    );
+  const totalAmount = packagePrice + addOnsPrice;
+
+  // Prepare OrderSummary props
+  const orderPackageItem = isAddonOnly
+    ? {
+        id: "addon-only",
+        name: locale === "th" ? "ซื้อ Add-on เพิ่ม" : "Add-on Purchase",
+        price: 0,
+      }
+    : {
+        id: checkoutData.selectedPackage || "professional",
+        name: tCheckout(
+          `packages.${checkoutData.selectedPackage || "professional"}`,
+        ),
+        price: packagePrice,
+      };
+
+  const orderAddOns = useMemo(() => {
+    return checkoutData.selectedAddOns
+      .map((addOnId) => {
+        const addon = apiAddOns.find((a) => a.id === addOnId);
+        if (!addon) return null;
+
+        let details = "";
+        if (addOnId === "workshop" && checkoutData.selectedWorkshopTopic) {
+          const option = workshopOptions.find(
+            (o) => o.value === checkoutData.selectedWorkshopTopic,
+          );
+          if (option) details = option.label;
+        } else if (addOnId === "gala" && checkoutData.dietaryRequirement) {
+          if (
+            checkoutData.dietaryRequirement === "other" &&
+            checkoutData.dietaryOtherText
+          ) {
+            details = checkoutData.dietaryOtherText;
+          } else {
+            details = tCheckout(
+              `dietaryOptions.${checkoutData.dietaryRequirement}`,
+            );
+          }
+        }
+
+        return {
+          id: addOnId,
+          name: tCheckout(`addOns.${addOnId}`),
+          price: isThaiPayment ? addon.priceTHB : addon.priceUSD,
+          details,
+        };
+      })
+      .filter(
+        (
+          item,
+        ): item is {
+          id: string;
+          name: string;
+          price: number;
+          details: string;
+        } => item !== null,
+      );
+  }, [
+    checkoutData.selectedAddOns,
+    checkoutData.selectedWorkshopTopic,
+    checkoutData.dietaryRequirement,
+    checkoutData.dietaryOtherText,
+    apiAddOns,
+    isThaiPayment,
+    tCheckout,
+  ]);
+
+  // Payment gateway state
+  const [redirectForm, setRedirectForm] = useState<RedirectFormPayload | null>(null);
+  const [paymentRefNo, setPaymentRefNo] = useState<string | null>(null);
+  const [orderId, setOrderId] = useState<number | null>(null);
+  const [intentError, setIntentError] = useState<string | null>(null);
+  const [isCreatingIntent, setIsCreatingIntent] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
+  const [feeAmount, setFeeAmount] = useState<number>(0);
+  const [chargeTotal, setChargeTotal] = useState<number>(0);
+  const [isCancelling, setIsCancelling] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [showRefreshModal, setShowRefreshModal] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [promoDiscount, setPromoDiscount] = useState<{
+    code: string;
+    discountType: "percentage" | "fixed";
+    discountValue: number;
+    discountAmount: number;
+  } | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
+
+  // Refresh detection and warning
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (redirectForm && orderId) {
+        e.preventDefault();
+        e.returnValue = '';
+        setShowRefreshModal(true);
+        return '';
+      }
     };
-  }).filter((item): item is { id: string; name: string; price: number; details: string } => item !== null);
-	const packageType = checkoutData.selectedPackage || 'professional';
-	const orderNumber = `ACCP2026-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
 
-	// Get payment method from URL, default to 'qr' if not specified
-	const methodParam = searchParams.get('method') as 'qr' | 'card' | null;
-	const [paymentMethod, setPaymentMethod] = useState<'qr' | 'card'>(methodParam || 'qr'); // Fallback to URL or default
-	// Use checkoutData method if available
-	useEffect(() => {
-		if (checkoutData.paymentMethod) {
-			setPaymentMethod(checkoutData.paymentMethod);
-		}
-	}, [checkoutData.paymentMethod]);
+    window.addEventListener('beforeunload', handleBeforeUnload);
 
-	const [isProcessing, setIsProcessing] = useState(false);
-	const [showSuccess, setShowSuccess] = useState(false);
-	const [qrTimer, setQrTimer] = useState(300); // 5 minutes
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [redirectForm, orderId]);
 
-	// Card form states
-	const [cardData, setCardData] = useState({
-		cardNumber: '',
-		cardholderName: '',
-		expiryDate: '',
-		cvv: ''
-	});
-	const [cardErrors, setCardErrors] = useState<Record<string, string>>({});
+  // Confirm refresh with cancellation
+  const confirmRefresh = async () => {
+    if (!orderId || !token) return;
 
-	// QR Timer countdown
-	useEffect(() => {
-		if (paymentMethod === 'qr' && qrTimer > 0 && !showSuccess) {
-			const timer = setInterval(() => {
-				setQrTimer(prev => prev - 1);
-			}, 1000);
-			return () => clearInterval(timer);
-		}
-	}, [paymentMethod, qrTimer, showSuccess]);
+    setShowRefreshModal(false);
+    setIsRefreshing(true);
+    
+    try {
+      // Cancel the payment intent
+      await fetch(`${API_URL}/api/payments/cancel-intent`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ orderId }),
+      });
 
-	// Check authentication
-	useEffect(() => {
-		if (!isAuthenticated) {
-			router.push(`/${locale}/login`);
-		}
-	}, [isAuthenticated, router, locale]);
+      clearStoredPaySolutionsRefno();
 
-	const formatTime = (seconds: number) => {
-		const mins = Math.floor(seconds / 60);
-		const secs = seconds % 60;
-		return `${mins}:${secs.toString().padStart(2, '0')}`;
-	};
+      // Reset checkout and redirect
+      resetCheckout();
+      router.push(`/${locale}/registration`);
+    } catch (err) {
+      console.error("Failed to cancel on refresh:", err);
+      // Still redirect even if cancellation fails
+      router.push(`/${locale}/registration`);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
 
-	const handleCardChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const { name, value } = e.target;
-		let formattedValue = value;
+  // Cancel refresh action (stay on page)
+  const cancelRefresh = () => {
+    setShowRefreshModal(false);
+  };
+  const confirmCancelPayment = async () => {
+    if (!orderId || !token) return;
 
-		// Format card number with spaces
-		if (name === 'cardNumber') {
-			formattedValue = value.replace(/\s/g, '').replace(/(\d{4})/g, '$1 ').trim();
-			if (formattedValue.length > 19) return;
-		}
+    setShowCancelModal(false);
+    setIsCancelling(true);
+    try {
+      const res = await fetch(`${API_URL}/api/payments/cancel-intent`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ orderId }),
+      });
 
-		// Format expiry date
-		if (name === 'expiryDate') {
-			formattedValue = value.replace(/\D/g, '');
-			if (formattedValue.length >= 2) {
-				formattedValue = formattedValue.slice(0, 2) + '/' + formattedValue.slice(2, 4);
-			}
-			if (formattedValue.length > 5) return;
-		}
+      const data = await res.json();
+      if (res.ok && data.success) {
+        clearStoredPaySolutionsRefno();
+        toast.success("Payment cancelled successfully");
+        resetCheckout();
+        router.push(`/${locale}/registration`);
+      } else {
+        toast.error(data.error || "Failed to cancel payment");
+      }
+    } catch (err) {
+      console.error("Cancel payment failed:", err);
+      toast.error("Failed to cancel payment");
+    } finally {
+      setIsCancelling(false);
+    }
+  };
 
-		// Limit CVV to 4 digits
-		if (name === 'cvv' && value.length > 4) return;
+  // Check authentication
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push(`/${locale}/login`);
+    }
+  }, [isAuthenticated, router, locale]);
 
-		setCardData(prev => ({ ...prev, [name]: formattedValue }));
-		if (cardErrors[name]) {
-			setCardErrors(prev => ({ ...prev, [name]: '' }));
-		}
-	};
+  // Create PaymentIntent on mount
+  useEffect(() => {
+    if (!isInitialized || !token) return;
+    if (redirectForm) return;
+    // For full mode, need selectedPackage; for addon-only, need at least one addon
+    if (!isAddonOnly && !checkoutData.selectedPackage) return;
+    if (isAddonOnly && checkoutData.selectedAddOns.length === 0) return;
 
-	const validateCard = (): boolean => {
-		const errors: Record<string, string> = {};
+    const createIntent = async () => {
+      setIsCreatingIntent(true);
+      setIntentError(null);
+      clearStoredPaySolutionsRefno();
 
-		if (!cardData.cardNumber) errors.cardNumber = t('validation.cardNumberRequired');
-		else if (cardData.cardNumber.replace(/\s/g, '').length < 15) errors.cardNumber = t('validation.cardNumberInvalid');
+      try {
+        const res = await fetch(`${API_URL}/api/payments/create-intent`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            packageId: isAddonOnly ? "" : checkoutData.selectedPackage,
+            addOnIds: checkoutData.selectedAddOns,
+            currency,
+            paymentMethod: checkoutData.paymentMethod,
+            promoCode,
+            workshopSessionId: checkoutData.selectedWorkshopTopic
+              ? parseInt(checkoutData.selectedWorkshopTopic)
+              : undefined,
+            needTaxInvoice,
+            taxName: needTaxInvoice ? checkoutData.taxName.trim() : undefined,
+            taxId: needTaxInvoice ? checkoutData.taxId.trim() : undefined,
+            taxAddress: needTaxInvoice
+              ? checkoutData.taxAddress.trim()
+              : undefined,
+            taxSubDistrict: needTaxInvoice
+              ? checkoutData.taxSubDistrict.trim()
+              : undefined,
+            taxDistrict: needTaxInvoice
+              ? checkoutData.taxDistrict.trim()
+              : undefined,
+            taxProvince: needTaxInvoice
+              ? checkoutData.taxProvince.trim()
+              : undefined,
+            taxPostalCode: needTaxInvoice
+              ? checkoutData.taxPostalCode.trim()
+              : undefined,
+          }),
+        });
 
-		if (!cardData.cardholderName) errors.cardholderName = t('validation.cardholderNameRequired');
-		if (!cardData.expiryDate) errors.expiryDate = t('validation.expiryDateRequired');
-		else if (!/^\d{2}\/\d{2}$/.test(cardData.expiryDate)) errors.expiryDate = t('validation.expiryDateInvalid');
+        const data = await res.json();
 
-		if (!cardData.cvv) errors.cvv = t('validation.cvvRequired');
-		else if (cardData.cvv.length < 3) errors.cvv = t('validation.cvvInvalid');
+        if (!res.ok || !data.success) {
+          setIntentError(data.error || "Failed to initialize payment");
+          return;
+        }
 
-		setCardErrors(errors);
-		return Object.keys(errors).length === 0;
-	};
+        const receivedRedirectForm: RedirectFormPayload | null =
+          data.data.redirectForm || null;
 
-	const handlePayment = () => {
-		if (paymentMethod === 'card' && !validateCard()) {
-			return;
-		}
+        setRedirectForm(receivedRedirectForm);
+        setPaymentRefNo(data.data.refno || null);
+        setOrderId(data.data.orderId);
+        setFeeAmount(data.data.fee || 0);
+        setChargeTotal(data.data.total || totalAmount);
 
-		setIsProcessing(true);
+        if (data.data.refno) {
+          sessionStorage.setItem(PAY_SOLUTIONS_REFNO_STORAGE_KEY, data.data.refno);
+        }
 
-		// Simulate payment processing
-		setTimeout(() => {
-			setIsProcessing(false);
-			setShowSuccess(true);
-		}, 2000);
-	};
+        // Set promo discount info if present
+        if (data.data.discountAmount > 0 && data.data.discountType) {
+          const promoCodeParam = searchParams.get("promoCode") || "";
+          setPromoDiscount({
+            code: promoCodeParam,
+            discountType: data.data.discountType as "percentage" | "fixed",
+            discountValue: data.data.discountValue || 0,
+            discountAmount: data.data.discountAmount,
+          });
+        }
 
-	const handleGenerateNewQR = () => {
-		setQrTimer(300);
-	};
+        if (receivedRedirectForm) {
+          setIsRedirecting(true);
+          submitRedirectForm(receivedRedirectForm);
+          return;
+        }
 
-	if (!isAuthenticated) {
-		return null;
-	}
+        setIntentError("Payment redirect payload is missing");
+      } catch (err) {
+        console.error("Failed to create payment intent:", err);
+        setIntentError("Failed to connect to payment server");
+        setIsRedirecting(false);
+      } finally {
+        setIsCreatingIntent(false);
+      }
+    };
 
-	if (showSuccess) {
-		return (
-			<Layout headerStyle={1} footerStyle={1}>
-				<div className="inner-page-header" style={{ backgroundImage: 'url(/assets/img/bg/header-bg16.png)' }}>
-					<div className="container">
-						<div className="row">
-							<div className="col-lg-9 m-auto">
-								<div className="heading1 text-center">
-									<h1>{t('paymentSuccess')}</h1>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
+    createIntent();
+  }, [
+    isInitialized,
+    token,
+    checkoutData.selectedPackage,
+    checkoutData.selectedAddOns,
+    checkoutData.paymentMethod,
+    checkoutData.selectedWorkshopTopic,
+    checkoutData.needTaxInvoice,
+    checkoutData.taxName,
+    checkoutData.taxId,
+    checkoutData.taxAddress,
+    checkoutData.taxSubDistrict,
+    checkoutData.taxDistrict,
+    checkoutData.taxProvince,
+    checkoutData.taxPostalCode,
+    currency,
+    promoCode,
+    isAddonOnly,
+    needTaxInvoice,
+    locale,
+    retryCount,
+  ]);
 
-				<div className="sp1">
-					<div className="container">
-						<div className="row justify-content-center">
-							<div className="col-lg-6">
-								<div style={{
-									padding: '40px',
-									border: '2px solid #00C853',
-									borderRadius: '15px',
-									backgroundColor: '#f0f9f6',
-									textAlign: 'center'
-								}}>
-									<div style={{ fontSize: '80px', marginBottom: '20px' }}>✅</div>
-									<h2 style={{ color: '#00C853', marginBottom: '20px' }}>{t('paymentSuccess')}</h2>
-									<p style={{ fontSize: '16px', color: '#666', marginBottom: '30px' }}>
-										{t('paymentSuccessMessage')}
-									</p>
+  if (!isAuthenticated) {
+    return null;
+  }
 
-									<div style={{
-										backgroundColor: '#fff',
-										padding: '20px',
-										borderRadius: '10px',
-										marginBottom: '30px',
-										textAlign: 'left'
-									}}>
-										<div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px' }}>
-											<span style={{ fontWeight: '600' }}>{t('orderNumber')}:</span>
-											<span style={{ color: '#00C853', fontFamily: 'monospace' }}>{orderNumber}</span>
-										</div>
-										<div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px' }}>
-											<span style={{ fontWeight: '600' }}>{t('paymentDate')}:</span>
-											<span>{new Date().toLocaleDateString(locale)}</span>
-										</div>
-										<div style={{ display: 'flex', justifyContent: 'space-between' }}>
-											<span style={{ fontWeight: '600' }}>{t('totalAmount')}:</span>
-											<span style={{ fontSize: '20px', fontWeight: 'bold', color: '#00C853' }}>{currencySymbol}{amount}</span>
-										</div>
-									</div>
-
-									<div style={{ display: 'flex', gap: '15px', justifyContent: 'center' }}>
-										<div
-											onClick={() => router.push(`/${locale}/my-tickets`)}
-											style={{
-												padding: '12px 30px',
-												background: 'linear-gradient(135deg, #00C853 0%, #69F0AE 100%)',
-												color: '#fff',
-												borderRadius: '8px',
-												cursor: 'pointer',
-												fontWeight: '600',
-												display: 'inline-block'
-											}}
-										>
-											{t('viewTicket')}
-										</div>
-										<Link
-											href={`/${locale}`}
-											style={{
-												padding: '12px 30px',
-												border: '2px solid #00C853',
-												color: '#00C853',
-												borderRadius: '8px',
-												textDecoration: 'none',
-												fontWeight: '600',
-												backgroundColor: '#fff'
-											}}
-										>
-											{t('backToHome')}
-										</Link>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</Layout>
-		);
-	}
-
-	return (
-		<Layout headerStyle={1} footerStyle={1}>
-			<div>
-				{/* Header */}
-				<div className="inner-page-header" style={{ backgroundImage: 'url(/assets/img/bg/header-bg16.png)' }}>
-					<div className="container">
-						<div className="row">
-							<div className="col-lg-9 m-auto">
-								<div className="heading1 text-center">
-									<h1>{t('pageTitle')}</h1>
-									<div className="space20" />
-									<Link href={`/${locale}`}>{tCommon('home')} <i className="fa-solid fa-angle-right" />
-										<Link href={`/${locale}/checkout`}>{tCheckout('breadcrumb')}</Link> <i className="fa-solid fa-angle-right" />
-										<span>{t('breadcrumb')}</span>
-									</Link>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-
-				{/* Payment Section */}
-				<div className="sp1">
-					<div className="container">
-						<div className="row">
-							{/* Left Column - Payment Methods */}
-							<div className="col-lg-8">
-								<div style={{ marginBottom: '20px' }}>
-									<Link
-										href={`/${locale}/checkout`}
-										style={{
-											display: 'inline-flex',
-											alignItems: 'center',
-											color: '#666',
-											textDecoration: 'none',
-											fontSize: '15px',
-											fontWeight: '500',
-											transition: 'color 0.2s'
-										}}
-										onMouseEnter={(e) => e.currentTarget.style.color = '#00C853'}
-										onMouseLeave={(e) => e.currentTarget.style.color = '#666'}
-									>
-										<i className="fa-solid fa-arrow-left" style={{ marginRight: '8px' }} />
-										{t('backToCheckout')}
-									</Link>
-								</div>
-
-
-
-								{/* QR Payment */}
-								{paymentMethod === 'qr' && (
-									<div style={{
-										padding: '30px',
-										border: '2px solid #00C853',
-										borderRadius: '12px',
-										backgroundColor: '#fff'
-									}}>
-										<h4 style={{ marginBottom: '20px', fontSize: '18px', fontWeight: '600', textAlign: 'center' }}>
-											{t('qrInstructions')}
-										</h4>
-
-										<div style={{ textAlign: 'center', marginBottom: '20px' }}>
-											{qrTimer > 0 ? (
-												<>
-													{/* Mock QR Code */}
-													<div style={{
-														width: '250px',
-														height: '250px',
-														margin: '0 auto',
-														backgroundColor: '#f5f5f5',
-														border: '3px solid #00C853',
-														borderRadius: '12px',
-														display: 'flex',
-														alignItems: 'center',
-														justifyContent: 'center',
-														fontSize: '100px',
-														marginBottom: '20px'
-													}}>
-														<div style={{ transform: 'rotate(45deg)' }}>◼</div>
-													</div>
-
-													<p style={{
-														fontSize: '14px',
-														color: '#666',
-														marginBottom: '15px',
-														padding: '0 20px'
-													}}>
-														{t('scanToPayInstructions')}
-													</p>
-
-													<div style={{
-														display: 'inline-block',
-														padding: '10px 20px',
-														backgroundColor: '#fff3cd',
-														border: '2px solid #ffc107',
-														borderRadius: '8px',
-														color: '#856404'
-													}}>
-														<i className="fa-solid fa-clock" style={{ marginRight: '8px' }}></i>
-														{t('qrExpiry')}: <strong>{formatTime(qrTimer)}</strong>
-													</div>
-												</>
-											) : (
-												<div>
-													<p style={{ color: '#ff6b6b', fontSize: '18px', fontWeight: '600', marginBottom: '20px' }}>
-														{t('qrExpired')}
-													</p>
-													<button
-														onClick={handleGenerateNewQR}
-														style={{
-															padding: '12px 30px',
-															backgroundColor: '#00C853',
-															color: '#fff',
-															border: 'none',
-															borderRadius: '8px',
-															fontSize: '16px',
-															fontWeight: '600',
-															cursor: 'pointer'
-														}}
-													>
-														{t('generateNewQR')}
-													</button>
-												</div>
-											)}
-										</div>
-									</div>
-								)}
-
-								{/* Card Payment */}
-								{paymentMethod === 'card' && (
-									<div style={{
-										padding: '30px',
-										border: '2px solid #00C853',
-										borderRadius: '12px',
-										backgroundColor: '#fff'
-									}}>
-										<h4 style={{ marginBottom: '25px', fontSize: '18px', fontWeight: '600' }}>
-											{t('cardPayment')}
-										</h4>
-
-										<div style={{ marginBottom: '20px' }}>
-											<label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', fontSize: '14px' }}>
-												{t('cardNumber')} <span style={{ color: '#ff6b6b' }}>*</span>
-											</label>
-											<input
-												type="text"
-												name="cardNumber"
-												value={cardData.cardNumber}
-												onChange={handleCardChange}
-												placeholder={t('cardNumberPlaceholder')}
-												style={{
-													width: '100%',
-													padding: '12px',
-													border: cardErrors.cardNumber ? '2px solid #ff6b6b' : '1px solid #ddd',
-													borderRadius: '8px',
-													fontSize: '16px',
-													fontFamily: 'monospace',
-													boxSizing: 'border-box'
-												}}
-											/>
-											{cardErrors.cardNumber && <p style={{ color: '#ff6b6b', fontSize: '12px', margin: '6px 0 0 0' }}>{cardErrors.cardNumber}</p>}
-										</div>
-
-										<div style={{ marginBottom: '20px' }}>
-											<label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', fontSize: '14px' }}>
-												{t('cardholderName')} <span style={{ color: '#ff6b6b' }}>*</span>
-											</label>
-											<input
-												type="text"
-												name="cardholderName"
-												value={cardData.cardholderName}
-												onChange={handleCardChange}
-												placeholder={t('cardholderNamePlaceholder')}
-												style={{
-													width: '100%',
-													padding: '12px',
-													border: cardErrors.cardholderName ? '2px solid #ff6b6b' : '1px solid #ddd',
-													borderRadius: '8px',
-													fontSize: '16px',
-													textTransform: 'uppercase',
-													boxSizing: 'border-box'
-												}}
-											/>
-											{cardErrors.cardholderName && <p style={{ color: '#ff6b6b', fontSize: '12px', margin: '6px 0 0 0' }}>{cardErrors.cardholderName}</p>}
-										</div>
-
-										<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-											<div>
-												<label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', fontSize: '14px' }}>
-													{t('expiryDate')} <span style={{ color: '#ff6b6b' }}>*</span>
-												</label>
-												<input
-													type="text"
-													name="expiryDate"
-													value={cardData.expiryDate}
-													onChange={handleCardChange}
-													placeholder={t('expiryDatePlaceholder')}
-													style={{
-														width: '100%',
-														padding: '12px',
-														border: cardErrors.expiryDate ? '2px solid #ff6b6b' : '1px solid #ddd',
-														borderRadius: '8px',
-														fontSize: '16px',
-														fontFamily: 'monospace',
-														boxSizing: 'border-box'
-													}}
-												/>
-												{cardErrors.expiryDate && <p style={{ color: '#ff6b6b', fontSize: '12px', margin: '6px 0 0 0' }}>{cardErrors.expiryDate}</p>}
-											</div>
-
-											<div>
-												<label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', fontSize: '14px' }}>
-													{t('cvv')} <span style={{ color: '#ff6b6b' }}>*</span>
-												</label>
-												<input
-													type="text"
-													name="cvv"
-													value={cardData.cvv}
-													onChange={handleCardChange}
-													placeholder={t('cvvPlaceholder')}
-													maxLength={4}
-													style={{
-														width: '100%',
-														padding: '12px',
-														border: cardErrors.cvv ? '2px solid #ff6b6b' : '1px solid #ddd',
-														borderRadius: '8px',
-														fontSize: '16px',
-														fontFamily: 'monospace',
-														boxSizing: 'border-box'
-													}}
-												/>
-												{cardErrors.cvv && <p style={{ color: '#ff6b6b', fontSize: '12px', margin: '6px 0 0 0' }}>{cardErrors.cvv}</p>}
-											</div>
-										</div>
-
-										<div style={{
-											marginTop: '20px',
-											padding: '15px',
-											backgroundColor: '#f0f9f6',
-											borderRadius: '8px',
-											fontSize: '13px',
-											color: '#666'
-										}}>
-											<i className="fa-solid fa-shield-halved" style={{ color: '#00C853', marginRight: '8px' }}></i>
-											{t('cardSecurity')}
-										</div>
-									</div>
-								)}
-
-								{/* Payment Button */}
-								<button
-									onClick={handlePayment}
-									disabled={isProcessing || (paymentMethod === 'qr' && qrTimer === 0)}
-									style={{
-										width: '100%',
-										padding: '18px',
-										background: isProcessing ? '#ccc' : 'linear-gradient(135deg, #00C853 0%, #69F0AE 100%)',
-										color: '#fff',
-										border: 'none',
-										borderRadius: '10px',
-										fontSize: '18px',
-										fontWeight: '600',
-										cursor: isProcessing ? 'not-allowed' : 'pointer',
-										marginTop: '25px',
-										transition: 'opacity 0.3s ease'
-									}}
-									onMouseEnter={(e) => !isProcessing && (e.currentTarget.style.opacity = '0.9')}
-									onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
-								>
-									{isProcessing ? (
-										<>
-											<i className="fa-solid fa-spinner fa-spin" style={{ marginRight: '10px' }}></i>
-											{t('processingPayment')}
-										</>
-									) : (
-										<>
-											<i className="fa-solid fa-lock" style={{ marginRight: '10px' }}></i>
-											{t('completePayment')}
-										</>
-									)}
-								</button>
-
-								<div style={{
-									marginTop: '15px',
-									textAlign: 'center',
-									fontSize: '13px',
-									color: '#666'
-								}}>
-									<i className="fa-solid fa-shield" style={{ color: '#00C853', marginRight: '5px' }}></i>
-									{t('securePayment')}
-								</div>
-							</div>
-
-							{/* Right Column - Order Summary */}
-							<div className="col-lg-4">
-                <OrderSummary
-                  packageItem={orderPackageItem}
-                  addOns={orderAddOns}
-                  isThai={isThaiPayment}
-                />
-                
-                {isProcessing && (
-                  <div style={{
-                    marginTop: '20px',
-                    padding: '15px',
-                    backgroundColor: '#fff3cd',
-                    borderRadius: '8px',
-                    fontSize: '13px',
-                    color: '#856404',
-                    textAlign: 'center'
-                  }}>
-                    <i className="fa-solid fa-info-circle" style={{ marginRight: '8px' }}></i>
-                    {t('processingTime')}
+  return (
+    <>
+      <Layout headerStyle={1} footerStyle={1}>
+        <div>
+          {/* Header */}
+          <div
+            className="inner-page-header"
+            style={{ backgroundImage: "url(/assets/img/bg/header-bg16.png)" }}
+          >
+            <div className="container">
+              <div className="row">
+                <div className="col-lg-9 m-auto">
+                  <div className="heading1 text-center">
+                    <h1>{t("pageTitle")}</h1>
+                    <div className="space20" />
+                    <Link href={`/${locale}`}>
+                    {tCommon("home")} <i className="fa-solid fa-angle-right" />{" "}
+                    {tCheckout("breadcrumb")} <i className="fa-solid fa-angle-right" />{" "}
+                    <span>{t("breadcrumb")}</span>
+                  </Link>
                   </div>
-                )}
-							</div>
+                </div>
+              </div>
+            </div>
+          </div>
 
-						</div>
-					</div>
-				</div>
-			</div>
-		</Layout>
-	)
+          {/* Payment Section */}
+          <div className="sp1">
+            <div className="container">
+              <div className="row">
+                {/* Left Column - Payment Gateway */}
+                <div className="col-lg-8">
+                  {/* Loading state */}
+                  {isCreatingIntent && (
+                    <div
+                      style={{
+                        padding: "60px 30px",
+                        border: "2px solid #e0e0e0",
+                        borderRadius: "12px",
+                        backgroundColor: "#fff",
+                        textAlign: "center",
+                      }}
+                    >
+                      <i
+                        className="fa-solid fa-spinner fa-spin"
+                        style={{
+                          fontSize: "40px",
+                          color: "#00C853",
+                          marginBottom: "20px",
+                          display: "block",
+                        }}
+                      />
+                      <p style={{ color: "#666", fontSize: "16px" }}>
+                        {locale === "th"
+                          ? "กำลังเตรียมระบบชำระเงิน..."
+                          : "Preparing payment..."}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Error state */}
+                  {intentError && (
+                    <div
+                      style={{
+                        padding: "30px",
+                        border: "2px solid #ff6b6b",
+                        borderRadius: "12px",
+                        backgroundColor: "#fff0f0",
+                        textAlign: "center",
+                      }}
+                    >
+                      <i
+                        className="fa-solid fa-circle-exclamation"
+                        style={{
+                          fontSize: "40px",
+                          color: "#ff6b6b",
+                          marginBottom: "15px",
+                          display: "block",
+                        }}
+                      />
+                      <p
+                        style={{
+                          color: "#ff6b6b",
+                          fontSize: "16px",
+                          fontWeight: "600",
+                          marginBottom: "10px",
+                        }}
+                      >
+                        {intentError}
+                      </p>
+                      <button
+                        onClick={async () => {
+                          clearStoredPaySolutionsRefno();
+                          if (orderId && token) {
+                            try {
+                              await fetch(`${API_URL}/api/payments/cancel-intent`, {
+                                method: "POST",
+                                headers: {
+                                  "Content-Type": "application/json",
+                                  Authorization: `Bearer ${token}`,
+                                },
+                                body: JSON.stringify({ orderId }),
+                              });
+                            } catch (_) {
+                              // best-effort cancel
+                            }
+                          }
+                          setRedirectForm(null);
+                          setPaymentRefNo(null);
+                          setOrderId(null);
+                          setIntentError(null);
+                          setIsRedirecting(false);
+                          setRetryCount((c) => c + 1);
+                        }}
+                        style={{
+                          padding: "10px 25px",
+                          backgroundColor: "#00C853",
+                          color: "#fff",
+                          border: "none",
+                          borderRadius: "8px",
+                          cursor: "pointer",
+                          fontWeight: "600",
+                        }}
+                      >
+                        {locale === "th" ? "ลองอีกครั้ง" : "Try Again"}
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Pay Solutions Redirect Panel */}
+                  {redirectForm && orderId && (
+                    <div
+                      style={{
+                        padding: "30px",
+                        border: "2px solid #00C853",
+                        borderRadius: "12px",
+                        backgroundColor: "#fff",
+                      }}
+                    >
+                      <h4
+                        style={{
+                          marginBottom: "25px",
+                          fontSize: "18px",
+                          fontWeight: "600",
+                        }}
+                      >
+                        {locale === "th" ? "กำลังไปยังหน้าชำระเงิน" : "Redirecting to Payment"}
+                      </h4>
+
+                      {paymentRefNo && (
+                        <p style={{ marginBottom: "16px", fontSize: "13px", color: "#666" }}>
+                          {locale === "th" ? "รหัสอ้างอิง" : "Reference No."}: <strong>{paymentRefNo}</strong>
+                        </p>
+                      )}
+
+                      {/* Fee Breakdown */}
+                      {feeAmount > 0 && (
+                        <div
+                          style={{
+                            padding: "16px",
+                            backgroundColor: "#f8f9fa",
+                            borderRadius: "10px",
+                            marginBottom: "20px",
+                            fontSize: "14px",
+                          }}
+                        >
+                          <div
+                            style={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              marginBottom: "8px",
+                              color: "#333",
+                            }}
+                          >
+                            <span>
+                              {locale === "th" ? "ราคาสินค้า" : "Subtotal"}
+                            </span>
+                            <span>
+                              {isThaiPayment ? "฿" : "$"}
+                              {totalAmount.toLocaleString()}
+                              {!isThaiPayment ? " USD" : ""}
+                            </span>
+                          </div>
+                          <div
+                            style={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              marginBottom: "8px",
+                              color: "#666",
+                            }}
+                          >
+                            <span>
+                              {locale === "th"
+                                ? "ค่าธรรมเนียมชำระเงิน"
+                                : "Payment Processing Fee"}
+                            </span>
+                            <span>
+                              {isThaiPayment ? "฿" : "$"}
+                              {feeAmount.toLocaleString()}
+                              {!isThaiPayment ? " USD" : ""}
+                            </span>
+                          </div>
+                          <div
+                            style={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              paddingTop: "8px",
+                              borderTop: "1px solid #ddd",
+                              fontWeight: "700",
+                              color: "#1a1a2e",
+                            }}
+                          >
+                            <span>
+                              {locale === "th" ? "ยอดชำระทั้งหมด" : "Total"}
+                            </span>
+                            <span style={{ color: "#00C853" }}>
+                              {isThaiPayment ? "฿" : "$"}
+                              {chargeTotal.toLocaleString()}
+                              {!isThaiPayment ? " USD" : ""}
+                            </span>
+                          </div>
+                        </div>
+                      )}
+
+                      <div style={{ display: "grid", gap: "10px" }}>
+                        <button
+                          onClick={() => {
+                            setIsRedirecting(true);
+                            submitRedirectForm(redirectForm);
+
+                          }}
+                          disabled={isRedirecting}
+                          style={{
+                            width: "100%",
+                            padding: "14px 16px",
+                            borderRadius: "10px",
+                            border: "none",
+                            background: "linear-gradient(135deg, #00C853 0%, #69F0AE 100%)",
+                            color: "#fff",
+                            fontSize: "16px",
+                            fontWeight: "700",
+                            cursor: isRedirecting ? "not-allowed" : "pointer",
+                            opacity: isRedirecting ? 0.8 : 1,
+                          }}
+                        >
+                          {isRedirecting
+                            ? locale === "th"
+                              ? "กำลังเปิดหน้าชำระเงิน..."
+                              : "Opening payment page..."
+                            : locale === "th"
+                              ? "ไปยังหน้าชำระเงิน"
+                              : "Continue to Payment"}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setShowCancelModal(true)}
+                          disabled={isCancelling}
+                          style={{
+                            width: "100%",
+                            padding: "12px 16px",
+                            borderRadius: "10px",
+                            border: "1px solid #ff6b6b",
+                            backgroundColor: "#fff",
+                            color: "#ff6b6b",
+                            fontSize: "14px",
+                            fontWeight: "600",
+                            cursor: isCancelling ? "not-allowed" : "pointer",
+                          }}
+                        >
+                          {locale === "th" ? "ยกเลิกรายการชำระเงิน" : "Cancel Payment"}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Right Column - Order Summary */}
+                <div className="col-lg-4">
+                  <OrderSummary
+                    packageItem={orderPackageItem}
+                    addOns={orderAddOns}
+                    isThai={isThaiPayment}
+                    paymentMethod={checkoutData.paymentMethod}
+                    promoDiscount={promoDiscount}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Layout>
+
+      {/* Refresh Warning Modal */}
+      {showRefreshModal && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 9999,
+            backdropFilter: "blur(4px)",
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              backgroundColor: "#fff",
+              borderRadius: "16px",
+              padding: "32px",
+              maxWidth: "420px",
+              width: "90%",
+              boxShadow: "0 20px 60px rgba(0, 0, 0, 0.3)",
+              textAlign: "center",
+              animation: "fadeInScale 0.2s ease-out",
+            }}
+          >
+            <div
+              style={{
+                width: "64px",
+                height: "64px",
+                borderRadius: "50%",
+                backgroundColor: "#fff3cd",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                margin: "0 auto 20px",
+              }}
+            >
+              <i
+                className="fa-solid fa-arrows-rotate"
+                style={{ fontSize: "28px", color: "#856404" }}
+              />
+            </div>
+
+            <h3
+              style={{
+                fontSize: "20px",
+                fontWeight: "700",
+                color: "#1a1a2e",
+                marginBottom: "12px",
+              }}
+            >
+              {locale === "th" ? "เตือนการรีเฟรชหน้า" : "Refresh Warning"}
+            </h3>
+            <p
+              style={{
+                fontSize: "15px",
+                color: "#666",
+                lineHeight: 1.6,
+                marginBottom: "28px",
+              }}
+            >
+              {locale === "th"
+                ? "การรีเฟรชหน้านี้จะทำให้การชำระเงินถูกยกเลิก คุณต้องการดำเนินการต่อหรือไม่?"
+                : "Refreshing this page will cancel your payment. Do you want to continue?"}
+            </p>
+
+            <div
+              style={{ display: "flex", gap: "12px", justifyContent: "center" }}
+            >
+              <button
+                onClick={cancelRefresh}
+                disabled={isRefreshing}
+                style={{
+                  flex: 1,
+                  padding: "12px 24px",
+                  border: "1px solid #e0e0e0",
+                  borderRadius: "10px",
+                  backgroundColor: "#fff",
+                  color: "#666",
+                  fontSize: "15px",
+                  fontWeight: "600",
+                  cursor: isRefreshing ? "not-allowed" : "pointer",
+                  transition: "all 0.2s",
+                  opacity: isRefreshing ? 0.6 : 1,
+                }}
+                onMouseEnter={(e) => {
+                  if (!isRefreshing) e.currentTarget.style.backgroundColor = "#f5f5f5";
+                }}
+                onMouseLeave={(e) => {
+                  if (!isRefreshing) e.currentTarget.style.backgroundColor = "#fff";
+                }}
+              >
+                {locale === "th" ? "อยู่บนหน้านี้ต่อ" : "Stay on Page"}
+              </button>
+              <button
+                onClick={confirmRefresh}
+                disabled={isRefreshing}
+                style={{
+                  flex: 1,
+                  padding: "12px 24px",
+                  border: "none",
+                  borderRadius: "10px",
+                  backgroundColor: "#ff9800",
+                  color: "#fff",
+                  fontSize: "15px",
+                  fontWeight: "600",
+                  cursor: isRefreshing ? "not-allowed" : "pointer",
+                  transition: "all 0.2s",
+                  opacity: isRefreshing ? 0.6 : 1,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "8px",
+                }}
+                onMouseEnter={(e) => {
+                  if (!isRefreshing) e.currentTarget.style.backgroundColor = "#e68900";
+                }}
+                onMouseLeave={(e) => {
+                  if (!isRefreshing) e.currentTarget.style.backgroundColor = "#ff9800";
+                }}
+              >
+                {isRefreshing ? (
+                  <>
+                    <i className="fa-solid fa-spinner fa-spin" />
+                    {locale === "th" ? "กำลังยกเลิก..." : "Cancelling..."}
+                  </>
+                ) : (
+                  <>
+                    <i className="fa-solid fa-arrows-rotate" />
+                    {locale === "th" ? "รีเฟรชและยกเลิก" : "Refresh & Cancel"}
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Cancel Payment Confirmation Modal */}
+      {showCancelModal && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 9999,
+            backdropFilter: "blur(4px)",
+          }}
+          onClick={() => setShowCancelModal(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              backgroundColor: "#fff",
+              borderRadius: "16px",
+              padding: "32px",
+              maxWidth: "420px",
+              width: "90%",
+              boxShadow: "0 20px 60px rgba(0, 0, 0, 0.3)",
+              textAlign: "center",
+              animation: "fadeInScale 0.2s ease-out",
+            }}
+          >
+            <div
+              style={{
+                width: "64px",
+                height: "64px",
+                borderRadius: "50%",
+                backgroundColor: "#fff0f0",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                margin: "0 auto 20px",
+              }}
+            >
+              <i
+                className="fa-solid fa-triangle-exclamation"
+                style={{ fontSize: "28px", color: "#ff4444" }}
+              />
+            </div>
+
+            <h3
+              style={{
+                fontSize: "20px",
+                fontWeight: "700",
+                color: "#1a1a2e",
+                marginBottom: "12px",
+              }}
+            >
+              Cancel Payment
+            </h3>
+            <p
+              style={{
+                fontSize: "15px",
+                color: "#666",
+                lineHeight: 1.6,
+                marginBottom: "28px",
+              }}
+            >
+              Are you sure you want to cancel this payment? Your current
+              transaction will be voided and you will be redirected to the
+              registration page.
+            </p>
+
+            <div
+              style={{ display: "flex", gap: "12px", justifyContent: "center" }}
+            >
+              <button
+                onClick={() => setShowCancelModal(false)}
+                style={{
+                  flex: 1,
+                  padding: "12px 24px",
+                  border: "1px solid #e0e0e0",
+                  borderRadius: "10px",
+                  backgroundColor: "#fff",
+                  color: "#666",
+                  fontSize: "15px",
+                  fontWeight: "600",
+                  cursor: "pointer",
+                  transition: "all 0.2s",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = "#f5f5f5";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "#fff";
+                }}
+              >
+                Go Back
+              </button>
+              <button
+                onClick={confirmCancelPayment}
+                style={{
+                  flex: 1,
+                  padding: "12px 24px",
+                  border: "none",
+                  borderRadius: "10px",
+                  backgroundColor: "#ff4444",
+                  color: "#fff",
+                  fontSize: "15px",
+                  fontWeight: "600",
+                  cursor: "pointer",
+                  transition: "all 0.2s",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = "#e03333";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "#ff4444";
+                }}
+              >
+                Confirm Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
 }

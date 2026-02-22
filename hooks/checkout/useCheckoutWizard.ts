@@ -28,6 +28,20 @@ export interface CheckoutData {
   // Dynamic fields
   currency?: "THB" | "USD";
   selectedWorkshopTopic?: string;
+
+  // Addon-only mode
+  isAddonOnly?: boolean;
+  purchasedAddOns?: string[];
+
+  // Tax invoice
+  needTaxInvoice: boolean;
+  taxName: string;
+  taxId: string;
+  taxAddress: string;
+  taxSubDistrict: string;
+  taxDistrict: string;
+  taxProvince: string;
+  taxPostalCode: string;
 }
 
 const STORAGE_KEY = "accp_checkout_data_v2";
@@ -55,6 +69,14 @@ export function useCheckoutWizard(totalSteps: number = 4) {
     paymentMethod: "card",
     currency: "USD",
     selectedWorkshopTopic: "",
+    needTaxInvoice: false,
+    taxName: "",
+    taxId: "",
+    taxAddress: "",
+    taxSubDistrict: "",
+    taxDistrict: "",
+    taxProvince: "",
+    taxPostalCode: "",
   });
 
   // Load saved data from localStorage
@@ -63,7 +85,20 @@ export function useCheckoutWizard(totalSteps: number = 4) {
     if (saved) {
       try {
         const data = JSON.parse(saved);
-        setCheckoutData((prev) => data.checkoutData || prev);
+        const savedCheckoutData = data.checkoutData || {};
+        const normalizedPaymentMethod =
+          savedCheckoutData.paymentMethod === "qr" ||
+          savedCheckoutData.paymentMethod === "card"
+            ? savedCheckoutData.paymentMethod
+            : "card";
+        const normalizedNeedTaxInvoice = savedCheckoutData.needTaxInvoice === true;
+
+        setCheckoutData((prev) => ({
+          ...prev,
+          ...savedCheckoutData,
+          paymentMethod: normalizedPaymentMethod,
+          needTaxInvoice: normalizedNeedTaxInvoice,
+        }));
         setCurrentStep(data.currentStep || 1);
       } catch (e) {
         console.error("Failed to load checkout data:", e);
@@ -124,6 +159,14 @@ export function useCheckoutWizard(totalSteps: number = 4) {
       paymentMethod: "card",
       currency: "USD",
       selectedWorkshopTopic: "",
+      needTaxInvoice: false,
+      taxName: "",
+      taxId: "",
+      taxAddress: "",
+      taxSubDistrict: "",
+      taxDistrict: "",
+      taxProvince: "",
+      taxPostalCode: "",
     });
     localStorage.removeItem(STORAGE_KEY);
   }, []);
@@ -155,6 +198,7 @@ export function useCheckoutWizard(totalSteps: number = 4) {
   return {
     currentStep,
     checkoutData,
+    isInitialized,
     updateCheckoutData,
     nextStep,
     previousStep,

@@ -91,25 +91,46 @@ export default function MobileMenu({
                 </li>
               </ul>
             </li>
-            {/* Program - simplified to single link like Header1.tsx */}
-            <li className="hash-has-sub">
+            <li className="has-sub hash-has-sub">
+              <span
+                className={`submenu-button ${isAccordion == 2 ? "submenu-opened" : ""}`}
+                onClick={() => handleAccordion(2)}
+              >
+                <em />
+              </span>
               <Link href={`/${locale}/program`} className="hash-nav">
                 {t("program")}
               </Link>
+              <ul
+                className={`sub-menu ${isAccordion == 2 ? "open-sub" : ""}`}
+                style={{ display: `${isAccordion == 2 ? "block" : "none"}` }}
+              >
+                <li className="hash-has-sub">
+                  <Link href={`/${locale}/program`} className="hash-nav">
+                    {t("programOverview")}
+                  </Link>
+                </li>
+                {/* Hidden Program submenu items (kept for future use) */}
+                {/*
+                <li className="hash-has-sub"><Link href={`/${locale}/program-plenary`} className="hash-nav">{t("plenaryKeynotes")}</Link></li>
+                <li className="hash-has-sub"><Link href={`/${locale}/program-symposium`} className="hash-nav">{t("symposia")}</Link></li>
+                <li className="hash-has-sub"><Link href={`/${locale}/program-oral-poster`} className="hash-nav">{t("oralPoster")}</Link></li>
+                */}
+                <li className="hash-has-sub">
+                  <Link href={`/${locale}/gala-dinner`} className="hash-nav">
+                    {t("galaDinner")}
+                  </Link>
+                </li>
+                <li className="hash-has-sub">
+                  <Link
+                    href={`/${locale}/preconference-workshops`}
+                    className="hash-nav"
+                  >
+                    {t("workshops")}
+                  </Link>
+                </li>
+              </ul>
             </li>
-            {/* Program dropdown - Temporarily hidden
-                        <li className="has-sub hash-has-sub"><span className={`submenu-button ${isAccordion == 2 ? "submenu-opened" : ""}`} onClick={() => handleAccordion(2)}><em /></span>
-                            <Link href={`/${locale}/program`} className="hash-nav">{t('program')}</Link>
-                            <ul className={`sub-menu ${isAccordion == 2 ? "open-sub" : ""}`} style={{ display: `${isAccordion == 2 ? "block" : "none"}` }}>
-                                <li className="hash-has-sub"><Link href={`/${locale}/program`} className="hash-nav">{t('programOverview')}</Link></li>
-                                <li className="hash-has-sub"><Link href={`/${locale}/program-plenary`} className="hash-nav">{t('plenaryKeynotes')}</Link></li>
-                                <li className="hash-has-sub"><Link href={`/${locale}/program-symposium`} className="hash-nav">{t('symposia')}</Link></li>
-                                <li className="hash-has-sub"><Link href={`/${locale}/program-oral-poster`} className="hash-nav">{t('oralPoster')}</Link></li>
-                                <li className="hash-has-sub"><Link href={`/${locale}/gala-dinner`} className="hash-nav">{t('galaDinner')}</Link></li>
-                                <li className="hash-has-sub"><Link href={`/${locale}/preconference-workshops`} className="hash-nav">{t('workshops')}</Link></li>
-                            </ul>
-                        </li>
-                        */}
             <li className="has-sub hash-has-sub">
               <span
                 className={`submenu-button ${isAccordion == 3 ? "submenu-opened" : ""}`}
@@ -285,7 +306,7 @@ export default function MobileMenu({
 
             {isAuthenticated ? (
               <div style={{ padding: "20px 0" }}>
-                <UserProfileDropdown />
+                <UserProfileDropdown position="left" />
               </div>
             ) : (
               <div

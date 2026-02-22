@@ -2,6 +2,7 @@
 
 // Centralized API Client for ACCP Web
 const API_URL = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
+const AUTH_UNAUTHORIZED_EVENT = 'accp-auth:unauthorized';
 
 interface ApiOptions {
     method?: string;
@@ -13,6 +14,12 @@ interface ApiOptions {
 interface ApiError extends Error {
     code?: string;
     status?: number;
+}
+
+function dispatchUnauthorizedEvent() {
+    if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event(AUTH_UNAUTHORIZED_EVENT));
+    }
 }
 
 /**
@@ -44,6 +51,10 @@ async function fetchAPI<T>(endpoint: string, options: ApiOptions = {}): Promise<
     const data = await response.json();
 
     if (!response.ok) {
+        if (response.status === 401) {
+            dispatchUnauthorizedEvent();
+        }
+
         const error: ApiError = new Error(data.error || data.message || 'API request failed');
         error.code = data.code;
         error.status = response.status;
@@ -63,13 +74,17 @@ export interface LoginCredentials {
 
 export interface LoginResponse {
     success: boolean;
-    token?: string;
-    user?: {
+    token: string;
+    user: {
         id: number;
         email: string;
         firstName: string;
         lastName: string;
         role: string;
+        country?: string;
+        delegateType: string;
+        isThai: boolean;
+        idCard?: string;
     };
     error?: string;
 }
@@ -86,17 +101,83 @@ export interface RegisterData {
     country?: string;
 }
 
+export interface LinkedSession {
+    sessionId: number;
+    sessionName: string;
+    maxCapacity: number;
+    enrolledCount: number;
+    isFull: boolean;
+}
+
 export interface TicketType {
     id: number;
     eventId: number;
     category: 'primary' | 'addon';
+    priority: 'early_bird' | 'regular';
     groupName: string | null;
     name: string;
+    description: string | null;
     price: string;
+    originalPrice: string | null;
     currency: string;
+    features: string[];
+    badgeText: string | null;
+    displayOrder: number;
+    allowedRoles: string | null;
+    quota: number;
+    soldCount: number;
+    isAvailable: boolean;
     saleStartDate: string | null;
     saleEndDate: string | null;
-    allowedRoles: string | null;
+    sessions?: LinkedSession[];
+}
+
+export interface TicketGroup {
+    groupId: string;
+    groupName: string;
+    category: 'primary' | 'addon';
+    tickets: TicketType[];
+}
+
+export interface MyTicketsResponse {
+    success: boolean;
+    data: {
+        registration: {
+            regCode: string;
+            status: string;
+            ticketName: string;
+            priority: 'early_bird' | 'regular';
+            purchasedAt: string | null;
+            amount: string;
+            currency: string;
+            includes: string[];
+            receiptUrl: string | null;
+        } | null;
+        galaTicket: {
+            id: string;
+            status: string;
+            name: string;
+            purchasedAt: string | null;
+            amount: string;
+            currency: string;
+            dateTimeStart: string | null;
+            dateTimeEnd: string | null;
+            venue: string | null;
+            dietary: string | null;
+        } | null;
+        workshops: {
+            id: string;
+            sessionId: number;
+            status: string;
+            name: string;
+            purchasedAt: string | null;
+            amount: string;
+            currency: string;
+            dateTimeStart: string | null;
+            dateTimeEnd: string | null;
+            venue: string | null;
+        }[];
+    };
 }
 
 // ============================================================================
@@ -131,14 +212,14 @@ export const api = {
 
     abstracts: {
         submit: (token: string, formData: FormData) =>
-            fetchAPI<{ success: boolean; abstract?: Record<string, unknown> }>('/api/abstracts', {
+            fetchAPI<{ success: boolean; abstract?: Record<string, unknown> }>('/api/abstracts/submit', {
                 method: 'POST',
                 body: formData,
                 token,
             }),
 
-        getUserAbstracts: (token: string, email: string) =>
-            fetchAPI<{ abstracts: Record<string, unknown>[] }>(`/api/abstracts/user?email=${encodeURIComponent(email)}`, { token }),
+        getUserAbstracts: (token: string) =>
+            fetchAPI<{ abstracts: Record<string, unknown>[] }>('/api/abstracts/user', { token }),
     },
 
     speakers: {
@@ -171,6 +252,7 @@ export const api = {
                         saleStartDate: string | null;
                     }[];
                     instructors: { name: string; affiliation?: string }[];
+                    agenda: { time: string; topic: string }[] | null;
                     color: string;
                     icon: string;
                     isFull: boolean;
@@ -182,6 +264,105 @@ export const api = {
     tickets: {
         list: () =>
             fetchAPI<{ tickets: TicketType[] }>('/api/tickets'),
+    },
+
+    payments: {
+        myPurchases: (token: string) =>
+            fetchAPI<{
+                success: boolean;
+                data: {
+                    hasPrimaryTicket: boolean;
+                    primaryTicketName: string | null;
+                    regCode: string | null;
+                    purchasedAddOns: string[];
+                };
+            }>('/api/payments/my-purchases', { token }),
+
+        myTickets: (token: string) =>
+            fetchAPI<MyTicketsResponse>('/api/payments/my-tickets', { token }),
+
+        preview: (token: string, data: { packageId?: string; addOnIds: string[]; currency: 'THB' | 'USD'; promoCode?: string; paymentMethod?: 'qr' | 'card' }) =>
+            fetchAPI<{
+                success: boolean;
+                data: {
+                    subtotal: number;
+                    discountAmount: number;
+                    discountType: string | null;
+                    discountValue: number | null;
+                    netAmount: number;
+                    fee: number;
+                    total: number;
+                    currency: string;
+                    feeMethod: string;
+                    promoValid: boolean;
+                    promoError: string | null;
+                };
+            }>('/api/payments/preview', {
+                method: 'POST',
+                body: JSON.stringify(data),
+                token,
+            }),
+
+        createIntent: (token: string, data: {
+            packageId?: string;
+            addOnIds: string[];
+            currency: 'THB' | 'USD';
+            promoCode?: string;
+            paymentMethod?: 'qr' | 'card';
+            workshopSessionId?: number;
+            needTaxInvoice?: boolean;
+            taxName?: string;
+            taxId?: string;
+            taxAddress?: string;
+            taxSubDistrict?: string;
+            taxDistrict?: string;
+            taxProvince?: string;
+            taxPostalCode?: string;
+        }) =>
+            fetchAPI<{
+                success: boolean;
+                data: {
+                    redirectForm: {
+                        actionUrl: string;
+                        method: 'POST';
+                        fields: Record<string, string>;
+                    };
+                    refno: string;
+                    orderId: number;
+                    orderNumber: string;
+                    subtotal: number;
+                    discountAmount: number;
+                    discountType: string | null;
+                    discountValue: number | null;
+                    netAmount: number;
+                    fee: number;
+                    total: number;
+                    currency: string;
+                    feeMethod: string;
+                    paymentChannel: string;
+                };
+            }>('/api/payments/create-intent', {
+                method: 'POST',
+                body: JSON.stringify(data),
+                token,
+            }),
+
+        getStatus: (token: string, orderId: number) =>
+            fetchAPI<{
+                success: boolean;
+                data: {
+                    orderId: number;
+                    orderNumber: string;
+                    orderStatus: string;
+                    payment: {
+                        status: string;
+                        amount: string;
+                        paidAt: string | null;
+                        stripeReceiptUrl: string | null;
+                        paymentChannel: string | null;
+                    } | null;
+                };
+            }>(`/api/payments/${orderId}/status`, { token }),
     },
 };
 

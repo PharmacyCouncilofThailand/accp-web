@@ -33,13 +33,13 @@ const getStatusIcon = (status: string) => {
 
 const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Bangkok' });
 };
 
 export default function AbstractStatus() {
     const t = useTranslations('abstracts');
     const tUser = useTranslations('userProfile');
-    const { user } = useAuth();
+    const { user, token } = useAuth();
     
     const [abstracts, setAbstracts] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
@@ -49,7 +49,7 @@ export default function AbstractStatus() {
 
     useEffect(() => {
         const fetchAbstracts = async () => {
-            if (!user) {
+            if (!user || !token) {
                 setLoading(false);
                 return;
             }
@@ -57,9 +57,8 @@ export default function AbstractStatus() {
             try {
                 const API_URL = process.env.NEXT_PUBLIC_API_URL;
                 const response = await fetch(`${API_URL}/api/abstracts/user`, {
-                    credentials: 'include',
                     headers: {
-                        'x-user-email': user.email,
+                        'Authorization': `Bearer ${token}`,
                     },
                 });
 
@@ -79,7 +78,7 @@ export default function AbstractStatus() {
         };
 
         fetchAbstracts();
-    }, [user]);
+    }, [user, token]);
 
     // Calculate summary stats
     const { totalSubmitted, acceptedCount, underReviewCount } = useMemo(() => {

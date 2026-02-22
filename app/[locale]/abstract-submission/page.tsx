@@ -134,17 +134,22 @@ export default function AbstractSubmission() {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const [trackingId, setTrackingId] = useState("");
-  const { user, isAuthenticated } = useAuth();
+  const { user, token, isAuthenticated } = useAuth();
 
   // Autofill user data when logged in
   useEffect(() => {
     const autofillUserData = async () => {
-      if (user) {
-        // Fetch detailed user profile
+      if (user && token) {
+        // Fetch detailed user profile using JWT
         try {
           const API_URL = process.env.NEXT_PUBLIC_API_URL;
           const response = await fetch(
-            `${API_URL}/api/users/profile/${encodeURIComponent(user.email)}`,
+            `${API_URL}/api/users/profile`,
+            {
+              headers: {
+                'Authorization': `Bearer ${token}`,
+              },
+            },
           );
           if (response.ok) {
             const userData = await response.json();
@@ -167,7 +172,7 @@ export default function AbstractSubmission() {
     };
 
     autofillUserData();
-  }, [isAuthenticated, user]);
+  }, [isAuthenticated, user, token]);
 
   // Scroll to top when form is submitted successfully
   useEffect(() => {
@@ -307,9 +312,12 @@ export default function AbstractSubmission() {
       // Add file
       formDataToSend.append("abstractFile", uploadedFiles[0].file);
 
-      // Submit to API
+      // Submit to API with JWT auth
       const response = await fetch(`${API_URL}/api/abstracts/submit`, {
         method: "POST",
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
         body: formDataToSend,
       });
 

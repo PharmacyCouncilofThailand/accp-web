@@ -30,6 +30,7 @@ interface Workshop {
   fee: string; // Deprecated, use tickets logic
   tickets: WorkshopTicket[];
   instructors: { name: string; affiliation?: string }[];
+  agenda: { time: string; topic: string }[] | null;
   color: string;
   icon: string;
   isFull: boolean;
@@ -42,18 +43,22 @@ export default function PreconferenceWorkshops() {
   const t = useTranslations("workshops");
   const tContact = useTranslations("contact");
   const locale = useLocale();
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, token } = useAuth();
 
   const [workshops, setWorkshops] = useState<Workshop[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [expandedWorkshops, setExpandedWorkshops] = useState<Set<number>>(new Set());
+  const [registeredWorkshopSessionIds, setRegisteredWorkshopSessionIds] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     const fetchWorkshops = async () => {
       try {
         setIsLoading(true);
         const response = await api.workshops.list();
-        setWorkshops(response.workshops);
+        // เรียงตาม sessionId น้อยสุดก่อน
+        const sortedWorkshops = response.workshops.sort((a, b) => a.sessionId - b.sessionId);
+        setWorkshops(sortedWorkshops);
       } catch (err) {
         console.error("Failed to fetch workshops:", err);
         setError("Failed to load workshops");
@@ -64,6 +69,28 @@ export default function PreconferenceWorkshops() {
 
     fetchWorkshops();
   }, []);
+
+  useEffect(() => {
+    if (!isAuthenticated || !token) {
+      setRegisteredWorkshopSessionIds(new Set());
+      return;
+    }
+    const fetchMyWorkshops = async () => {
+      try {
+        const res = await api.payments.myTickets(token);
+        if (res.success && res.data.workshops.length > 0) {
+          setRegisteredWorkshopSessionIds(
+            new Set(res.data.workshops.map((w) => w.sessionId))
+          );
+        } else {
+          setRegisteredWorkshopSessionIds(new Set());
+        }
+      } catch {
+        setRegisteredWorkshopSessionIds(new Set());
+      }
+    };
+    fetchMyWorkshops();
+  }, [isAuthenticated, token]);
 
   return (
     <>
@@ -210,7 +237,7 @@ export default function PreconferenceWorkshops() {
 
               {/* Workshops */}
               {!isLoading && !error && workshops.length > 0 && (
-                <div className="row">
+                <div className="row" style={{ display: 'flex', flexWrap: 'wrap', gap: '30px', alignItems: 'flex-start' }}>
                   {workshops.map((workshop, index) => {
                     // Calculate duration
                     const durationText =
@@ -414,42 +441,51 @@ export default function PreconferenceWorkshops() {
                       : true;
                     const formattedSaleDate = effectiveSaleStart
                       ? effectiveSaleStart.toLocaleDateString("en-GB", {
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                      })
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                          timeZone: "Asia/Bangkok",
+                        })
                       : "";
+
+                    const isExpanded = expandedWorkshops.has(workshop.sessionId);
+                    const toggleExpand = () => {
+                      setExpandedWorkshops((prev) => {
+                        const newSet = new Set(prev);
+                        if (newSet.has(workshop.sessionId)) {
+                          newSet.delete(workshop.sessionId);
+                        } else {
+                          newSet.add(workshop.sessionId);
+                        }
+                        return newSet;
+                      });
+                    };
 
                     return (
                       <div
                         key={workshop.id}
-                        className="col-lg-6"
+                        style={{
+                          flex: '1 1 calc(50% - 15px)',
+                          minWidth: '300px',
+                          maxWidth: 'calc(50% - 15px)',
+                        }}
                         data-aos="fade-up"
                         data-aos-duration={800}
                         data-aos-delay={index * 100}
                       >
                         <div
                           style={{
-                            marginBottom: "30px",
+                            height: '100%',
                             backgroundColor: "white",
                             borderRadius: "16px",
                             overflow: "hidden",
                             boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
                             transition: "all 0.3s ease",
                             position: "relative",
+                            display: 'flex',
+                            flexDirection: 'column',
                           }}
                           className="workshop-card"
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.boxShadow =
-                              "0 12px 40px rgba(0,0,0,0.15)";
-                            e.currentTarget.style.transform =
-                              "translateY(-4px)";
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.boxShadow =
-                              "0 4px 20px rgba(0,0,0,0.08)";
-                            e.currentTarget.style.transform = "translateY(0)";
-                          }}
                         >
                           {workshop.isFull && (
                             <div
@@ -470,12 +506,14 @@ export default function PreconferenceWorkshops() {
                             </div>
                           )}
 
-                          {/* Header with gradient */}
+                          {/* Header with gradient - Clickable */}
                           <div
+                            onClick={toggleExpand}
                             style={{
                               background: `linear-gradient(135deg, ${workshop.color} 0%, ${workshop.color}dd 100%)`,
                               color: "white",
                               padding: "25px",
+                              cursor: "pointer",
                             }}
                           >
                             <div
@@ -526,11 +564,27 @@ export default function PreconferenceWorkshops() {
                                   {workshop.title}
                                 </h5>
                               </div>
+                              <div
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                }}
+                              >
+                                <i
+                                  className={`fa-solid fa-chevron-${isExpanded ? "up" : "down"}`}
+                                  style={{
+                                    fontSize: "20px",
+                                    transition: "transform 0.3s ease",
+                                  }}
+                                />
+                              </div>
                             </div>
                           </div>
 
-                          {/* Content */}
-                          <div style={{ padding: "25px" }}>
+                          {/* Content - แสดงเมื่อขยาย */}
+                          {isExpanded && (
+                          <div style={{ padding: "25px", flex: 1, display: 'flex', flexDirection: 'column' }}>
                             {/* Info Grid */}
                             <div
                               style={{
@@ -636,6 +690,78 @@ export default function PreconferenceWorkshops() {
                               </div>
                             </div>
 
+                            {/* Time & Agenda */}
+                            {workshop.agenda && workshop.agenda.length > 0 && (
+                              <div style={{ marginBottom: "20px" }}>
+                                <p
+                                  style={{
+                                    margin: "0 0 10px 0",
+                                    fontSize: "11px",
+                                    color: "#999",
+                                    textTransform: "uppercase",
+                                    fontWeight: 600,
+                                  }}
+                                >
+                                  <i
+                                    className="fa-solid fa-clock"
+                                    style={{ marginRight: "5px" }}
+                                  />
+                                  {t("agenda")}
+                                </p>
+                                <div
+                                  style={{
+                                    backgroundColor: "#f8f9fa",
+                                    borderRadius: "10px",
+                                    padding: "14px 16px",
+                                    borderLeft: `3px solid ${workshop.color}`,
+                                  }}
+                                >
+                                  {workshop.agenda.map((item, i) => (
+                                    <div
+                                      key={i}
+                                      style={{
+                                        display: "flex",
+                                        gap: "10px",
+                                        marginBottom:
+                                          i < (workshop.agenda?.length ?? 0) - 1
+                                            ? "10px"
+                                            : 0,
+                                        paddingBottom:
+                                          i < (workshop.agenda?.length ?? 0) - 1
+                                            ? "10px"
+                                            : 0,
+                                        borderBottom:
+                                          i < (workshop.agenda?.length ?? 0) - 1
+                                            ? "1px dashed #e0e0e0"
+                                            : "none",
+                                      }}
+                                    >
+                                      <span
+                                        style={{
+                                          fontSize: "12px",
+                                          fontWeight: 700,
+                                          color: workshop.color,
+                                          whiteSpace: "nowrap",
+                                          minWidth: "120px",
+                                        }}
+                                      >
+                                        {item.time}
+                                      </span>
+                                      <span
+                                        style={{
+                                          fontSize: "12px",
+                                          color: "#444",
+                                          lineHeight: 1.4,
+                                        }}
+                                      >
+                                        {item.topic}
+                                      </span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
                             {/* Instructor(s) */}
                             <div style={{ marginBottom: "20px" }}>
                               <p
@@ -716,6 +842,7 @@ export default function PreconferenceWorkshops() {
                                     fontSize: "13px",
                                     color: "#555",
                                     lineHeight: 1.5,
+                                    whiteSpace: "pre-wrap",
                                   }}
                                 >
                                   {workshop.description}
@@ -781,62 +908,136 @@ export default function PreconferenceWorkshops() {
                                 )}
                               </div>
 
-                              {isAvailable ? (
-                                /* <Link
-                                                                    href={workshop.isFull ? "#" : "/registration"}
-                                                                    style={{
-                                                                        backgroundColor: workshop.isFull ? '#ccc' : workshop.color,
-                                                                        color: 'white',
-                                                                        padding: '10px 20px',
-                                                                        borderRadius: '8px',
-                                                                        fontSize: '13px',
-                                                                        fontWeight: 600,
-                                                                        cursor: workshop.isFull ? 'not-allowed' : 'pointer',
-                                                                        textDecoration: 'none',
-                                                                        display: 'inline-block'
-                                                                    }}
-                                                                >
-                                                                    {workshop.isFull ? t('workshopFull') : t('registerNow')}
-                                                                </Link> */
-                                <span
-                                  style={{
-                                    background:
-                                      "linear-gradient(135deg, #FFBA00 0%, #FF8C00 100%)",
-                                    color: "white",
-                                    padding: "10px 20px",
-                                    borderRadius: "8px",
-                                    fontSize: "13px",
-                                    fontWeight: 600,
-                                    cursor: "default",
-                                    display: "inline-block",
-                                    boxShadow:
-                                      "0 4px 15px rgba(255, 186, 0, 0.4)",
-                                  }}
-                                >
-                                  <i
-                                    className="fa-regular fa-calendar"
-                                    style={{ marginRight: "6px" }}
-                                  ></i>
-                                  Available on 23 Feb 2026
-                                </span>
-                              ) : (
-                                <div
-                                  style={{
-                                    backgroundColor: "#f3f4f6",
-                                    color: "#6b7280",
-                                    padding: "10px 20px",
-                                    borderRadius: "8px",
-                                    fontSize: "13px",
-                                    fontWeight: 600,
-                                    border: "1px solid #e5e7eb",
-                                    cursor: "not-allowed",
-                                  }}
-                                >
-                                  Available on {formattedSaleDate}
-                                </div>
-                              )}
+                              {(() => {
+                                const isThisSessionRegistered = registeredWorkshopSessionIds.has(workshop.sessionId);
+                                const hasAnyWorkshopRegistered = registeredWorkshopSessionIds.size > 0;
+
+                                if (isThisSessionRegistered) {
+                                  // This exact session — show green Registered
+                                  return (
+                                    <span
+                                      style={{
+                                        background: "linear-gradient(135deg, #10B981 0%, #059669 100%)",
+                                        color: "white",
+                                        padding: "10px 20px",
+                                        borderRadius: "8px",
+                                        fontSize: "13px",
+                                        fontWeight: 600,
+                                        cursor: "default",
+                                        display: "inline-block",
+                                        boxShadow: "0 4px 15px rgba(16, 185, 129, 0.4)",
+                                      }}
+                                    >
+                                      <i
+                                        className="fa-solid fa-circle-check"
+                                        style={{ marginRight: "6px" }}
+                                      ></i>
+                                      {locale === "th" ? "ลงทะเบียนแล้ว" : "Registered"}
+                                    </span>
+                                  );
+                                }
+
+                                if (hasAnyWorkshopRegistered) {
+                                  // Another session already registered — block this one
+                                  return (
+                                    <span
+                                      style={{
+                                        backgroundColor: "#f3f4f6",
+                                        color: "#9ca3af",
+                                        padding: "10px 20px",
+                                        borderRadius: "8px",
+                                        fontSize: "13px",
+                                        fontWeight: 600,
+                                        border: "1px solid #e5e7eb",
+                                        cursor: "not-allowed",
+                                        display: "inline-block",
+                                      }}
+                                    >
+                                      <i
+                                        className="fa-solid fa-lock"
+                                        style={{ marginRight: "6px" }}
+                                      ></i>
+                                      {locale === "th" ? "ลงทะเบียน session อื่นแล้ว" : "Already Registered"}
+                                    </span>
+                                  );
+                                }
+
+                                if (workshop.isFull) {
+                                  return (
+                                    <span
+                                      style={{
+                                        backgroundColor: "#e5e7eb",
+                                        color: "#6b7280",
+                                        padding: "10px 20px",
+                                        borderRadius: "8px",
+                                        fontSize: "13px",
+                                        fontWeight: 600,
+                                        cursor: "not-allowed",
+                                        display: "inline-block",
+                                      }}
+                                    >
+                                      <i
+                                        className="fa-solid fa-ban"
+                                        style={{ marginRight: "6px" }}
+                                      ></i>
+                                      {t("full")}
+                                    </span>
+                                  );
+                                }
+
+                                if (isAvailable) {
+                                  return (
+                                    <Link
+                                      href={`/${locale}/checkout`}
+                                      style={{
+                                        background: "linear-gradient(135deg, #FFBA00 0%, #FF8C00 100%)",
+                                        color: "white",
+                                        padding: "10px 20px",
+                                        borderRadius: "8px",
+                                        fontSize: "13px",
+                                        fontWeight: 600,
+                                        cursor: "pointer",
+                                        display: "inline-block",
+                                        textDecoration: "none",
+                                        boxShadow: "0 4px 15px rgba(255, 186, 0, 0.4)",
+                                      }}
+                                    >
+                                      <i
+                                        className="fa-solid fa-ticket"
+                                        style={{ marginRight: "6px" }}
+                                      ></i>
+                                      {tCommon("registerNow")}
+                                    </Link>
+                                  );
+                                }
+
+                                return (
+                                  <span
+                                    style={{
+                                      backgroundColor: "#f3f4f6",
+                                      color: "#6b7280",
+                                      padding: "10px 20px",
+                                      borderRadius: "8px",
+                                      fontSize: "13px",
+                                      fontWeight: 600,
+                                      border: "1px solid #e5e7eb",
+                                      cursor: "not-allowed",
+                                      display: "inline-block",
+                                    }}
+                                  >
+                                    <i
+                                      className="fa-regular fa-calendar"
+                                      style={{ marginRight: "6px" }}
+                                    ></i>
+                                    {locale === "th"
+                                      ? `เปิดจำหน่าย ${formattedSaleDate || "เร็วๆ นี้"}`
+                                      : `Available on ${formattedSaleDate || "Coming Soon"}`}
+                                  </span>
+                                );
+                              })()}
                             </div>
                           </div>
+                          )}
                         </div>
                       </div>
                     );

@@ -1,11 +1,18 @@
 "use client";
+
 import { useState, useRef, useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 
-export default function UserProfileDropdown() {
+interface UserProfileDropdownProps {
+  position?: "left" | "right";
+}
+
+export default function UserProfileDropdown({
+  position = "right",
+}: UserProfileDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const t = useTranslations("common");
@@ -41,7 +48,10 @@ export default function UserProfileDropdown() {
   const initials = `${user.firstName[0]}${user.lastName[0]}`.toUpperCase();
 
   return (
-    <div ref={dropdownRef} style={{ position: "relative" }}>
+    <div
+      ref={dropdownRef}
+      style={{ position: "relative", display: "inline-block" }}
+    >
       <button
         onClick={() => setIsOpen(!isOpen)}
         style={{
@@ -58,11 +68,13 @@ export default function UserProfileDropdown() {
         }}
         onMouseEnter={(e) => {
           e.currentTarget.style.transform = "translateY(-2px)";
-          e.currentTarget.style.boxShadow = "0 6px 20px rgba(26, 35, 126, 0.3)";
+          e.currentTarget.style.boxShadow =
+            "0 6px 20px rgba(26, 35, 126, 0.3)";
         }}
         onMouseLeave={(e) => {
           e.currentTarget.style.transform = "translateY(0)";
-          e.currentTarget.style.boxShadow = "0 4px 15px rgba(26, 35, 126, 0.2)";
+          e.currentTarget.style.boxShadow =
+            "0 4px 15px rgba(26, 35, 126, 0.2)";
         }}
       >
         {/* Avatar */}
@@ -114,12 +126,13 @@ export default function UserProfileDropdown() {
           style={{
             position: "absolute",
             top: "100%",
-            right: 0,
+            [position === "left" ? "left" : "right"]: 0,
             marginTop: "8px",
             background: "#fff",
             borderRadius: "12px",
             boxShadow: "0 10px 40px rgba(0, 0, 0, 0.15)",
             minWidth: "240px",
+            maxWidth: "calc(100vw - 32px)", // Ensure it doesn't overflow small screens
             overflow: "hidden",
             zIndex: 1000,
             animation: "slideDown 0.2s ease",
@@ -148,32 +161,35 @@ export default function UserProfileDropdown() {
 
           {/* Menu Items */}
           <div style={{ padding: "8px 0" }}>
-            {/* Temporarily hidden - My Tickets
-                        <Link
-                            href={`/${locale}/my-tickets`}
-                            onClick={() => setIsOpen(false)}
-                            style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '12px',
-                                padding: '12px 16px',
-                                color: '#333',
-                                textDecoration: 'none',
-                                transition: 'all 0.2s ease'
-                            }}
-                            onMouseEnter={(e) => {
-                                e.currentTarget.style.background = '#f8f8f8';
-                                e.currentTarget.style.paddingLeft = '20px';
-                            }}
-                            onMouseLeave={(e) => {
-                                e.currentTarget.style.background = 'transparent';
-                                e.currentTarget.style.paddingLeft = '16px';
-                            }}
-                        >
-                            <i className="fa-solid fa-ticket" style={{ color: '#1a237e', fontSize: '16px', width: '20px' }} />
-                            <span style={{ fontSize: '14px', fontWeight: '500' }}>{tUser('myTickets')}</span>
-                        </Link>
-                        */}
+            <Link
+              href={`/${locale}/my-tickets`}
+              onClick={() => setIsOpen(false)}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "12px",
+                padding: "12px 16px",
+                color: "#333",
+                textDecoration: "none",
+                transition: "all 0.2s ease",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "#f8f8f8";
+                e.currentTarget.style.paddingLeft = "20px";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "transparent";
+                e.currentTarget.style.paddingLeft = "16px";
+              }}
+            >
+              <i
+                className="fa-solid fa-ticket"
+                style={{ color: "#1a237e", fontSize: "16px", width: "20px" }}
+              />
+              <span style={{ fontSize: "14px", fontWeight: "500" }}>
+                {tUser("myTickets")}
+              </span>
+            </Link>
 
             <Link
               href={`/${locale}/abstract-status`}

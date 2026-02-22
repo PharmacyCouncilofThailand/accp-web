@@ -1,7 +1,12 @@
 "use client";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import Countdown from "@/components/elements/Countdown";
 import Link from "next/link";
+import { useAuth } from "@/context/AuthContext";
+import { useTickets } from "@/context/TicketContext";
+import { useTicketSelector } from "@/hooks/useTicketSelector";
+import { api } from "@/lib/api";
+import { useEffect, useState } from "react";
 
 const heroStyles = {
   mainTitle: {
@@ -40,8 +45,174 @@ const heroStyles = {
   },
 } as const;
 
+// Format date for display
+function formatAvailableDate(
+  dateString: string | null,
+  locale: string,
+): string {
+  if (!dateString) return "";
+  const date = new Date(dateString);
+  const options: Intl.DateTimeFormatOptions = {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  };
+  return date.toLocaleDateString(locale === "th" ? "th-TH" : "en-US", options);
+}
+
 export default function HeroSection() {
   const t = useTranslations();
+  const locale = useLocale();
+  const { user, isAuthenticated, token } = useAuth();
+  const { tickets } = useTickets();
+
+  // Purchase status
+  const [hasPrimaryTicket, setHasPrimaryTicket] = useState(false);
+  const [purchasedAddOns, setPurchasedAddOns] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (!isAuthenticated || !token) return;
+    api.payments
+      .myPurchases(token)
+      .then((res) => {
+        if (res.data) {
+          setHasPrimaryTicket(res.data.hasPrimaryTicket);
+          setPurchasedAddOns(res.data.purchasedAddOns);
+        }
+      })
+      .catch(() => {});
+  }, [isAuthenticated, token]);
+
+  // Determine currency based on user's nationality
+  const isThai = user?.isThai ?? true;
+  const currency = isThai ? "THB" : "USD";
+
+  // Filter tickets by user's currency and select best primary ticket
+  const filteredTickets = tickets.filter((t) => t.currency === currency);
+  const { studentTicket, professionalTicket, addonTickets } =
+    useTicketSelector(filteredTickets);
+
+  // Count total add-on groups available (e.g. workshop, gala)
+  const addonGroupNames = new Set(
+    addonTickets.map((t) => t.groupName || t.name),
+  );
+  const totalAddonGroups = addonGroupNames.size;
+
+  // Determine which primary ticket to use based on user's delegate type
+  const getUserPrimaryTicket = () => {
+    if (!isAuthenticated || !user) {
+      // Not logged in: use whichever ticket is available (prefer professional)
+      return professionalTicket || studentTicket;
+    }
+    const isStudent =
+      user.delegateType === "thai_student" ||
+      user.delegateType === "international_student";
+    return isStudent ? studentTicket : professionalTicket;
+  };
+
+  const primaryTicket = getUserPrimaryTicket();
+
+  // Render the register button based on ticket state
+  const renderRegisterButton = () => {
+    if (isAuthenticated && hasPrimaryTicket) {
+      // Has primary ticket — check if all add-ons are also purchased
+      const allAddonsPurchased = purchasedAddOns.length >= totalAddonGroups;
+
+      if (allAddonsPurchased) {
+        // ✅ All purchased (primary + all add-ons)
+        return (
+          <span
+            className="vl-btn1"
+            style={{
+              background: "linear-gradient(135deg, #2196F3 0%, #1976D2 100%)",
+              color: "#fff",
+              cursor: "default",
+              fontWeight: "600",
+              boxShadow: "0 4px 15px rgba(33, 150, 243, 0.4)",
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            <i
+              className="fa-solid fa-circle-check"
+              style={{ marginRight: "8px" }}
+            ></i>
+            {locale === "th" ? "ลงทะเบียนแล้ว" : "Registered"}
+          </span>
+        );
+      }
+
+      // 🟠 Has primary but still has unpurchased add-ons → Register Now (addon mode)
+      return (
+        <Link
+          href={`/${locale}/checkout?mode=addon`}
+          className="vl-btn1"
+          style={{
+            background: "linear-gradient(135deg, #00C853 0%, #00A344 100%)",
+            color: "#fff",
+            fontWeight: "600",
+            boxShadow: "0 4px 15px rgba(0, 200, 83, 0.4)",
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
+          <i className="fa-solid fa-ticket" style={{ marginRight: "8px" }}></i>
+          {t("common.registerNow")}
+        </Link>
+      );
+    }
+
+    if (primaryTicket?.isAvailable) {
+      // 🟢 Sale started - show Register Now
+      return (
+        <Link
+          href={`/${locale}/checkout`}
+          className="vl-btn1"
+          style={{
+            background: "linear-gradient(135deg, #00C853 0%, #00A344 100%)",
+            color: "#fff",
+            fontWeight: "600",
+            boxShadow: "0 4px 15px rgba(0, 200, 83, 0.4)",
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
+          <i className="fa-solid fa-ticket" style={{ marginRight: "8px" }}></i>
+          {t("common.registerNow")}
+        </Link>
+      );
+    }
+
+    // 📅 Not available yet - show Available on date
+    const dateText = primaryTicket?.saleStartDate
+      ? formatAvailableDate(primaryTicket.saleStartDate, locale)
+      : locale === "th"
+        ? "เร็วๆ นี้"
+        : "Coming Soon";
+
+    return (
+      <span
+        className="vl-btn1"
+        style={{
+          background: "linear-gradient(135deg, #FFBA00 0%, #FF8C00 100%)",
+          color: "#fff",
+          cursor: "default",
+          fontWeight: "600",
+          boxShadow: "0 4px 15px rgba(255, 186, 0, 0.4)",
+          display: "flex",
+          alignItems: "center",
+        }}
+      >
+        <i
+          className="fa-regular fa-calendar"
+          style={{ marginRight: "8px" }}
+        ></i>
+        {locale === "th"
+          ? `เปิดจำหน่าย ${dateText}`
+          : `Available on ${dateText}`}
+      </span>
+    );
+  };
 
   return (
     <>
@@ -180,26 +351,23 @@ export default function HeroSection() {
                   className="btn-area1"
                   data-aos="fade-left"
                   data-aos-duration={1100}
+                  style={{
+                    display: "flex",
+                    alignItems: "stretch",
+                    gap: "16px",
+                    flexWrap: "wrap",
+                  }}
                 >
-                  {/* <Link href="/registration" className="vl-btn1">{t('common.registerNow')}</Link> */}
-                  <span
-                    className="vl-btn1"
+                  {renderRegisterButton()}
+                  <Link
+                    href="/call-for-abstracts"
+                    className="vl-btn2"
                     style={{
-                      background:
-                        "linear-gradient(135deg, #FFBA00 0%, #FF8C00 100%)",
-                      color: "#fff",
-                      cursor: "default",
-                      fontWeight: "600",
-                      boxShadow: "0 4px 15px rgba(255, 186, 0, 0.4)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
                     }}
                   >
-                    <i
-                      className="fa-regular fa-calendar"
-                      style={{ marginRight: "8px" }}
-                    ></i>
-                    Available on 23 Feb 2026
-                  </span>
-                  <Link href="/call-for-abstracts" className="vl-btn2">
                     {t("common.submitAbstract")}
                   </Link>
                 </div>

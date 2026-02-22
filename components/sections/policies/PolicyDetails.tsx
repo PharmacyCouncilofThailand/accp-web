@@ -1,101 +1,226 @@
-'use client'
-import { useTranslations } from 'next-intl'
+"use client";
+import { useTranslations } from "next-intl";
 
 export default function PolicyDetails() {
-    const t = useTranslations('policies')
+  const t = useTranslations("policies");
 
-    return (
-        <div className="sp1" style={{ paddingTop: '60px', paddingBottom: '60px' }}>
-            <div className="container">
-                <div className="row">
-                    <div className="col-lg-8 m-auto">
-                        <div className="heading2 space-margin60">
-                            <h2 data-aos="fade-up" data-aos-duration={800}>{t('policyDetailsTitle')}</h2>
-                        </div>
-
-                        <div data-aos="fade-up" data-aos-duration={1000}>
-                            {/* Cancellation Policy */}
-                            <div style={{
-                                background: '#fff',
-                                padding: '25px',
-                                borderRadius: '12px',
-                                marginBottom: '20px',
-                                borderLeft: '4px solid #1a237e',
-                                boxShadow: '0 2px 10px rgba(0,0,0,0.05)'
-                            }}>
-                                <h5 style={{ color: '#1a237e', marginBottom: '15px' }}>
-                                    <i className="fa-solid fa-file-circle-xmark" style={{ marginRight: '10px', color: '#FFBA00' }} />
-                                    {t('cancellationPolicy')}
-                                </h5>
-                                <ul style={{ margin: 0, paddingLeft: '20px', color: '#666', lineHeight: '1.9' }}>
-                                    <li>{t('cancellationRule1')}</li>
-                                    <li>{t('cancellationRule2')}</li>
-                                    <li>{t('cancellationRule3')}</li>
-                                    <li>{t('cancellationRule4')}</li>
-                                </ul>
-                            </div>
-
-                            {/* Registration Transfer */}
-                            <div style={{
-                                background: '#fff',
-                                padding: '25px',
-                                borderRadius: '12px',
-                                marginBottom: '20px',
-                                borderLeft: '4px solid #1a237e',
-                                boxShadow: '0 2px 10px rgba(0,0,0,0.05)'
-                            }}>
-                                <h5 style={{ color: '#1a237e', marginBottom: '15px' }}>
-                                    <i className="fa-solid fa-arrow-right-arrow-left" style={{ marginRight: '10px', color: '#FFBA00' }} />
-                                    {t('transferPolicy')}
-                                </h5>
-                                <ul style={{ margin: 0, paddingLeft: '20px', color: '#666', lineHeight: '1.9' }}>
-                                    <li>{t('transferRule1')}</li>
-                                    <li>{t('transferRule2')}</li>
-                                    <li>{t('transferRule3')}</li>
-                                    <li>{t('transferRule4')}</li>
-                                </ul>
-                            </div>
-
-                            {/* Conference Cancellation */}
-                            <div style={{
-                                background: '#fff',
-                                padding: '25px',
-                                borderRadius: '12px',
-                                marginBottom: '20px',
-                                borderLeft: '4px solid #1a237e',
-                                boxShadow: '0 2px 10px rgba(0,0,0,0.05)'
-                            }}>
-                                <h5 style={{ color: '#1a237e', marginBottom: '15px' }}>
-                                    <i className="fa-solid fa-calendar-xmark" style={{ marginRight: '10px', color: '#FFBA00' }} />
-                                    {t('eventCancellation')}
-                                </h5>
-                                <ul style={{ margin: 0, paddingLeft: '20px', color: '#666', lineHeight: '1.9' }}>
-                                    <li>{t('eventRule1')}</li>
-                                    <li>{t('eventRule2')}</li>
-                                    <li>{t('eventRule3')}</li>
-                                </ul>
-                            </div>
-
-                            {/* Force Majeure */}
-                            <div style={{
-                                background: '#fff',
-                                padding: '25px',
-                                borderRadius: '12px',
-                                borderLeft: '4px solid #1a237e',
-                                boxShadow: '0 2px 10px rgba(0,0,0,0.05)'
-                            }}>
-                                <h5 style={{ color: '#1a237e', marginBottom: '15px' }}>
-                                    <i className="fa-solid fa-shield-halved" style={{ marginRight: '10px', color: '#FFBA00' }} />
-                                    {t('forceMajeure')}
-                                </h5>
-                                <p style={{ margin: 0, color: '#666', lineHeight: '1.9' }}>
-                                    {t('forceMajeureDesc')}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+  return (
+    <div className="sp1" style={{ paddingTop: "0px", paddingBottom: "60px" }}>
+      <div className="container">
+        <div className="row">
+          <div className="col-lg-10 m-auto">
+            {/* Payment Method */}
+            <div className="mb-5" data-aos="fade-up" data-aos-duration={800}>
+              <h3
+                style={{
+                  color: "#000",
+                  fontWeight: "bold",
+                  marginBottom: "15px",
+                }}
+              >
+                Payment Method
+              </h3>
+              <p style={{ color: "#333", marginBottom: "10px" }}>
+                Payment for online registration is only possible by credit card.
+              </p>
+              <ul style={{ paddingLeft: "20px", color: "#333" }}>
+                <li style={{ marginBottom: "10px" }}>
+                  Once you have filled out all the required information for your
+                  registration, please click the “payment” button where a pop-up
+                  payment page will appear. Please complete all required
+                  information.
+                </li>
+              </ul>
             </div>
+
+            {/* Confirmation of Registration */}
+            <div className="mb-5" data-aos="fade-up" data-aos-duration={800}>
+              <h3
+                style={{
+                  color: "#000",
+                  fontWeight: "bold",
+                  marginBottom: "15px",
+                }}
+              >
+                Confirmation of Registration
+              </h3>
+              <ul style={{ paddingLeft: "20px", color: "#333" }}>
+                <li style={{ marginBottom: "10px" }}>
+                  An automatic confirmation email will be sent to you upon the
+                  completion of your registration.
+                </li>
+                <li style={{ marginBottom: "10px" }}>
+                  Registrants can check the status of their registration and
+                  payment on ‘Profile’ by logging into the online registration
+                  system.
+                </li>
+                <li style={{ marginBottom: "10px" }}>
+                  Official receipt from the online registration system will be
+                  send to your email once your payment is completed.
+                </li>
+                <li style={{ marginBottom: "10px" }}>
+                  Please note that the receipt will be available after your
+                  payment is completed.
+                </li>
+              </ul>
+            </div>
+
+            {/* Cancellations & Refund Policy */}
+            <div className="mb-5" data-aos="fade-up" data-aos-duration={800}>
+              <h3
+                style={{
+                  color: "#000",
+                  fontWeight: "bold",
+                  marginBottom: "15px",
+                }}
+              >
+                Cancellations & Refund Policy
+              </h3>
+              <ul
+                style={{
+                  paddingLeft: "20px",
+                  color: "#333",
+                  marginBottom: "20px",
+                }}
+              >
+                <li style={{ marginBottom: "10px" }}>
+                  To cancel your registration and request for a refund, please
+                  download the below cancellation request form, fill it out, and
+                  send it to the secretariat via email before the deadline.
+                </li>
+                <li style={{ marginBottom: "10px" }}>
+                  Refunds will be made according to the following cancellation &
+                  refund policy.
+                </li>
+              </ul>
+
+              {/* Refund Table */}
+              <div className="table-responsive">
+                <table
+                  className="table table-bordered"
+                  style={{ border: "1px solid #000" }}
+                >
+                  <thead>
+                    <tr style={{ backgroundColor: "#673ab7" }}>
+                      <th
+                        style={{
+                          color: "#fff",
+                          padding: "15px",
+                          fontSize: "20px",
+                          width: "50%",
+                        }}
+                      >
+                        Deadline
+                      </th>
+                      <th
+                        style={{
+                          color: "#fff",
+                          padding: "15px",
+                          fontSize: "20px",
+                          width: "50%",
+                        }}
+                      >
+                        Refund Rate
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td
+                        style={{
+                          padding: "15px",
+                          border: "1px solid #000",
+                          fontSize: "18px",
+                          color: "#000",
+                        }}
+                      >
+                        Before 30 April 2026
+                      </td>
+                      <td
+                        style={{
+                          padding: "15px",
+                          border: "1px solid #000",
+                          fontSize: "18px",
+                          color: "#000",
+                        }}
+                      >
+                        75% of registration fee
+                      </td>
+                    </tr>
+                    <tr>
+                      <td
+                        style={{
+                          padding: "15px",
+                          border: "1px solid #000",
+                          fontSize: "18px",
+                          color: "#000",
+                        }}
+                      >
+                        1 – 31 May 2026
+                      </td>
+                      <td
+                        style={{
+                          padding: "15px",
+                          border: "1px solid #000",
+                          fontSize: "18px",
+                          color: "#000",
+                        }}
+                      >
+                        40% of registration fee
+                      </td>
+                    </tr>
+                    <tr>
+                      <td
+                        style={{
+                          padding: "15px",
+                          border: "1px solid #000",
+                          fontSize: "18px",
+                          color: "#000",
+                        }}
+                      >
+                        After 31 May 2026
+                      </td>
+                      <td
+                        style={{
+                          padding: "15px",
+                          border: "1px solid #000",
+                          fontSize: "18px",
+                          color: "#000",
+                        }}
+                      >
+                        No refund
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="text-center" style={{ marginTop: "30px" }}>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  disabled
+                  style={{
+                    cursor: "not-allowed",
+                    padding: "12px 30px",
+                    fontSize: "16px",
+                    backgroundColor: "#6c757d",
+                    borderColor: "#6c757d",
+                    color: "#fff",
+                    borderRadius: "5px",
+                  }}
+                >
+                  <i
+                    className="fa-solid fa-download"
+                    style={{ marginRight: "8px" }}
+                  ></i>
+                  Refund Request Form Coming Soon
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-    )
+      </div>
+    </div>
+  );
 }

@@ -6,17 +6,12 @@
  */
 export const formatCurrency = (amount: number, locale: string): string => {
   const isThai = locale === "th";
-  const currency = isThai ? "THB" : "USD";
 
-  // Create formatter
-  const formatter = new Intl.NumberFormat(isThai ? "th-TH" : "en-US", {
-    style: "currency",
-    currency: currency,
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  });
+  if (isThai) {
+    return `฿${amount.toLocaleString("th-TH")}`;
+  }
 
-  return formatter.format(amount);
+  return `$${amount.toLocaleString("en-US")} USD`;
 };
 
 /**

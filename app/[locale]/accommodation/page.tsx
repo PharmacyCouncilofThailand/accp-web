@@ -10,11 +10,12 @@ export default function Accommodation() {
     const t = useTranslations('accommodation')
     const tCommon = useTranslations('common')
 
-    // Optimize: Find hotel once instead of filtering on every render
-    const centaraHotel = useMemo(
-        () => hotels.find(h => h.name === 'Centara Grand & Bangkok Convention Centre at CentralWorld'),
-        []
-    )
+    // Optimize: Find hotels once instead of filtering on every render
+    const { centaraHotel, nearbyHotels } = useMemo(() => {
+        const centara = hotels.find(h => h.name === 'Centara Grand & Bangkok Convention Centre at CentralWorld');
+        const others = hotels.filter(h => h.name !== 'Centara Grand & Bangkok Convention Centre at CentralWorld');
+        return { centaraHotel: centara, nearbyHotels: others };
+    }, []);
 
     return (
         <>
@@ -35,7 +36,7 @@ export default function Accommodation() {
                         </div>
                     </div>
 
-                    {/* Intro & Hotel */}
+                    {/* Intro & Official Hotel */}
                     <div className="about1-section-area sp1">
                         <div className="container">
                             <div className="row">
@@ -56,6 +57,22 @@ export default function Accommodation() {
                         </div>
                     </div>
 
+                    {/* Nearby Hotels */}
+                    <div className="about1-section-area sp1" style={{ paddingTop: 0 }}>
+                        <div className="container">
+                            <div className="row">
+                                <div className="col-lg-10 m-auto">
+                                    <div className="heading2 text-center space-margin60">
+                                        <h2 className="text-anime-style-3">{t('nearbyHotels')}</h2>
+                                    </div>
+                                    <div className="space40" />
+                                    {nearbyHotels.map((hotel, index) => (
+                                        <HotelCard key={index} hotel={hotel} />
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                 </div>
             </Layout>

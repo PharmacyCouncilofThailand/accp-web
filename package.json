@@ -2,6 +2,9 @@
   "name": "accp-web",
   "version": "1.0.0",
   "private": true,
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "next dev -p 3000",
     "build": "next build",
@@ -10,6 +13,9 @@
     "sass": "sass --watch public/assets/scss/main.scss:styles/main.css"
   },
   "dependencies": {
+    "@stripe/react-stripe-js": "^5.6.0",
+    "@stripe/stripe-js": "^8.7.0",
+    "@types/qrcode.react": "^1.0.5",
     "@types/react-google-recaptcha": "^2.1.9",
     "aos": "^2.3.4",
     "country-flag-icons": "^1.6.4",
@@ -17,6 +23,7 @@
     "libphonenumber-js": "^1.12.34",
     "next": "16.1.1",
     "next-intl": "^4.7.0",
+    "qrcode.react": "^4.2.0",
     "react": "19.2.3",
     "react-country-state-city": "^1.1.12",
     "react-countup": "^6.5.3",
