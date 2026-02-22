@@ -98,14 +98,6 @@ export default function WelcomeSection() {
       image: "/assets/img/all-images/team/ACCP-new.png",
     },
     {
-      name: "Assoc. Prof. Dr. Wichai Santimaleeworagun",
-      nameTh: "รศ.ดร.วิชัย สันติมาลีวรกุล",
-      titleKey: "welcome.hostOrg",
-      position: "President, The College of Pharmacotherapy of Thailand",
-      positionTh: "ประธานวิทยาลัยเภสัชบำบัดแห่งประเทศไทย",
-      image: "/assets/img/all-images/team/BCP.png",
-    },
-    {
       name: "Mr. Preecha Bhandtivej",
       nameTh: "นายปรีชา พันธ์ทิเวช",
       titleKey: "welcome.pharmacyCouncilPresident",
@@ -113,6 +105,14 @@ export default function WelcomeSection() {
       positionTh: "นายกสภาเภสัชกรรม",
       image:
         "/assets/img/all-images/team/President The Pharmacy Council of Thailand.png",
+    },
+    {
+      name: "Assoc. Prof. Dr. Wichai Santimaleeworagun",
+      nameTh: "รศ.ดร.วิชัย สันติมาลีวรกุล",
+      titleKey: "welcome.hostOrg",
+      position: "President, The College of Pharmacotherapy of Thailand",
+      positionTh: "ประธานวิทยาลัยเภสัชบำบัดแห่งประเทศไทย",
+      image: "/assets/img/all-images/team/BCP.png",
     },
   ];
 
