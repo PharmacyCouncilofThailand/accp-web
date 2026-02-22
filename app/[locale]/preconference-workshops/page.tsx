@@ -43,12 +43,13 @@ export default function PreconferenceWorkshops() {
   const t = useTranslations("workshops");
   const tContact = useTranslations("contact");
   const locale = useLocale();
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, token } = useAuth();
 
   const [workshops, setWorkshops] = useState<Workshop[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [expandedWorkshops, setExpandedWorkshops] = useState<Set<number>>(new Set());
+  const [registeredWorkshopSessionIds, setRegisteredWorkshopSessionIds] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     const fetchWorkshops = async () => {
@@ -68,6 +69,28 @@ export default function PreconferenceWorkshops() {
 
     fetchWorkshops();
   }, []);
+
+  useEffect(() => {
+    if (!isAuthenticated || !token) {
+      setRegisteredWorkshopSessionIds(new Set());
+      return;
+    }
+    const fetchMyWorkshops = async () => {
+      try {
+        const res = await api.payments.myTickets(token);
+        if (res.success && res.data.workshops.length > 0) {
+          setRegisteredWorkshopSessionIds(
+            new Set(res.data.workshops.map((w) => w.sessionId))
+          );
+        } else {
+          setRegisteredWorkshopSessionIds(new Set());
+        }
+      } catch {
+        setRegisteredWorkshopSessionIds(new Set());
+      }
+    };
+    fetchMyWorkshops();
+  }, [isAuthenticated, token]);
 
   return (
     <>
@@ -421,6 +444,7 @@ export default function PreconferenceWorkshops() {
                           day: "numeric",
                           month: "long",
                           year: "numeric",
+                          timeZone: "Asia/Bangkok",
                         })
                       : "";
 
@@ -884,60 +908,133 @@ export default function PreconferenceWorkshops() {
                                 )}
                               </div>
 
-                              {isAvailable ? (
-                                /* <Link
-                                                                    href={workshop.isFull ? "#" : "/registration"}
-                                                                    style={{
-                                                                        backgroundColor: workshop.isFull ? '#ccc' : workshop.color,
-                                                                        color: 'white',
-                                                                        padding: '10px 20px',
-                                                                        borderRadius: '8px',
-                                                                        fontSize: '13px',
-                                                                        fontWeight: 600,
-                                                                        cursor: workshop.isFull ? 'not-allowed' : 'pointer',
-                                                                        textDecoration: 'none',
-                                                                        display: 'inline-block'
-                                                                    }}
-                                                                >
-                                                                    {workshop.isFull ? t('workshopFull') : t('registerNow')}
-                                                                </Link> */
-                                <span
-                                  style={{
-                                    background:
-                                      "linear-gradient(135deg, #FFBA00 0%, #FF8C00 100%)",
-                                    color: "white",
-                                    padding: "10px 20px",
-                                    borderRadius: "8px",
-                                    fontSize: "13px",
-                                    fontWeight: 600,
-                                    cursor: "default",
-                                    display: "inline-block",
-                                    boxShadow:
-                                      "0 4px 15px rgba(255, 186, 0, 0.4)",
-                                  }}
-                                >
-                                  <i
-                                    className="fa-regular fa-calendar"
-                                    style={{ marginRight: "6px" }}
-                                  ></i>
-                                  Available on 18 Feb 2026
-                                </span>
-                              ) : (
-                                <div
-                                  style={{
-                                    backgroundColor: "#f3f4f6",
-                                    color: "#6b7280",
-                                    padding: "10px 20px",
-                                    borderRadius: "8px",
-                                    fontSize: "13px",
-                                    fontWeight: 600,
-                                    border: "1px solid #e5e7eb",
-                                    cursor: "not-allowed",
-                                  }}
-                                >
-                                  Available on {formattedSaleDate}
-                                </div>
-                              )}
+                              {(() => {
+                                const isThisSessionRegistered = registeredWorkshopSessionIds.has(workshop.sessionId);
+                                const hasAnyWorkshopRegistered = registeredWorkshopSessionIds.size > 0;
+
+                                if (isThisSessionRegistered) {
+                                  // This exact session — show green Registered
+                                  return (
+                                    <span
+                                      style={{
+                                        background: "linear-gradient(135deg, #10B981 0%, #059669 100%)",
+                                        color: "white",
+                                        padding: "10px 20px",
+                                        borderRadius: "8px",
+                                        fontSize: "13px",
+                                        fontWeight: 600,
+                                        cursor: "default",
+                                        display: "inline-block",
+                                        boxShadow: "0 4px 15px rgba(16, 185, 129, 0.4)",
+                                      }}
+                                    >
+                                      <i
+                                        className="fa-solid fa-circle-check"
+                                        style={{ marginRight: "6px" }}
+                                      ></i>
+                                      {locale === "th" ? "ลงทะเบียนแล้ว" : "Registered"}
+                                    </span>
+                                  );
+                                }
+
+                                if (hasAnyWorkshopRegistered) {
+                                  // Another session already registered — block this one
+                                  return (
+                                    <span
+                                      style={{
+                                        backgroundColor: "#f3f4f6",
+                                        color: "#9ca3af",
+                                        padding: "10px 20px",
+                                        borderRadius: "8px",
+                                        fontSize: "13px",
+                                        fontWeight: 600,
+                                        border: "1px solid #e5e7eb",
+                                        cursor: "not-allowed",
+                                        display: "inline-block",
+                                      }}
+                                    >
+                                      <i
+                                        className="fa-solid fa-lock"
+                                        style={{ marginRight: "6px" }}
+                                      ></i>
+                                      {locale === "th" ? "ลงทะเบียน session อื่นแล้ว" : "Already Registered"}
+                                    </span>
+                                  );
+                                }
+
+                                if (workshop.isFull) {
+                                  return (
+                                    <span
+                                      style={{
+                                        backgroundColor: "#e5e7eb",
+                                        color: "#6b7280",
+                                        padding: "10px 20px",
+                                        borderRadius: "8px",
+                                        fontSize: "13px",
+                                        fontWeight: 600,
+                                        cursor: "not-allowed",
+                                        display: "inline-block",
+                                      }}
+                                    >
+                                      <i
+                                        className="fa-solid fa-ban"
+                                        style={{ marginRight: "6px" }}
+                                      ></i>
+                                      {t("full")}
+                                    </span>
+                                  );
+                                }
+
+                                if (isAvailable) {
+                                  return (
+                                    <Link
+                                      href={`/${locale}/checkout`}
+                                      style={{
+                                        background: "linear-gradient(135deg, #FFBA00 0%, #FF8C00 100%)",
+                                        color: "white",
+                                        padding: "10px 20px",
+                                        borderRadius: "8px",
+                                        fontSize: "13px",
+                                        fontWeight: 600,
+                                        cursor: "pointer",
+                                        display: "inline-block",
+                                        textDecoration: "none",
+                                        boxShadow: "0 4px 15px rgba(255, 186, 0, 0.4)",
+                                      }}
+                                    >
+                                      <i
+                                        className="fa-solid fa-ticket"
+                                        style={{ marginRight: "6px" }}
+                                      ></i>
+                                      {tCommon("registerNow")}
+                                    </Link>
+                                  );
+                                }
+
+                                return (
+                                  <span
+                                    style={{
+                                      backgroundColor: "#f3f4f6",
+                                      color: "#6b7280",
+                                      padding: "10px 20px",
+                                      borderRadius: "8px",
+                                      fontSize: "13px",
+                                      fontWeight: 600,
+                                      border: "1px solid #e5e7eb",
+                                      cursor: "not-allowed",
+                                      display: "inline-block",
+                                    }}
+                                  >
+                                    <i
+                                      className="fa-regular fa-calendar"
+                                      style={{ marginRight: "6px" }}
+                                    ></i>
+                                    {locale === "th"
+                                      ? `เปิดจำหน่าย ${formattedSaleDate || "เร็วๆ นี้"}`
+                                      : `Available on ${formattedSaleDate || "Coming Soon"}`}
+                                  </span>
+                                );
+                              })()}
                             </div>
                           </div>
                           )}

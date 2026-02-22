@@ -91,6 +91,7 @@ export default function MyTickets() {
         year: "numeric",
         month: "long",
         day: "numeric",
+        timeZone: "Asia/Bangkok",
       },
     );
   };
@@ -104,6 +105,7 @@ export default function MyTickets() {
         hour: "2-digit",
         minute: "2-digit",
         hour12: false,
+        timeZone: "Asia/Bangkok",
       },
     );
 
@@ -115,6 +117,7 @@ export default function MyTickets() {
         hour: "2-digit",
         minute: "2-digit",
         hour12: false,
+        timeZone: "Asia/Bangkok",
       },
     );
 

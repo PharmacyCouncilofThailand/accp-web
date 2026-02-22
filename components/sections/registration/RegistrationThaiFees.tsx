@@ -22,6 +22,7 @@ function formatAvailableDate(
     day: "numeric",
     month: locale === "th" ? "short" : "short",
     year: "numeric",
+    timeZone: "Asia/Bangkok",
   };
   return date.toLocaleDateString(locale === "th" ? "th-TH" : "en-US", options);
 }

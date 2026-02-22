@@ -167,6 +167,7 @@ export interface MyTicketsResponse {
         } | null;
         workshops: {
             id: string;
+            sessionId: number;
             status: string;
             name: string;
             purchasedAt: string | null;
