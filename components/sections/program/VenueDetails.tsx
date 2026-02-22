@@ -68,8 +68,8 @@ export default function VenueDetails({ ticketPrice }: VenueDetailsProps) {
             title: `${t('ticketPrice')} (July 10, 2026)`,
             content: (
                 <ul style={{ paddingLeft: '20px', margin: 0, textAlign: 'left', lineHeight: '1.6' }}>
-                    <li>health professional: 75 USD per person</li>
-                    <li>Thai health professional: 2,200 THB per person</li>
+                    <li>Health professional: 75 USD per person</li>
+                    <li>Thai Health professional: 2,200 THB per person</li>
                 </ul>
             ),
         },
