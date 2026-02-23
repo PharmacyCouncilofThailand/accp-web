@@ -52,9 +52,9 @@ export const galleryData = {
 
             // Restaurant and Lobby
             { id: 16, src: "/assets/img/gallery/venue/Restaurant and Looby/Sky Lobby - Centara Grand Central World 24.jpg", alt: "Sky Lobby", category: "restaurant_and_lobby" },
-            { id: 17, src: "/assets/img/gallery/venue/Restaurant and Looby/cgcw-red-sky-restaurant.jpg.jpg", alt: "Red Sky Restaurant", category: "restaurant_and_lobby" },
-            { id: 18, src: "/assets/img/gallery/venue/Restaurant and Looby/cgcw-cocoa-xo-01.jpg.jpg", alt: "Cocoa XO", category: "restaurant_and_lobby" },
-            { id: 19, src: "/assets/img/gallery/venue/Restaurant and Looby/cgcw-unoMas-04.jpg.jpg", alt: "Uno Mas", category: "restaurant_and_lobby" },
+            { id: 17, src: "/assets/img/gallery/venue/Restaurant and Looby/cgcw-red-sky-restaurant.jpg", alt: "Red Sky Restaurant", category: "restaurant_and_lobby" },
+            { id: 18, src: "/assets/img/gallery/venue/Restaurant and Looby/cgcw-cocoa-xo-01.jpg", alt: "Cocoa XO", category: "restaurant_and_lobby" },
+            { id: 19, src: "/assets/img/gallery/venue/Restaurant and Looby/cgcw-unomas-04.jpg", alt: "Uno Mas", category: "restaurant_and_lobby" },
         ]
     },
     bangkok: {
