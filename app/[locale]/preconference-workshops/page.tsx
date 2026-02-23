@@ -1041,7 +1041,7 @@ export default function PreconferenceWorkshops() {
 
                                   if (isAvailable) {
                                     const checkoutPath = hasPrimaryTicket
-                                      ? `/${locale}/checkout/addon?type=workshop&sessionId=${workshop.sessionId}`
+                                      ? `/${locale}/checkout?mode=addon`
                                       : `/${locale}/checkout`;
 
                                     return (
