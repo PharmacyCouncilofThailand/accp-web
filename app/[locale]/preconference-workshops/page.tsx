@@ -53,6 +53,7 @@ export default function PreconferenceWorkshops() {
   );
   const [registeredWorkshopSessionIds, setRegisteredWorkshopSessionIds] =
     useState<Set<number>>(new Set());
+  const [hasPrimaryTicket, setHasPrimaryTicket] = useState(false);
 
   useEffect(() => {
     const fetchWorkshops = async () => {
@@ -78,20 +79,32 @@ export default function PreconferenceWorkshops() {
   useEffect(() => {
     if (!isAuthenticated || !token) {
       setRegisteredWorkshopSessionIds(new Set());
+      setHasPrimaryTicket(false);
       return;
     }
     const fetchMyWorkshops = async () => {
       try {
         const res = await api.payments.myTickets(token);
-        if (res.success && res.data.workshops.length > 0) {
-          setRegisteredWorkshopSessionIds(
-            new Set(res.data.workshops.map((w) => w.sessionId)),
-          );
+        if (res.success) {
+          if (res.data.registration?.status === "confirmed") {
+            setHasPrimaryTicket(true);
+          } else {
+            setHasPrimaryTicket(false);
+          }
+          if (res.data.workshops && res.data.workshops.length > 0) {
+            setRegisteredWorkshopSessionIds(
+              new Set(res.data.workshops.map((w) => w.sessionId)),
+            );
+          } else {
+            setRegisteredWorkshopSessionIds(new Set());
+          }
         } else {
           setRegisteredWorkshopSessionIds(new Set());
+          setHasPrimaryTicket(false);
         }
       } catch {
         setRegisteredWorkshopSessionIds(new Set());
+        setHasPrimaryTicket(false);
       }
     };
     fetchMyWorkshops();
@@ -1027,9 +1040,13 @@ export default function PreconferenceWorkshops() {
                                   }
 
                                   if (isAvailable) {
+                                    const checkoutPath = hasPrimaryTicket
+                                      ? `/${locale}/checkout/addon?type=workshop&sessionId=${workshop.sessionId}`
+                                      : `/${locale}/checkout`;
+
                                     return (
                                       <Link
-                                        href={`/${locale}/checkout`}
+                                        href={checkoutPath}
                                         style={{
                                           background:
                                             "linear-gradient(135deg, #FFBA00 0%, #FF8C00 100%)",

@@ -403,36 +403,6 @@ export default function MyTickets() {
                     <i className="fa-solid fa-qrcode" />
                     {t("downloadPdf")}
                   </button>
-
-                  {ticket.receiptUrl && (
-                    <button
-                      onClick={() => {
-                        const separator = ticket.receiptUrl!.includes("?") ? "&" : "?";
-                        const receiptUrl = `${ticket.receiptUrl!}${separator}v=${Date.now()}`;
-                        window.open(receiptUrl, "_blank");
-                      }}
-                      style={{
-                        width: "calc(100% - 20px)",
-                        padding: "10px 16px",
-                        background: "#fff",
-                        border: "2px solid #00C853",
-                        borderRadius: "10px",
-                        color: "#00C853",
-                        fontSize: "13px",
-                        fontWeight: "600",
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        gap: "8px",
-                        transition: "all 0.3s ease",
-                        marginBottom: "10px",
-                      }}
-                    >
-                      <i className="fa-solid fa-file-invoice-dollar" />
-                      {t("downloadReceipt")}
-                    </button>
-                  )}
                 </div>
               </div>
             </div>

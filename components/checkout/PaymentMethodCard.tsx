@@ -115,12 +115,7 @@ export default function PaymentMethodCard({
       {/* Row 1: Logo */}
       <div style={{ marginBottom: "14px" }}>
         {payIcon ? (
-          <a
-            href={payIcon.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div style={{ display: "inline-block" }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={payIcon.src}
@@ -131,7 +126,7 @@ export default function PaymentMethodCard({
                 objectFit: "contain",
               }}
             />
-          </a>
+          </div>
         ) : (
           <i
             className="fa-solid fa-credit-card"
