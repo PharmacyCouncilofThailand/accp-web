@@ -10,11 +10,11 @@ export default function Accommodation() {
     const t = useTranslations('accommodation')
     const tCommon = useTranslations('common')
 
-    // Optimize: Find hotels once instead of filtering on every render
-    const { centaraHotel, nearbyHotels } = useMemo(() => {
-        const centara = hotels.find(h => h.name === 'Centara Grand & Bangkok Convention Centre at CentralWorld');
-        const others = hotels.filter(h => h.name !== 'Centara Grand & Bangkok Convention Centre at CentralWorld');
-        return { centaraHotel: centara, nearbyHotels: others };
+    const { conferenceHotel, partnerHotels, nearbyHotels } = useMemo(() => {
+        const conference = hotels.find(h => h.section === 'conference');
+        const partners = hotels.filter(h => h.section === 'partner');
+        const nearby = hotels.filter(h => h.section === 'nearby');
+        return { conferenceHotel: conference, partnerHotels: partners, nearbyHotels: nearby };
     }, []);
 
     return (
@@ -49,9 +49,49 @@ export default function Accommodation() {
                                         <p data-aos="fade-up" data-aos-duration={1000}>
                                             {t('introDesc')}
                                         </p>
+                                        <div className="space16" />
+                                        <a
+                                            href="/assets/img/Hotels %26 Rates/List of hotel/List of hotels.pdf"
+                                            download="List of hotels.pdf"
+                                            className="btn"
+                                            data-aos="fade-up"
+                                            data-aos-duration={1200}
+                                            style={{
+                                                display: 'inline-flex',
+                                                alignItems: 'center',
+                                                gap: '10px',
+                                                backgroundColor: '#FFBA00',
+                                                color: '#1a1a2e',
+                                                padding: '14px 32px',
+                                                borderRadius: '50px',
+                                                fontWeight: 600,
+                                                fontSize: '15px',
+                                                textDecoration: 'none',
+                                                transition: 'all 0.3s ease',
+                                                boxShadow: '0 4px 15px rgba(255, 186, 0, 0.3)',
+                                                border: 'none',
+                                                cursor: 'pointer',
+                                            }}
+                                            onMouseEnter={(e) => {
+                                                e.currentTarget.style.backgroundColor = '#e5a800';
+                                                e.currentTarget.style.boxShadow = '0 6px 20px rgba(255, 186, 0, 0.45)';
+                                                e.currentTarget.style.transform = 'translateY(-2px)';
+                                            }}
+                                            onMouseLeave={(e) => {
+                                                e.currentTarget.style.backgroundColor = '#FFBA00';
+                                                e.currentTarget.style.boxShadow = '0 4px 15px rgba(255, 186, 0, 0.3)';
+                                                e.currentTarget.style.transform = 'translateY(0)';
+                                            }}
+                                        >
+                                            <i className="fa-solid fa-download" />
+                                            {t('downloadRates')}
+                                        </a>
                                     </div>
                                     <div className="space40" />
-                                    {centaraHotel && <HotelCard hotel={centaraHotel} />}
+                                    {conferenceHotel && <HotelCard hotel={conferenceHotel} />}
+                                    {partnerHotels.map((hotel, index) => (
+                                        <HotelCard key={`partner-${index}`} hotel={hotel} />
+                                    ))}
                                 </div>
                             </div>
                         </div>
