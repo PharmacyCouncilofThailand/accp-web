@@ -1,7 +1,7 @@
 'use client'
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import { useTranslations } from 'next-intl';
-import ReCAPTCHA from 'react-google-recaptcha';
+import { Turnstile } from '@marsidev/react-turnstile';
 
 interface FormData {
     name: string;
@@ -14,8 +14,7 @@ interface FormData {
 export default function ContactForm() {
     const t = useTranslations('contact');
     const tCommon = useTranslations('common');
-    const recaptchaRef = useRef<ReCAPTCHA>(null);
-    const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+    const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
     const [formData, setFormData] = useState<FormData>({
         name: '',
@@ -36,10 +35,6 @@ export default function ContactForm() {
     const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value.replace(/[^0-9]/g, '');
         setFormData(prev => ({ ...prev, phone: value }));
-    };
-
-    const handleRecaptchaChange = (token: string | null) => {
-        setRecaptchaToken(token);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -86,18 +81,13 @@ export default function ContactForm() {
                     subject: '',
                     message: ''
                 });
-                // Reset reCAPTCHA
-                recaptchaRef.current?.reset();
                 setRecaptchaToken(null);
             } else {
                 setStatus({ type: 'error', message: data.error || 'Failed to send message. Please try again.' });
-                // Reset reCAPTCHA on error
-                recaptchaRef.current?.reset();
                 setRecaptchaToken(null);
             }
         } catch {
             setStatus({ type: 'error', message: 'Network error. Please check your connection and try again.' });
-            recaptchaRef.current?.reset();
             setRecaptchaToken(null);
         } finally {
             setIsLoading(false);
@@ -186,15 +176,15 @@ export default function ContactForm() {
                         </div>
                     </div>
                     
-                    {/* reCAPTCHA v2 Checkbox */}
+                    {/* Cloudflare Turnstile */}
                     {siteKey && (
                         <div className="col-lg-12">
                             <div style={{ marginTop: '16px', marginBottom: '8px' }}>
-                                <ReCAPTCHA
-                                    ref={recaptchaRef}
-                                    sitekey={siteKey}
-                                    onChange={handleRecaptchaChange}
-                                    hl="en"
+                                <Turnstile
+                                    siteKey={siteKey}
+                                    onSuccess={(token) => setRecaptchaToken(token)}
+                                    onExpire={() => setRecaptchaToken(null)}
+                                    onError={() => setRecaptchaToken(null)}
                                 />
                             </div>
                         </div>

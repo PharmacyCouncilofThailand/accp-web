@@ -1,5 +1,5 @@
 'use client'
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { useTranslations, useLocale } from 'next-intl';
 import { useRouter } from 'next/navigation';
@@ -12,7 +12,7 @@ import '@/styles/signup-form.css';
 import { logger } from '@/utils/logger';
 import { CountrySelect } from 'react-country-state-city';
 import 'react-country-state-city/dist/react-country-state-city.css';
-import ReCAPTCHA from 'react-google-recaptcha';
+import { Turnstile } from '@marsidev/react-turnstile';
 
 type TabType = 'thaiStudent' | 'internationalStudent' | 'thaiProfessional' | 'internationalProfessional';
 
@@ -42,13 +42,8 @@ export default function SignupForm() {
     const [isPending, setIsPending] = useState(false);
     const [step, setStep] = useState(1);
     const [passportSpecialCharError, setPassportSpecialCharError] = useState(false);
-    const recaptchaRef = useRef<ReCAPTCHA>(null);
     const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
-    const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
-
-    const handleRecaptchaChange = (token: string | null) => {
-        setRecaptchaToken(token);
-    };
+    const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
     // Handle file selection (store in state only, no upload yet)
     const handleFileSelect = (file: File) => {
@@ -694,14 +689,14 @@ export default function SignupForm() {
                             </div>
                         )}
 
-                        {/* reCAPTCHA */}
+                        {/* Cloudflare Turnstile */}
                         {siteKey && (
                             <div style={{ marginBottom: '16px' }}>
-                                <ReCAPTCHA
-                                    ref={recaptchaRef}
-                                    sitekey={siteKey}
-                                    onChange={handleRecaptchaChange}
-                                    hl="en"
+                                <Turnstile
+                                    siteKey={siteKey}
+                                    onSuccess={(token) => setRecaptchaToken(token)}
+                                    onExpire={() => setRecaptchaToken(null)}
+                                    onError={() => setRecaptchaToken(null)}
                                 />
                             </div>
                         )}
