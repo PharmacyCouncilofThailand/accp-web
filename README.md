@@ -26,7 +26,7 @@ Copy `.env.example` or create `.env`:
 ```
 NEXT_PUBLIC_API_URL=http://localhost:3002
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_xxx
-NEXT_PUBLIC_RECAPTCHA_SITE_KEY=your_recaptcha_site_key
+NEXT_PUBLIC_TURNSTILE_SITE_KEY=your_turnstile_site_key
 ```
 
 ## Deploy to Netlify
@@ -40,7 +40,7 @@ NEXT_PUBLIC_RECAPTCHA_SITE_KEY=your_recaptcha_site_key
 4. Add production environment variables in Netlify:
    - `NEXT_PUBLIC_API_URL=https://<your-api-domain>`
    - `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=...`
-   - `NEXT_PUBLIC_RECAPTCHA_SITE_KEY=...`
+   - `NEXT_PUBLIC_TURNSTILE_SITE_KEY=...`
 5. Trigger deploy and verify key flows:
    - login / register / forgot password
    - abstract submission

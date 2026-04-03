@@ -1,11 +1,11 @@
 "use client";
-import { useState, useRef } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { logger } from "@/utils/logger";
-import ReCAPTCHA from "react-google-recaptcha";
+import { Turnstile } from "@marsidev/react-turnstile";
 
 export default function LoginForm() {
   const t = useTranslations("login");
@@ -19,13 +19,8 @@ export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [showPendingModal, setShowPendingModal] = useState(false);
-  const recaptchaRef = useRef<ReCAPTCHA>(null);
   const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
-  const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
-
-  const handleRecaptchaChange = (token: string | null) => {
-    setRecaptchaToken(token);
-  };
+  const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -405,14 +400,14 @@ export default function LoginForm() {
             </Link>
           </div>
 
-          {/* reCAPTCHA */}
+          {/* Cloudflare Turnstile */}
           {siteKey && (
             <div style={{ marginBottom: "20px" }}>
-              <ReCAPTCHA
-                ref={recaptchaRef}
-                sitekey={siteKey}
-                onChange={handleRecaptchaChange}
-                hl="en"
+              <Turnstile
+                siteKey={siteKey}
+                onSuccess={(token) => setRecaptchaToken(token)}
+                onExpire={() => setRecaptchaToken(null)}
+                onError={() => setRecaptchaToken(null)}
               />
             </div>
           )}
