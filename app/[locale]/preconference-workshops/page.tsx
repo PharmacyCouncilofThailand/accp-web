@@ -115,6 +115,17 @@ export default function PreconferenceWorkshops() {
 
   return (
     <>
+      <style>{`
+        .workshop-card-wrapper {
+          max-width: calc(50% - 15px);
+        }
+        @media (max-width: 768px) {
+          .workshop-card-wrapper {
+            max-width: 100% !important;
+            flex-basis: 100% !important;
+          }
+        }
+      `}</style>
       <Layout headerStyle={1} footerStyle={1}>
         <div>
           {/* Hero Header */}
@@ -495,10 +506,10 @@ export default function PreconferenceWorkshops() {
                     return (
                       <div
                         key={workshop.id}
+                        className="workshop-card-wrapper"
                         style={{
                           flex: "1 1 calc(50% - 15px)",
-                          minWidth: "300px",
-                          maxWidth: "calc(50% - 15px)",
+                          minWidth: "280px",
                         }}
                         data-aos="fade-up"
                         data-aos-duration={800}
