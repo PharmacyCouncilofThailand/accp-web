@@ -5,6 +5,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { api } from "@/lib/api";
+import toast from "react-hot-toast";
 
 interface WorkshopTicket {
   id: number;
@@ -31,6 +32,7 @@ interface Workshop {
   tickets: WorkshopTicket[];
   instructors: { name: string; affiliation?: string }[];
   agenda: { time: string; topic: string }[] | null;
+  documents?: { name: string; url: string }[];
   color: string;
   icon: string;
   isFull: boolean;
@@ -51,6 +53,7 @@ export default function PreconferenceWorkshops() {
   const [expandedWorkshops, setExpandedWorkshops] = useState<Set<number>>(
     new Set(),
   );
+  const [downloadingDoc, setDownloadingDoc] = useState<string | null>(null);
   const [registeredWorkshopSessionIds, setRegisteredWorkshopSessionIds] =
     useState<Set<number>>(new Set());
   const [hasPrimaryTicket, setHasPrimaryTicket] = useState(false);
@@ -904,6 +907,117 @@ export default function PreconferenceWorkshops() {
                                   </p>
                                 )}
                               </div>
+
+                              {/* Workshop Documents */}
+                              {workshop.documents && workshop.documents.length > 0 && (
+                                <div style={{ marginBottom: "20px" }}>
+                                  <p
+                                    style={{
+                                      margin: "0 0 10px 0",
+                                      fontSize: "11px",
+                                      color: "#999",
+                                      textTransform: "uppercase",
+                                      fontWeight: 600,
+                                    }}
+                                  >
+                                    <i
+                                      className="fa-solid fa-file-arrow-down"
+                                      style={{ marginRight: "5px" }}
+                                    />
+                                    {locale === "th" ? "เอกสารประกอบ" : "Workshop Documents"}
+                                  </p>
+                                  <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                                    {workshop.documents.map((doc, i) => {
+                                      const docKey = `${workshop.sessionId}-${i}`;
+                                      const isDownloading = downloadingDoc === docKey;
+                                      return (
+                                        <button
+                                          key={i}
+                                          type="button"
+                                          disabled={isDownloading}
+                                          onClick={async () => {
+                                            setDownloadingDoc(docKey);
+                                            try {
+                                              const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
+                                              const downloadUrl = `${API_URL}/api/upload/download?url=${encodeURIComponent(doc.url)}&name=${encodeURIComponent(doc.name)}`;
+                                              const res = await fetch(downloadUrl);
+                                              if (!res.ok) throw new Error("Download failed");
+                                              const blob = await res.blob();
+                                              const url = window.URL.createObjectURL(blob);
+                                              const a = document.createElement("a");
+                                              a.href = url;
+                                              a.download = doc.name;
+                                              document.body.appendChild(a);
+                                              a.click();
+                                              a.remove();
+                                              window.URL.revokeObjectURL(url);
+                                              toast.success(
+                                                locale === "th"
+                                                  ? `ดาวน์โหลด ${doc.name} สำเร็จ`
+                                                  : `Downloaded ${doc.name}`,
+                                              );
+                                            } catch {
+                                              toast.error(
+                                                locale === "th"
+                                                  ? "ดาวน์โหลดไม่สำเร็จ"
+                                                  : "Download failed",
+                                              );
+                                            } finally {
+                                              setDownloadingDoc(null);
+                                            }
+                                          }}
+                                          style={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: "10px",
+                                            padding: "10px 14px",
+                                            backgroundColor: isDownloading ? "#eef2ff" : "#f8f9fa",
+                                            borderRadius: "8px",
+                                            border: `1px solid ${isDownloading ? workshop.color + "40" : "#e5e7eb"}`,
+                                            color: "#333",
+                                            cursor: isDownloading ? "wait" : "pointer",
+                                            width: "100%",
+                                            textAlign: "left",
+                                            transition: "all 0.2s ease",
+                                            opacity: isDownloading ? 0.7 : 1,
+                                          }}
+                                          className="workshop-doc-link"
+                                        >
+                                          {isDownloading ? (
+                                            <i
+                                              className="fa-solid fa-spinner fa-spin"
+                                              style={{ fontSize: "18px", color: workshop.color, flexShrink: 0 }}
+                                            />
+                                          ) : (
+                                            <i
+                                              className="fa-solid fa-file-pdf"
+                                              style={{ fontSize: "18px", color: workshop.color, flexShrink: 0 }}
+                                            />
+                                          )}
+                                          <span
+                                            style={{
+                                              fontSize: "13px",
+                                              fontWeight: 500,
+                                              flex: 1,
+                                              overflow: "hidden",
+                                              textOverflow: "ellipsis",
+                                              whiteSpace: "nowrap",
+                                            }}
+                                          >
+                                            {isDownloading
+                                              ? (locale === "th" ? "กำลังดาวน์โหลด..." : "Downloading...")
+                                              : doc.name}
+                                          </span>
+                                          <i
+                                            className={`fa-solid ${isDownloading ? "fa-spinner fa-spin" : "fa-download"}`}
+                                            style={{ fontSize: "14px", color: "#999", flexShrink: 0 }}
+                                          />
+                                        </button>
+                                      );
+                                    })}
+                                  </div>
+                                </div>
+                              )}
 
                               {/* Footer - Enrolled + Button */}
                               <div
