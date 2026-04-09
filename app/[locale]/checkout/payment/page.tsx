@@ -302,6 +302,7 @@ export default function Payment() {
     // For full mode, need selectedPackage; for addon-only, need at least one addon
     if (!isAddonOnly && !checkoutData.selectedPackage) return;
     if (isAddonOnly && checkoutData.selectedAddOns.length === 0) return;
+    if (!tickets.length || !tickets[0]?.eventId) return;
 
     const createIntent = async () => {
       setIsCreatingIntent(true);
@@ -316,6 +317,7 @@ export default function Payment() {
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
+            eventId: tickets[0]?.eventId,
             packageId: isAddonOnly ? "" : checkoutData.selectedPackage,
             addOnIds: checkoutData.selectedAddOns,
             currency,
@@ -414,6 +416,7 @@ export default function Payment() {
     needTaxInvoice,
     locale,
     retryCount,
+    tickets,
   ]);
 
   if (!isAuthenticated) {

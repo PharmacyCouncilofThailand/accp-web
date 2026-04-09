@@ -304,6 +304,7 @@ export const api = {
             }),
 
         createIntent: (token: string, data: {
+            eventId: number;
             packageId?: string;
             addOnIds: string[];
             currency: 'THB' | 'USD';
