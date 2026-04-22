@@ -129,7 +129,16 @@ export default function MyTickets() {
     return status;
   };
 
-  const registration = ticketData?.registration || null;
+  // API returns an array of registrations. 1 user typically has 1 registration
+  // (addons are tracked in registration_sessions, not as separate registrations).
+  const registration = ticketData?.[0] || null;
+
+  const formatDateRange = (start: string | null, end: string | null) => {
+    if (!start) return "-";
+    const startStr = formatDate(start);
+    if (!end || start === end) return startStr;
+    return `${startStr} - ${formatDate(end)}`;
+  };
 
   const tickets = registration
     ? [
@@ -142,40 +151,38 @@ export default function MyTickets() {
           status: registration.status,
           purchaseDate: formatDate(registration.purchasedAt),
           amount: formatAmount(registration.amount, registration.currency),
-          includes:
-            registration.includes.length > 0
-              ? registration.includes
-              : [
-                  t("fullAccess"),
-                  t("conferenceMaterials"),
-                  t("coffeeLunch"),
-                  t("certificate"),
-                ],
+          ticketName: registration.ticketName,
+          eventName: registration.eventName,
+          eventDates: formatDateRange(
+            registration.eventStartDate,
+            registration.eventEndDate,
+          ),
+          eventLocation: registration.eventLocation || "-",
           receiptUrl: registration.receiptUrl,
         },
       ]
     : [];
 
-  const galaDinnerTicket = ticketData?.galaTicket
+  const galaDinnerTicket = registration?.galaTicket
     ? {
-        id: ticketData.galaTicket.id,
-        name: ticketData.galaTicket.name,
-        status: ticketData.galaTicket.status,
-        date: formatDate(ticketData.galaTicket.dateTimeStart),
+        id: registration.galaTicket.id,
+        name: registration.galaTicket.name,
+        status: registration.galaTicket.status,
+        date: formatDate(registration.galaTicket.dateTimeStart),
         time: formatTimeRange(
-          ticketData.galaTicket.dateTimeStart,
-          ticketData.galaTicket.dateTimeEnd,
+          registration.galaTicket.dateTimeStart,
+          registration.galaTicket.dateTimeEnd,
         ),
-        venue: ticketData.galaTicket.venue || "-",
+        venue: registration.galaTicket.venue || "-",
         amount: formatAmount(
-          ticketData.galaTicket.amount,
-          ticketData.galaTicket.currency,
+          registration.galaTicket.amount,
+          registration.galaTicket.currency,
         ),
-        dietary: ticketData.galaTicket.dietary,
+        dietary: registration.galaTicket.dietary,
       }
     : null;
 
-  const addons = (ticketData?.workshops || []).map((workshop) => ({
+  const addons = (registration?.workshops || []).map((workshop) => ({
     id: workshop.id,
     name: workshop.name,
     status: workshop.status,
@@ -183,6 +190,14 @@ export default function MyTickets() {
     time: formatTimeRange(workshop.dateTimeStart, workshop.dateTimeEnd),
     venue: workshop.venue || "-",
     amount: formatAmount(workshop.amount, workshop.currency),
+  }));
+
+  const receipts = (registration?.receipts || []).map((r) => ({
+    orderId: r.orderId,
+    orderNumber: r.orderNumber,
+    paidOn: formatDate(r.paidAt || r.purchasedAt),
+    amount: formatAmount(r.totalAmount, r.currency),
+    url: r.receiptUrl,
   }));
 
   return (
@@ -324,23 +339,58 @@ export default function MyTickets() {
                         letterSpacing: "0.5px",
                       }}
                     >
-                      {t("registrationIncludes")}
+                      {t("ticketDetails")}
                     </h3>
-                    <ul style={{ margin: 0, paddingLeft: "20px" }}>
-                      {ticket.includes.map((item, idx) => (
-                        <li
-                          key={idx}
-                          style={{
-                            color: "#333",
-                            fontSize: "14px",
-                            marginBottom: "8px",
-                            lineHeight: "1.6",
-                          }}
-                        >
-                          {item}
-                        </li>
-                      ))}
-                    </ul>
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "auto 1fr",
+                        columnGap: "14px",
+                        rowGap: "10px",
+                        fontSize: "14px",
+                        lineHeight: "1.5",
+                      }}
+                    >
+                      <div style={{ color: "#666", fontWeight: "600" }}>
+                        <i
+                          className="fa-solid fa-ticket"
+                          style={{ marginRight: "8px", color: "#FFBA00" }}
+                        />
+                        {t("ticketType")}:
+                      </div>
+                      <div style={{ color: "#333", fontWeight: "600" }}>
+                        {ticket.ticketName}
+                      </div>
+
+                      <div style={{ color: "#666", fontWeight: "600" }}>
+                        <i
+                          className="fa-solid fa-calendar-star"
+                          style={{ marginRight: "8px", color: "#1a237e" }}
+                        />
+                        {t("event")}:
+                      </div>
+                      <div style={{ color: "#333" }}>{ticket.eventName}</div>
+
+                      <div style={{ color: "#666", fontWeight: "600" }}>
+                        <i
+                          className="fa-solid fa-calendar-days"
+                          style={{ marginRight: "8px", color: "#1a237e" }}
+                        />
+                        {t("eventDate")}:
+                      </div>
+                      <div style={{ color: "#333" }}>{ticket.eventDates}</div>
+
+                      <div style={{ color: "#666", fontWeight: "600" }}>
+                        <i
+                          className="fa-solid fa-location-dot"
+                          style={{ marginRight: "8px", color: "#1a237e" }}
+                        />
+                        {t("venue")}:
+                      </div>
+                      <div style={{ color: "#333" }}>
+                        {ticket.eventLocation}
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -629,6 +679,111 @@ export default function MyTickets() {
                   </div>
                 </div>
               ))}
+            </div>
+          )}
+
+          {/* Receipts Section */}
+          {receipts.length > 0 && (
+            <div className="ticket-card">
+              <h2
+                style={{
+                  fontSize: "22px",
+                  fontWeight: "700",
+                  color: "#333",
+                  marginBottom: "25px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "12px",
+                }}
+              >
+                <i
+                  className="fa-solid fa-receipt"
+                  style={{ color: "#1a237e" }}
+                />
+                {t("downloadReceipt")}
+              </h2>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                {receipts.map((receipt) => (
+                  <div
+                    key={receipt.orderId}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      padding: "16px 20px",
+                      background: "#f8f9fa",
+                      border: "1px solid #e0e0e0",
+                      borderRadius: "12px",
+                      flexWrap: "wrap",
+                      gap: "12px",
+                    }}
+                  >
+                    <div style={{ flex: "1 1 auto", minWidth: "200px" }}>
+                      <div
+                        style={{
+                          fontFamily: "monospace",
+                          fontSize: "14px",
+                          fontWeight: "700",
+                          color: "#1a237e",
+                          marginBottom: "4px",
+                        }}
+                      >
+                        {receipt.orderNumber}
+                      </div>
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: "16px",
+                          fontSize: "13px",
+                          color: "#666",
+                          flexWrap: "wrap",
+                        }}
+                      >
+                        <span>
+                          <i
+                            className="fa-solid fa-calendar"
+                            style={{ marginRight: "6px", color: "#999" }}
+                          />
+                          {receipt.paidOn}
+                        </span>
+                        <span style={{ color: "#00C853", fontWeight: "700" }}>
+                          <i
+                            className="fa-solid fa-tag"
+                            style={{ marginRight: "6px" }}
+                          />
+                          {receipt.amount}
+                        </span>
+                      </div>
+                    </div>
+                    <a
+                      href={receipt.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        padding: "10px 20px",
+                        background:
+                          "linear-gradient(135deg, #1a237e 0%, #3949ab 100%)",
+                        border: "none",
+                        borderRadius: "10px",
+                        color: "#fff",
+                        fontSize: "13px",
+                        fontWeight: "600",
+                        cursor: "pointer",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "8px",
+                        textDecoration: "none",
+                        transition: "all 0.3s ease",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      <i className="fa-solid fa-download" />
+                      {t("downloadReceipt")}
+                    </a>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </div>
