@@ -89,14 +89,15 @@ export default function PreconferenceWorkshops() {
       try {
         const res = await api.payments.myTickets(token);
         if (res.success) {
-          if (res.data.registration?.status === "confirmed") {
+          const registration = res.data[0] || null;
+          if (registration?.status === "confirmed") {
             setHasPrimaryTicket(true);
           } else {
             setHasPrimaryTicket(false);
           }
-          if (res.data.workshops && res.data.workshops.length > 0) {
+          if (registration?.workshops && registration.workshops.length > 0) {
             setRegisteredWorkshopSessionIds(
-              new Set(res.data.workshops.map((w) => w.sessionId)),
+              new Set(registration.workshops.map((w) => w.sessionId)),
             );
           } else {
             setRegisteredWorkshopSessionIds(new Set());
