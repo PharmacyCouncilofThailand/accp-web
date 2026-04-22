@@ -1,4 +1,5 @@
 'use client'
+import Image from 'next/image'
 import Link from "next/link"
 import { Speaker } from '@/data/speakersData'
 
@@ -6,12 +7,12 @@ export default function SpeakerCard({ speaker }: { speaker: Speaker }) {
     return (
         <div className="our-team-boxarea">
             <div className="team-widget-area">
-                <img src="/assets/img/elements/elements25.png" alt="" className="elements21" />
-                <img src="/assets/img/elements/elements26.png" alt="" className="elements22" />
+                <Image src="/assets/img/elements/elements25.png" alt="" className="elements21" width={80} height={80} sizes="80px" />
+                <Image src="/assets/img/elements/elements26.png" alt="" className="elements22" width={80} height={80} sizes="80px" />
                 <div className="img1">
-                    <img src={speaker.image} alt={speaker.name} className="team-img4" />
+                    <Image src={speaker.image} alt={speaker.name} className="team-img4" width={400} height={400} sizes="(max-width: 768px) 100vw, 33vw" />
                     <div className="share">
-                        <Link href="#"><img src="/assets/img/icons/share1.svg" alt="" /></Link>
+                        <Link href="#"><Image src="/assets/img/icons/share1.svg" alt="" width={24} height={24} /></Link>
                     </div>
                     <ul>
                         {speaker.socials.facebook && (

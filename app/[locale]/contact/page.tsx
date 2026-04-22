@@ -2,6 +2,7 @@
 import { useTranslations, useLocale } from 'next-intl';
 import Layout from "@/components/layout/Layout"
 import Link from "next/link"
+import Image from "next/image"
 import ContactForm from '@/components/sections/contact/ContactForm';
 import ContactInfo from '@/components/sections/contact/ContactInfo';
 
@@ -32,7 +33,7 @@ export default function Contact() {
 					<div className="container">
 						<div className="row">
 							<div className="col-lg-6">
-									<img src="/assets/img/all-images/contact/Contact-Us.png" alt="" style={{ width: '100%', height: 'auto', borderRadius: '10px' }} />
+									<Image src="/assets/img/all-images/contact/Contact-Us.png" alt="Contact Us" width={800} height={600} sizes="(max-width: 991px) 100vw, 50vw" style={{ width: '100%', height: 'auto', borderRadius: '10px' }} />
 							</div>
 							<div className="col-lg-6" data-aos="zoom-in" data-aos-duration={1000}>
 								<ContactForm />

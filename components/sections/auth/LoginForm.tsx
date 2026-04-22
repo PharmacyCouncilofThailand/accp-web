@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
@@ -172,9 +173,12 @@ export default function LoginForm() {
             }}
           >
             <div style={{ marginBottom: "24px" }}>
-              <img
+              <Image
                 src="/assets/img/logo/accp_logo_main.png"
                 alt="ACCP 2026"
+                width={80}
+                height={80}
+                sizes="80px"
                 style={{ height: "80px", width: "auto", margin: "0 auto" }}
               />
             </div>
@@ -235,9 +239,12 @@ export default function LoginForm() {
         {/* Logo */}
         <div style={{ textAlign: "center", marginBottom: "32px" }}>
           <Link href={`/${locale}`}>
-            <img
+            <Image
               src="/assets/img/logo/accp_logo_main.png"
               alt="ACCP 2026"
+              width={80}
+              height={80}
+              sizes="80px"
               style={{ height: "80px", width: "auto" }}
             />
           </Link>

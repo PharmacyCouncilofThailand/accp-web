@@ -3,6 +3,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import Layout from "@/components/layout/Layout"
 
 import Link from "next/link"
+import Image from "next/image"
 import CommitteeSection from '@/components/sections/about/CommitteeSection';
 
 export default function About() {
@@ -55,9 +56,12 @@ export default function About() {
 												boxShadow: '0 20px 40px rgba(0, 0, 0, 0.15), 0 0 40px rgba(255, 186, 0, 0.1)',
 												transition: 'transform 0.4s ease, box-shadow 0.4s ease',
 											}}>
-												<img
+												<Image
 													src="/assets/img/all-images/accp2026-poster.jpg"
 													alt="ACCP 2026 Bangkok - Borderless Pharmacy Practice"
+													width={800}
+													height={1100}
+													sizes="(max-width: 991px) 85vw, 35vw"
 													style={{
 														width: '100%',
 														height: 'auto',
@@ -116,7 +120,7 @@ export default function About() {
 							<div className="row">
 								<div className="col-12" data-aos="fade-up" data-aos-duration={1000}>
 									<div className="history-timeline-wrapper" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
-										<img src="/assets/img/all-images/about/The_1st_EACDCPPE_Alabama_USA.png" alt="History of ACCP Timeline" style={{ width: '100%', minWidth: '600px', borderRadius: '8px' }} />
+										<Image src="/assets/img/all-images/about/The_1st_EACDCPPE_Alabama_USA.png" alt="History of ACCP Timeline" width={1400} height={400} sizes="100vw" style={{ width: '100%', minWidth: '600px', borderRadius: '8px' }} />
 									</div>
 								</div>
 							</div>

@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import Image from "next/image";
 
 interface PaymentMethodCardProps {
   id: string;
@@ -116,14 +117,18 @@ export default function PaymentMethodCard({
       <div style={{ marginBottom: "14px" }}>
         {payIcon ? (
           <div style={{ display: "inline-block" }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <Image
               src={payIcon.src}
               alt={title}
+              width={payIcon.maxWidth}
+              height={payIcon.maxHeight}
+              sizes={`${payIcon.maxWidth}px`}
               style={{
                 maxWidth: `${payIcon.maxWidth}px`,
                 maxHeight: `${payIcon.maxHeight}px`,
                 objectFit: "contain",
+                width: 'auto',
+                height: 'auto'
               }}
             />
           </div>

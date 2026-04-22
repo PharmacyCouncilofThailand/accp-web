@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useTranslations, useLocale } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { PhoneInput } from 'react-international-phone';
@@ -264,7 +265,8 @@ export default function SignupForm() {
                             boxShadow: '0 4px 24px rgba(0,0,0,0.2)'
                         }}>
                             <div style={{ marginBottom: '24px' }}>
-                                <img src="/assets/img/logo/accp_logo_main.png" alt="ACCP 2026"
+                                <Image src="/assets/img/logo/accp_logo_main.png" alt="ACCP 2026"
+                                    width={80} height={80} sizes="80px"
                                     style={{ height: '80px', width: 'auto', margin: '0 auto' }} />
                             </div>
                             <div style={{ fontSize: '48px', marginBottom: '24px' }}>
@@ -312,7 +314,8 @@ export default function SignupForm() {
                 {/* Logo */}
                 <div style={{ textAlign: 'center', marginBottom: '24px' }}>
                     <Link href={`/${locale}`}>
-                        <img src="/assets/img/logo/accp_logo_main.png" alt="ACCP 2026"
+                        <Image src="/assets/img/logo/accp_logo_main.png" alt="ACCP 2026"
+                            width={80} height={80} sizes="80px"
                             style={{ height: '80px', width: 'auto' }} />
                     </Link>
                 </div>

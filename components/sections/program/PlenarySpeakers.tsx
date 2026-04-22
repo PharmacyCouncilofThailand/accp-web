@@ -111,6 +111,9 @@ export default function PlenarySpeakers() {
                                         <img
                                             src={getSpeakerImageUrl(speaker.photoUrl)}
                                             alt={`${speaker.firstName} ${speaker.lastName}`}
+                                            loading="lazy"
+                                            width={400}
+                                            height={400}
                                             style={{
                                                 width: '100%',
                                                 height: '100%',

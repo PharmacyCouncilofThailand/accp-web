@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
+import Image from 'next/image'
 
 export default function Popup() {
 	const [isVisible, setIsVisible] = useState(false)
@@ -63,9 +64,13 @@ export default function Popup() {
 						justifyContent: 'center',
 						alignItems: 'center'
 					}}>
-						<img
+						<Image
 							src="/assets/img/memorial-popup.png"
 							alt="In Remembrance"
+							width={900}
+							height={600}
+							sizes="(max-width: 900px) 95vw, 900px"
+							priority
 							style={{
 								width: 'auto',
 								height: 'auto',

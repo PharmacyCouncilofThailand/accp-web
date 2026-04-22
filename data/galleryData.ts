@@ -26,35 +26,35 @@ export const galleryData = {
         },
         images: [
             // Centara Grand & Bangkok Convention Centre at CentralWorld
-            { id: 1, src: "/assets/img/gallery/venue/Centara Grand & Bangkok Convention Centre at CentralWorld/Centara Grand Central World - City Center (2).jpg", alt: "Centara Grand Central World", category: "centara" },
-            { id: 2, src: "/assets/img/gallery/venue/Centara Grand & Bangkok Convention Centre at CentralWorld/Present_Centralworld_06.jpg", alt: "Centara Grand Exterior", category: "centara" },
-            { id: 3, src: "/assets/img/gallery/venue/Centara Grand & Bangkok Convention Centre at CentralWorld/Present_Centralworld_07.jpg", alt: "Centara Grand View", category: "centara" },
-            { id: 4, src: "/assets/img/gallery/venue/Centara Grand & Bangkok Convention Centre at CentralWorld/Present_Centralworld_08.jpg", alt: "Centara Grand at Night", category: "centara" },
+            { id: 1, src: "/assets/img/gallery/venue/centara-grand-convention/centara-grand-central-world-city-center-2.jpg", alt: "Centara Grand Central World", category: "centara" },
+            { id: 2, src: "/assets/img/gallery/venue/centara-grand-convention/Present_Centralworld_06.jpg", alt: "Centara Grand Exterior", category: "centara" },
+            { id: 3, src: "/assets/img/gallery/venue/centara-grand-convention/Present_Centralworld_07.jpg", alt: "Centara Grand View", category: "centara" },
+            { id: 4, src: "/assets/img/gallery/venue/centara-grand-convention/Present_Centralworld_08.jpg", alt: "Centara Grand at Night", category: "centara" },
 
             // World Ballroom
-            { id: 5, src: "/assets/img/gallery/venue/World Ballroom/World Ballroom.jpg", alt: "World Ballroom", category: "world_ballroom" },
-            { id: 6, src: "/assets/img/gallery/venue/World Ballroom/Pre Function - World  Ballroom.jpg", alt: "Pre-Function Area", category: "world_ballroom" },
-            { id: 7, src: "/assets/img/gallery/venue/World Ballroom/cgcw-world-ballroom_0.jpg.jpg", alt: "World Ballroom Interior", category: "world_ballroom" },
-            { id: 8, src: "/assets/img/gallery/venue/World Ballroom/cgcw-bangkok-convention-centre-06.jpg.jpg", alt: "World Ballroom Setup", category: "world_ballroom" },
+            { id: 5, src: "/assets/img/gallery/venue/world-ballroom/world-ballroom.jpg", alt: "World Ballroom", category: "world_ballroom" },
+            { id: 6, src: "/assets/img/gallery/venue/world-ballroom/pre-function-world-ballroom.jpg", alt: "Pre-Function Area", category: "world_ballroom" },
+            { id: 7, src: "/assets/img/gallery/venue/world-ballroom/cgcw-world-ballroom_0.jpg.jpg", alt: "World Ballroom Interior", category: "world_ballroom" },
+            { id: 8, src: "/assets/img/gallery/venue/world-ballroom/cgcw-bangkok-convention-centre-06.jpg.jpg", alt: "World Ballroom Setup", category: "world_ballroom" },
 
             // Convention Center
-            { id: 9, src: "/assets/img/gallery/venue/Convention Center/CGCW_lotus-suite-1-4-01.jpg.jpg", alt: "Convention Center Hall", category: "convention_center" },
-            { id: 10, src: "/assets/img/gallery/venue/Convention Center/CGCW_lotus-suite-03.jpg.jpg", alt: "Lotus Suite", category: "convention_center" },
-            { id: 11, src: "/assets/img/gallery/venue/Convention Center/cgcw-lotus-suite-3-01.jpg.jpg", alt: "Lotus Suite Setup", category: "convention_center" },
+            { id: 9, src: "/assets/img/gallery/venue/convention-center/CGCW_lotus-suite-1-4-01.jpg.jpg", alt: "Convention Center Hall", category: "convention_center" },
+            { id: 10, src: "/assets/img/gallery/venue/convention-center/CGCW_lotus-suite-03.jpg.jpg", alt: "Lotus Suite", category: "convention_center" },
+            { id: 11, src: "/assets/img/gallery/venue/convention-center/cgcw-lotus-suite-3-01.jpg.jpg", alt: "Lotus Suite Setup", category: "convention_center" },
 
             // Meeting Room
-            { id: 12, src: "/assets/img/gallery/venue/Meeting Room/CGCW_m1-meeting-room-02.jpg.jpg", alt: "Meeting Room M1", category: "meeting_room" },
-            { id: 13, src: "/assets/img/gallery/venue/Meeting Room/CGCW_m2-meeting-room-02.jpg.jpg", alt: "Meeting Room M2", category: "meeting_room" },
-            { id: 14, src: "/assets/img/gallery/venue/Meeting Room/CGCW_m23-04.jpg.jpg", alt: "Meeting Room M23", category: "meeting_room" },
+            { id: 12, src: "/assets/img/gallery/venue/meeting-room/CGCW_m1-meeting-room-02.jpg.jpg", alt: "Meeting Room M1", category: "meeting_room" },
+            { id: 13, src: "/assets/img/gallery/venue/meeting-room/CGCW_m2-meeting-room-02.jpg.jpg", alt: "Meeting Room M2", category: "meeting_room" },
+            { id: 14, src: "/assets/img/gallery/venue/meeting-room/CGCW_m23-04.jpg.jpg", alt: "Meeting Room M23", category: "meeting_room" },
 
             // Exhibition Room
-            { id: 15, src: "/assets/img/gallery/venue/Exhibition Room/cgcw-bangkok-convention-centre-07_3.jpg.jpg", alt: "Exhibition Hall", category: "exhibition_room" },
+            { id: 15, src: "/assets/img/gallery/venue/exhibition-room/cgcw-bangkok-convention-centre-07_3.jpg.jpg", alt: "Exhibition Hall", category: "exhibition_room" },
 
             // Restaurant and Lobby
-            { id: 16, src: "/assets/img/gallery/venue/Restaurant and Looby/Sky Lobby - Centara Grand Central World 24.jpg", alt: "Sky Lobby", category: "restaurant_and_lobby" },
-            { id: 17, src: "/assets/img/gallery/venue/Restaurant and Looby/cgcw-red-sky-restaurant.jpg", alt: "Red Sky Restaurant", category: "restaurant_and_lobby" },
-            { id: 18, src: "/assets/img/gallery/venue/Restaurant and Looby/cgcw-cocoa-xo-01.jpg", alt: "Cocoa XO", category: "restaurant_and_lobby" },
-            { id: 19, src: "/assets/img/gallery/venue/Restaurant and Looby/cgcw-unomas-04.jpg", alt: "Uno Mas", category: "restaurant_and_lobby" },
+            { id: 16, src: "/assets/img/gallery/venue/restaurant-and-lobby/sky-lobby-centara-grand-central-world-24.jpg", alt: "Sky Lobby", category: "restaurant_and_lobby" },
+            { id: 17, src: "/assets/img/gallery/venue/restaurant-and-lobby/cgcw-red-sky-restaurant.jpg", alt: "Red Sky Restaurant", category: "restaurant_and_lobby" },
+            { id: 18, src: "/assets/img/gallery/venue/restaurant-and-lobby/cgcw-cocoa-xo-01.jpg", alt: "Cocoa XO", category: "restaurant_and_lobby" },
+            { id: 19, src: "/assets/img/gallery/venue/restaurant-and-lobby/cgcw-unomas-04.jpg", alt: "Uno Mas", category: "restaurant_and_lobby" },
         ]
     },
     bangkok: {

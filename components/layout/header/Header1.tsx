@@ -2,6 +2,7 @@
 import { useState, useCallback } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import Switch from "react-switch";
 import { US, TH } from "country-flag-icons/react/3x2";
@@ -160,13 +161,17 @@ export default function Header1({
                 <div className="header-elements">
                   <div className="site-logo">
                     <Link href={`/${locale}`}>
-                      <img
+                      <Image
                         src={
                           isHeaderWhite
                             ? "/assets/img/logo/ACCP-BANGKOK-2026-04.png"
                             : "/assets/img/logo/ACCP-2026-Logo-White.png"
                         }
                         alt="ACCP 2026"
+                        width={300}
+                        height={150}
+                        priority
+                        sizes="(max-width: 768px) 120px, 300px"
                         style={{
                           height: isHeaderWhite ? "55px" : "150px",
                           width: "auto",
@@ -657,9 +662,13 @@ export default function Header1({
             <div className="mobile-header-elements">
               <div className="mobile-logo">
                 <Link href={`/${locale}`}>
-                  <img
+                  <Image
                     src="/assets/img/logo/ACCP-2026-Logo-White.png"
                     alt="ACCP 2026"
+                    width={200}
+                    height={60}
+                    priority
+                    sizes="120px"
                     style={{ height: "60px", width: "auto" }}
                   />
                 </Link>

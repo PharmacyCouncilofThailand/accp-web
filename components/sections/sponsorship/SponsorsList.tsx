@@ -1,4 +1,5 @@
 'use client'
+import Image from 'next/image'
 import { useTranslations } from 'next-intl';
 import { sponsorLogos } from '@/data/sponsorshipData';
 
@@ -38,9 +39,12 @@ export default function SponsorsList() {
                                             justifyContent: 'center'
                                         }}
                                     >
-                                        <img
+                                        <Image
                                             src={sponsor.logo}
                                             alt={sponsor.name}
+                                            width={200}
+                                            height={80}
+                                            sizes="(max-width: 768px) 50vw, 200px"
                                             style={{
                                                 maxWidth: '100%',
                                                 height: 'auto',

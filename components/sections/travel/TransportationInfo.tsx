@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 import { interchangeStations } from "@/data/travelData"
 
@@ -210,9 +211,12 @@ export default function TransportationInfo() {
                                                 height: 'auto',
                                                 transition: 'width 0.3s ease',
                                             }}>
-                                                <img
+                                                <Image
                                                     src="/assets/img/theskytrain_map.png"
                                                     alt="Bangkok BTS and MRT Train Map"
+                                                    width={2000}
+                                                    height={1400}
+                                                    sizes="100vw"
                                                     style={{
                                                         display: 'block',
                                                         width: '100%',

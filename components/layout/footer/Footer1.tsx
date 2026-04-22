@@ -1,6 +1,7 @@
 'use client'
 import { useTranslations, useLocale } from 'next-intl';
 import Link from 'next/link'
+import Image from 'next/image'
 
 
 export default function Footer1() {
@@ -20,7 +21,7 @@ export default function Footer1() {
 						{/* Logo & Description */}
 						<div className="col-lg-3 col-md-6">
 							<div className="footer-logo-area">
-								<img src="/assets/img/logo/footer-logo-new.png" alt="ACCP 2026" style={{ height: '60px', width: 'auto', display: 'block', margin: '0' }} />
+								<Image src="/assets/img/logo/footer-logo-new.png" alt="ACCP 2026" width={200} height={60} sizes="200px" style={{ height: '60px', width: 'auto', display: 'block', margin: '0' }} />
 								<div style={{ height: '30px' }} />
 								<p>{t('footer.description')}</p>
 								<div className="space24" />
@@ -63,7 +64,7 @@ export default function Footer1() {
 									{/* Top row - Memory images */}
 									<div className="col-lg-4 col-md-4 col-4">
 										<div className="img1">
-											<img src="/assets/img/all-images/memory/memory1.jpg" alt="" style={{ width: '100%', height: '80px', objectFit: 'cover' }} />
+											<Image src="/assets/img/all-images/memory/memory1.jpg" alt="" width={200} height={80} sizes="(max-width: 768px) 33vw, 100px" style={{ width: '100%', height: '80px', objectFit: 'cover' }} />
 											<div className="icons">
 												<Link href={`/${locale}/gallery`}><i className="fa-solid fa-arrow-right" /></Link>
 											</div>
@@ -71,7 +72,7 @@ export default function Footer1() {
 									</div>
 									<div className="col-lg-4 col-md-4 col-4">
 										<div className="img1">
-											<img src="/assets/img/all-images/memory/memory3.jpg" alt="" style={{ width: '100%', height: '80px', objectFit: 'cover' }} />
+											<Image src="/assets/img/all-images/memory/memory3.jpg" alt="" width={200} height={80} sizes="(max-width: 768px) 33vw, 100px" style={{ width: '100%', height: '80px', objectFit: 'cover' }} />
 											<div className="icons">
 												<Link href={`/${locale}/gallery`}><i className="fa-solid fa-arrow-right" /></Link>
 											</div>
@@ -79,7 +80,7 @@ export default function Footer1() {
 									</div>
 									<div className="col-lg-4 col-md-4 col-4">
 										<div className="img1">
-											<img src="/assets/img/all-images/memory/memory4.jpg" alt="" style={{ width: '100%', height: '80px', objectFit: 'cover' }} />
+											<Image src="/assets/img/all-images/memory/memory4.jpg" alt="" width={200} height={80} sizes="(max-width: 768px) 33vw, 100px" style={{ width: '100%', height: '80px', objectFit: 'cover' }} />
 											<div className="icons">
 												<Link href={`/${locale}/gallery`}><i className="fa-solid fa-arrow-right" /></Link>
 											</div>
@@ -88,7 +89,7 @@ export default function Footer1() {
 									{/* Bottom row - Bangkok images */}
 									<div className="col-lg-4 col-md-4 col-4">
 										<div className="img1">
-											<img src="/assets/img/all-images/bangkok/img1.jpg" alt="" style={{ width: '100%', height: '80px', objectFit: 'cover' }} />
+											<Image src="/assets/img/all-images/bangkok/img1.jpg" alt="" width={200} height={80} sizes="(max-width: 768px) 33vw, 100px" style={{ width: '100%', height: '80px', objectFit: 'cover' }} />
 											<div className="icons">
 												<Link href={`/${locale}/gallery`}><i className="fa-solid fa-arrow-right" /></Link>
 											</div>
@@ -96,7 +97,7 @@ export default function Footer1() {
 									</div>
 									<div className="col-lg-4 col-md-4 col-4">
 										<div className="img1">
-											<img src="/assets/img/all-images/bangkok/img3.jpg" alt="" style={{ width: '100%', height: '80px', objectFit: 'cover' }} />
+											<Image src="/assets/img/all-images/bangkok/img3.jpg" alt="" width={200} height={80} sizes="(max-width: 768px) 33vw, 100px" style={{ width: '100%', height: '80px', objectFit: 'cover' }} />
 											<div className="icons">
 												<Link href={`/${locale}/gallery`}><i className="fa-solid fa-arrow-right" /></Link>
 											</div>
@@ -104,7 +105,7 @@ export default function Footer1() {
 									</div>
 									<div className="col-lg-4 col-md-4 col-4">
 										<div className="img1">
-											<img src="/assets/img/all-images/bangkok/img9.jpg" alt="" style={{ width: '100%', height: '80px', objectFit: 'cover' }} />
+											<Image src="/assets/img/all-images/bangkok/img9.jpg" alt="" width={200} height={80} sizes="(max-width: 768px) 33vw, 100px" style={{ width: '100%', height: '80px', objectFit: 'cover' }} />
 											<div className="icons">
 												<Link href={`/${locale}/gallery`}><i className="fa-solid fa-arrow-right" /></Link>
 											</div>

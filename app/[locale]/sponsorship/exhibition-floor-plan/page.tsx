@@ -43,7 +43,7 @@ export default function ExhibitionFloorPlan() {
                                         <h3 className="mb-4" style={{ color: '#fff' }}>Download Exhibition Floor Plan</h3>
 
                                         <a
-                                            href="/assets/img/Venue Floor Plan/Centara Grand _ Bangkok Convention Centre at CentralWorld - Floor Plan WorldBallroom.jpg"
+                                            href="/assets/img/venue-floor-plan/floor-plan-world-ballroom.jpg"
                                             download="Centara Grand - Floor Plan WorldBallroom.jpg"
                                             className="hover-scale"
                                             style={{
