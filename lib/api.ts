@@ -139,45 +139,63 @@ export interface TicketGroup {
     tickets: TicketType[];
 }
 
+export interface MyTicketItem {
+    regCode: string;
+    eventId: number;
+    eventCode: string;
+    eventName: string;
+    eventStartDate: string | null;
+    eventEndDate: string | null;
+    eventLocation: string | null;
+    eventImageUrl: string | null;
+    websiteUrl: string | null;
+    status: string;
+    ticketName: string;
+    ticketTypeId: number;
+    priority: 'early_bird' | 'regular';
+    purchasedAt: string | null;
+    amount: string;
+    currency: string;
+    includes: string[];
+    receiptUrl: string | null;
+    receipts: {
+        orderId: number;
+        orderNumber: string;
+        totalAmount: string;
+        currency: string;
+        purchasedAt: string | null;
+        paidAt: string | null;
+        receiptUrl: string;
+    }[];
+    galaTicket: {
+        id: string;
+        status: string;
+        name: string;
+        purchasedAt: string | null;
+        amount: string;
+        currency: string;
+        dateTimeStart: string | null;
+        dateTimeEnd: string | null;
+        venue: string | null;
+        dietary: string | null;
+    } | null;
+    workshops: {
+        id: string;
+        sessionId: number;
+        status: string;
+        name: string;
+        purchasedAt: string | null;
+        amount: string;
+        currency: string;
+        dateTimeStart: string | null;
+        dateTimeEnd: string | null;
+        venue: string | null;
+    }[];
+}
+
 export interface MyTicketsResponse {
     success: boolean;
-    data: {
-        registration: {
-            regCode: string;
-            status: string;
-            ticketName: string;
-            priority: 'early_bird' | 'regular';
-            purchasedAt: string | null;
-            amount: string;
-            currency: string;
-            includes: string[];
-            receiptUrl: string | null;
-        } | null;
-        galaTicket: {
-            id: string;
-            status: string;
-            name: string;
-            purchasedAt: string | null;
-            amount: string;
-            currency: string;
-            dateTimeStart: string | null;
-            dateTimeEnd: string | null;
-            venue: string | null;
-            dietary: string | null;
-        } | null;
-        workshops: {
-            id: string;
-            sessionId: number;
-            status: string;
-            name: string;
-            purchasedAt: string | null;
-            amount: string;
-            currency: string;
-            dateTimeStart: string | null;
-            dateTimeEnd: string | null;
-            venue: string | null;
-        }[];
-    };
+    data: MyTicketItem[];
 }
 
 // ============================================================================
