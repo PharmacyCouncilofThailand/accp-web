@@ -175,6 +175,7 @@ export default function Registration() {
     // Pre-fill user data
     updateCheckoutData({
       firstName: user?.firstName || "",
+      middleName: user?.middleName || "",
       lastName: user?.lastName || "",
       email: user?.email || "",
       country: user?.country || "",
@@ -534,7 +535,7 @@ export default function Registration() {
                   </h3>
 
                   <div className="row">
-                    <div className="col-md-6">
+                    <div className="col-md-4">
                       <FormInput
                         label={t("firstName")}
                         type="text"
@@ -547,7 +548,19 @@ export default function Registration() {
                         required
                       />
                     </div>
-                    <div className="col-md-6">
+                    <div className="col-md-4">
+                      <FormInput
+                        label={t("middleName")}
+                        type="text"
+                        name="middleName"
+                        value={checkoutData.middleName || ""}
+                        onChange={(e) =>
+                          updateCheckoutData({ middleName: e.target.value })
+                        }
+                        placeholder={t("middleNamePlaceholder")}
+                      />
+                    </div>
+                    <div className="col-md-4">
                       <FormInput
                         label={t("lastName")}
                         type="text"

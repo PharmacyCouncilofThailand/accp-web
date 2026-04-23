@@ -79,6 +79,7 @@ export interface LoginResponse {
         id: number;
         email: string;
         firstName: string;
+        middleName?: string | null;
         lastName: string;
         role: string;
         country?: string;
@@ -91,6 +92,7 @@ export interface LoginResponse {
 
 export interface RegisterData {
     firstName: string;
+    middleName?: string;
     lastName: string;
     email: string;
     password: string;

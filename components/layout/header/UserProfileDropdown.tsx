@@ -47,6 +47,11 @@ export default function UserProfileDropdown({
   // Get user initials
   const initials = `${user.firstName[0]}${user.lastName[0]}`.toUpperCase();
 
+  // Build full name including optional middle name
+  const fullName = user.middleName && user.middleName.trim()
+    ? `${user.firstName} ${user.middleName} ${user.lastName}`
+    : `${user.firstName} ${user.lastName}`;
+
   return (
     <div
       ref={dropdownRef}
@@ -105,7 +110,7 @@ export default function UserProfileDropdown({
           }}
         >
           <span style={{ fontSize: "14px", fontWeight: "600" }}>
-            {user.firstName} {user.lastName}
+            {fullName}
           </span>
         </div>
 
@@ -154,7 +159,7 @@ export default function UserProfileDropdown({
                 marginBottom: "4px",
               }}
             >
-              {user.firstName} {user.lastName}
+              {fullName}
             </div>
             <div style={{ fontSize: "13px", color: "#666" }}>{user.email}</div>
           </div>

@@ -28,6 +28,7 @@ export default function SignupForm() {
     const [activeTab, setActiveTab] = useState<TabType>('thaiStudent');
     const [isLoading, setIsLoading] = useState(false);
     const [firstName, setFirstName] = useState('');
+    const [middleName, setMiddleName] = useState('');
     const [lastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -129,6 +130,9 @@ export default function SignupForm() {
             // API Call with FormData (file will be uploaded by backend)
             const formDataToSend = new FormData();
             formDataToSend.append('firstName', firstName);
+            if (middleName.trim()) {
+                formDataToSend.append('middleName', middleName.trim());
+            }
             formDataToSend.append('lastName', lastName);
             formDataToSend.append('email', email);
             formDataToSend.append('password', password);
@@ -449,22 +453,27 @@ export default function SignupForm() {
                                 {locale === 'th' ? 'เปลี่ยน' : 'Change'}
                             </button>
                         </div>
-                        {/* Name Fields */}
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
-                            <div>
-                                <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#333', marginBottom: '6px' }}>
-                                    {t('firstName')} <span style={{ color: '#e53935' }}>*</span>
-                                </label>
-                                <input type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)}
-                                    placeholder={t('firstName')} required style={inputStyle} />
-                            </div>
-                            <div>
-                                <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#333', marginBottom: '6px' }}>
-                                    {t('lastName')} <span style={{ color: '#e53935' }}>*</span>
-                                </label>
-                                <input type="text" value={lastName} onChange={(e) => setLastName(e.target.value)}
-                                    placeholder={t('lastName')} required style={inputStyle} />
-                            </div>
+                        {/* Name Fields — Stacked: First → Middle → Last (natural order) */}
+                        <div style={{ marginBottom: '12px' }}>
+                            <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#333', marginBottom: '6px' }}>
+                                {t('firstName')} <span style={{ color: '#e53935' }}>*</span>
+                            </label>
+                            <input type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)}
+                                placeholder={t('firstName')} required style={inputStyle} />
+                        </div>
+                        <div style={{ marginBottom: '12px' }}>
+                            <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#333', marginBottom: '6px' }}>
+                                {t('middleName')}
+                            </label>
+                            <input type="text" value={middleName} onChange={(e) => setMiddleName(e.target.value)}
+                                placeholder={t('middleNamePlaceholder')} style={inputStyle} />
+                        </div>
+                        <div style={{ marginBottom: '16px' }}>
+                            <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#333', marginBottom: '6px' }}>
+                                {t('lastName')} <span style={{ color: '#e53935' }}>*</span>
+                            </label>
+                            <input type="text" value={lastName} onChange={(e) => setLastName(e.target.value)}
+                                placeholder={t('lastName')} required style={inputStyle} />
                         </div>
 
                         {/* Thai Student/Professional: ID Card */}

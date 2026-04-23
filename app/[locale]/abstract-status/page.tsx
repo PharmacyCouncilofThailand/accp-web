@@ -739,7 +739,7 @@ export default function AbstractStatus() {
                                                 </div>
                                                 <div style={{ fontWeight: '600', color: '#1a237e' }}>
                                                     {selectedAbstract.firstName && selectedAbstract.lastName 
-                                                        ? `${selectedAbstract.firstName} ${selectedAbstract.lastName}`.trim()
+                                                        ? `${selectedAbstract.firstName}${selectedAbstract.middleName ? ` ${selectedAbstract.middleName}` : ''} ${selectedAbstract.lastName}`.trim()
                                                         : selectedAbstract.authorName || 'N/A'}
                                                 </div>
                                             </div>
@@ -839,7 +839,8 @@ export default function AbstractStatus() {
                                                     border: '1px solid #dee2e6'
                                                 }}>
                                                     <div style={{ fontWeight: '700', color: '#1a237e', marginBottom: '6px', fontSize: '15px' }}>
-                                                        {idx + 1}. {author.firstName} {author.lastName}
+                                                        {idx + 1}. {author.firstName}
+                                                        {author.middleName ? ` ${author.middleName}` : ''} {author.lastName}
                                                     </div>
                                                     <div style={{ color: '#666', fontSize: '13px', display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
                                                         <span>

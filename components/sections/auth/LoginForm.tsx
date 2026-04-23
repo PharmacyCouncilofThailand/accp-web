@@ -117,6 +117,7 @@ export default function LoginForm() {
       login(
         {
           firstName: data.user.firstName,
+          middleName: data.user.middleName,
           lastName: data.user.lastName,
           email: data.user.email,
           country: data.user.country,

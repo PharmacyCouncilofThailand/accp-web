@@ -10,6 +10,7 @@ export interface CheckoutStep {
 export interface CheckoutData {
   // Step 1: Personal Info
   firstName: string;
+  middleName: string;
   lastName: string;
   email: string;
   phone: string;
@@ -58,6 +59,7 @@ export function useCheckoutWizard(totalSteps: number = 4) {
   const [isInitialized, setIsInitialized] = useState(false);
   const [checkoutData, setCheckoutData] = useState<CheckoutData>({
     firstName: "",
+    middleName: "",
     lastName: "",
     email: "",
     phone: "",
@@ -148,6 +150,7 @@ export function useCheckoutWizard(totalSteps: number = 4) {
     setCurrentStep(1);
     setCheckoutData({
       firstName: "",
+      middleName: "",
       lastName: "",
       email: "",
       phone: "",
