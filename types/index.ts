@@ -3,6 +3,7 @@ export type DelegateType = 'pharmacy_students' | 'all_delegate' | 'foreign_deleg
 
 export interface User {
   firstName: string;
+  middleName?: string | null;
   lastName: string;
   email: string;
   delegateType: DelegateType;
@@ -54,6 +55,7 @@ export interface AddOn {
 
 export interface CheckoutFormData {
   firstName: string;
+  middleName?: string;
   lastName: string;
   email: string;
   phone: string;

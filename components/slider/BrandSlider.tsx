@@ -1,4 +1,5 @@
 'use client'
+import Image from 'next/image'
 import { Swiper as SwiperOriginal, SwiperSlide as SwiperSlideOriginal } from "swiper/react"
 import { Autoplay, Navigation, Pagination } from "swiper/modules"
 
@@ -59,28 +60,28 @@ export default function BrandSlider() {
 		<>
 			<Swiper {...swiperOptions} className="brand-slider-area owl-carousel">
 				<SwiperSlide className="brand-box">
-					<img src="/assets/img/elements/brand-img1.png" alt="" />
+					<Image src="/assets/img/elements/brand-img1.png" alt="" width={200} height={60} sizes="(max-width: 575px) 100vw, (max-width: 991px) 50vw, 25vw" style={{ width: '100%', height: 'auto' }} />
 				</SwiperSlide>
 				<SwiperSlide className="brand-box">
-					<img src="/assets/img/elements/brand-img2.png" alt="" />
+					<Image src="/assets/img/elements/brand-img2.png" alt="" width={200} height={60} sizes="(max-width: 575px) 100vw, (max-width: 991px) 50vw, 25vw" style={{ width: '100%', height: 'auto' }} />
 				</SwiperSlide>
 				<SwiperSlide className="brand-box">
-					<img src="/assets/img/elements/brand-img3.png" alt="" />
+					<Image src="/assets/img/elements/brand-img3.png" alt="" width={200} height={60} sizes="(max-width: 575px) 100vw, (max-width: 991px) 50vw, 25vw" style={{ width: '100%', height: 'auto' }} />
 				</SwiperSlide>
 				<SwiperSlide className="brand-box">
-					<img src="/assets/img/elements/brand-img4.png" alt="" />
+					<Image src="/assets/img/elements/brand-img4.png" alt="" width={200} height={60} sizes="(max-width: 575px) 100vw, (max-width: 991px) 50vw, 25vw" style={{ width: '100%', height: 'auto' }} />
 				</SwiperSlide>
 				<SwiperSlide className="brand-box">
-					<img src="/assets/img/elements/brand-img5.png" alt="" />
+					<Image src="/assets/img/elements/brand-img5.png" alt="" width={200} height={60} sizes="(max-width: 575px) 100vw, (max-width: 991px) 50vw, 25vw" style={{ width: '100%', height: 'auto' }} />
 				</SwiperSlide>
 				<SwiperSlide className="brand-box">
-					<img src="/assets/img/elements/brand-img6.png" alt="" />
+					<Image src="/assets/img/elements/brand-img6.png" alt="" width={200} height={60} sizes="(max-width: 575px) 100vw, (max-width: 991px) 50vw, 25vw" style={{ width: '100%', height: 'auto' }} />
 				</SwiperSlide>
 				<SwiperSlide className="brand-box">
-					<img src="/assets/img/elements/brand-img7.png" alt="" />
+					<Image src="/assets/img/elements/brand-img7.png" alt="" width={200} height={60} sizes="(max-width: 575px) 100vw, (max-width: 991px) 50vw, 25vw" style={{ width: '100%', height: 'auto' }} />
 				</SwiperSlide>
 				<SwiperSlide className="brand-box">
-					<img src="/assets/img/elements/brand-img8.png" alt="" />
+					<Image src="/assets/img/elements/brand-img8.png" alt="" width={200} height={60} sizes="(max-width: 575px) 100vw, (max-width: 991px) 50vw, 25vw" style={{ width: '100%', height: 'auto' }} />
 				</SwiperSlide>
 			</Swiper>
 		</>

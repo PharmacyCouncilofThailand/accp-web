@@ -4,6 +4,7 @@ import { logger } from '@/utils/logger';
 
 interface User {
     firstName: string;
+    middleName?: string | null;
     lastName: string;
     email: string;
     country?: string;

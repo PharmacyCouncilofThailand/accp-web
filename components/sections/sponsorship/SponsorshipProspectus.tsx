@@ -1,4 +1,5 @@
 'use client'
+import Image from 'next/image'
 import { useTranslations } from 'next-intl';
 
 export default function SponsorshipProspectus() {
@@ -56,11 +57,13 @@ export default function SponsorshipProspectus() {
                             </ul>
 
                             <div className="text-center mt-5" style={{ textAlign: 'center', marginTop: '40px' }}>
-                                <img
+                                <Image
                                     src="/assets/img/sponsorship.png"
                                     alt="Sponsorship Confirmation Form"
-                                    className="img-fluid rounded shadow"
-                                    style={{ maxWidth: '100%', borderRadius: '10px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}
+                                    width={1200}
+                                    height={800}
+                                    sizes="(max-width: 991px) 100vw, 800px"
+                                    style={{ maxWidth: '100%', borderRadius: '10px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)', width: '100%', height: 'auto' }}
                                 />
                             </div>
                         </div>

@@ -1,5 +1,6 @@
 'use client'
 import { useState } from "react"
+import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 import { galleryData } from "@/data/galleryData"
 
@@ -194,9 +195,13 @@ export default function GallerySection() {
                                 onClick={() => openLightbox(image.src, image.alt)}
                             >
                                 <div className="image-wrapper">
-                                    <img
+                                    <Image
                                         src={image.src}
                                         alt={image.alt}
+                                        width={800}
+                                        height={600}
+                                        sizes="(max-width: 767px) 100vw, (max-width: 991px) 50vw, 33vw"
+                                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                     />
                                     <div className="overlay">
                                         <span className="location-name">{image.alt}</span>
@@ -251,16 +256,21 @@ export default function GallerySection() {
                     >
                         <i className="fa-solid fa-xmark"></i>
                     </button>
-                    <img
+                    <Image
                         src={lightboxImage.src}
                         alt={lightboxImage.alt}
+                        width={1600}
+                        height={1200}
+                        sizes="90vw"
                         onClick={(e) => e.stopPropagation()}
                         style={{
                             maxWidth: '90%',
                             maxHeight: '90vh',
                             objectFit: 'contain',
                             borderRadius: '8px',
-                            boxShadow: '0 20px 50px rgba(0,0,0,0.5)'
+                            boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
+                            width: 'auto',
+                            height: 'auto'
                         }}
                     />
                     <div style={{

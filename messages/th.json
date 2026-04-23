@@ -445,7 +445,7 @@
     "internationalLogin": "เข้าสู่ระบบเภสัชกรต่างชาติ",
     "tabs": {
       "member": "นักศึกษา",
-      "thaiPharmacist": "เภสัชกร",
+      "thaiPharmacist": "เภสัชกรไทย",
       "internationalPharmacist": "เภสัชกรต่างชาติ"
     }
   },
@@ -454,6 +454,8 @@
     "subtitle": "เข้าร่วม ACCP 2026 - ลงทะเบียนเพื่อเข้าถึงทุกฟีเจอร์",
     "createAccount": "สร้างบัญชี",
     "firstName": "ชื่อ",
+    "middleName": "ชื่อกลาง",
+    "middleNamePlaceholder": "ชื่อกลาง (ไม่บังคับ)",
     "lastName": "นามสกุล",
     "firstNameThai": "ชื่อ (ภาษาไทย)",
     "lastNameThai": "นามสกุล (ภาษาไทย)",
@@ -888,6 +890,8 @@
     "guidelineNote2": "ก่อนส่ง ผู้นำเสนอแต่ละคนสามารถส่งบทคัดย่อได้สูงสุด 2 เรื่อง",
     "section1Title": "ข้อมูลผู้เขียน",
     "firstName": "ชื่อ",
+    "middleName": "ชื่อกลาง",
+    "middleNamePlaceholder": "ชื่อกลาง (ไม่บังคับ)",
     "lastName": "นามสกุล",
     "email": "อีเมล",
     "phone": "เบอร์โทรศัพท์",
@@ -970,6 +974,8 @@
     "proceedToPayment": "ดำเนินการชำระเงิน",
     "backToPricing": "กลับไปหน้าราคา",
     "firstName": "ชื่อ",
+    "middleName": "ชื่อกลาง",
+    "middleNamePlaceholder": "ชื่อกลาง (ไม่บังคับ)",
     "lastName": "นามสกุล",
     "email": "อีเมล",
     "phone": "เบอร์โทรศัพท์",

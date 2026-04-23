@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useTranslations, useLocale } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { PhoneInput } from 'react-international-phone';
@@ -27,6 +28,7 @@ export default function SignupForm() {
     const [activeTab, setActiveTab] = useState<TabType>('thaiStudent');
     const [isLoading, setIsLoading] = useState(false);
     const [firstName, setFirstName] = useState('');
+    const [middleName, setMiddleName] = useState('');
     const [lastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -128,6 +130,9 @@ export default function SignupForm() {
             // API Call with FormData (file will be uploaded by backend)
             const formDataToSend = new FormData();
             formDataToSend.append('firstName', firstName);
+            if (middleName.trim()) {
+                formDataToSend.append('middleName', middleName.trim());
+            }
             formDataToSend.append('lastName', lastName);
             formDataToSend.append('email', email);
             formDataToSend.append('password', password);
@@ -264,7 +269,8 @@ export default function SignupForm() {
                             boxShadow: '0 4px 24px rgba(0,0,0,0.2)'
                         }}>
                             <div style={{ marginBottom: '24px' }}>
-                                <img src="/assets/img/logo/accp_logo_main.png" alt="ACCP 2026"
+                                <Image src="/assets/img/logo/accp_logo_main.png" alt="ACCP 2026"
+                                    width={80} height={80} sizes="80px"
                                     style={{ height: '80px', width: 'auto', margin: '0 auto' }} />
                             </div>
                             <div style={{ fontSize: '48px', marginBottom: '24px' }}>
@@ -312,7 +318,8 @@ export default function SignupForm() {
                 {/* Logo */}
                 <div style={{ textAlign: 'center', marginBottom: '24px' }}>
                     <Link href={`/${locale}`}>
-                        <img src="/assets/img/logo/accp_logo_main.png" alt="ACCP 2026"
+                        <Image src="/assets/img/logo/accp_logo_main.png" alt="ACCP 2026"
+                            width={80} height={80} sizes="80px"
                             style={{ height: '80px', width: 'auto' }} />
                     </Link>
                 </div>
@@ -446,22 +453,27 @@ export default function SignupForm() {
                                 {locale === 'th' ? 'เปลี่ยน' : 'Change'}
                             </button>
                         </div>
-                        {/* Name Fields */}
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
-                            <div>
-                                <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#333', marginBottom: '6px' }}>
-                                    {t('firstName')} <span style={{ color: '#e53935' }}>*</span>
-                                </label>
-                                <input type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)}
-                                    placeholder={t('firstName')} required style={inputStyle} />
-                            </div>
-                            <div>
-                                <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#333', marginBottom: '6px' }}>
-                                    {t('lastName')} <span style={{ color: '#e53935' }}>*</span>
-                                </label>
-                                <input type="text" value={lastName} onChange={(e) => setLastName(e.target.value)}
-                                    placeholder={t('lastName')} required style={inputStyle} />
-                            </div>
+                        {/* Name Fields — Stacked: First → Middle → Last (natural order) */}
+                        <div style={{ marginBottom: '12px' }}>
+                            <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#333', marginBottom: '6px' }}>
+                                {t('firstName')} <span style={{ color: '#e53935' }}>*</span>
+                            </label>
+                            <input type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)}
+                                placeholder={t('firstName')} required style={inputStyle} />
+                        </div>
+                        <div style={{ marginBottom: '12px' }}>
+                            <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#333', marginBottom: '6px' }}>
+                                {t('middleName')}
+                            </label>
+                            <input type="text" value={middleName} onChange={(e) => setMiddleName(e.target.value)}
+                                placeholder={t('middleNamePlaceholder')} style={inputStyle} />
+                        </div>
+                        <div style={{ marginBottom: '16px' }}>
+                            <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#333', marginBottom: '6px' }}>
+                                {t('lastName')} <span style={{ color: '#e53935' }}>*</span>
+                            </label>
+                            <input type="text" value={lastName} onChange={(e) => setLastName(e.target.value)}
+                                placeholder={t('lastName')} required style={inputStyle} />
                         </div>
 
                         {/* Thai Student/Professional: ID Card */}

@@ -19,7 +19,7 @@ Thank you for being part of this journey. Let us move forward together—toward 
         name: 'Mr. Preecha Bhandtivej',
         title: 'President, The Pharmacy Council of Thailand',
         role: 'Pharmacy Council President',
-        image: '/assets/img/all-images/team/President The Pharmacy Council of Thailand.png',
+        image: '/assets/img/all-images/team/president-pharmacy-council.png',
         message: `Experience the future of clinical pharmacy at ACCP 2026 in Bangkok, Thailand.
 
 The 2026 Asian Conference on Clinical Pharmacy (ACCP) is the must-attend event for clinical pharmacists and healthcare professionals who want to stay ahead in an evolving, interconnected world. Under the theme "Borderless Pharmacy Practice: Collaboration for Sustainability and Cultural Integration," ACCP 2026 brings together global expertise, innovative science, and real-world clinical impact in one dynamic meeting.

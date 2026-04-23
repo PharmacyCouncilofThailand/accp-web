@@ -1,6 +1,7 @@
 "use client";
 import { useTranslations } from "next-intl";
 import React from "react";
+import Image from "next/image";
 
 const welcomeStyles = {
   section: {
@@ -104,7 +105,7 @@ export default function WelcomeSection() {
       position: "President, The Pharmacy Council of Thailand",
       positionTh: "นายกสภาเภสัชกรรม",
       image:
-        "/assets/img/all-images/team/President The Pharmacy Council of Thailand.png",
+        "/assets/img/all-images/team/president-pharmacy-council.png",
     },
     {
       name: "Assoc. Prof. Dr. Wichai Santimaleeworagun",
@@ -151,9 +152,12 @@ export default function WelcomeSection() {
                 {/* Photo & Badge */}
                 <div style={welcomeStyles.imageContainer}>
                   <div style={welcomeStyles.imageWrapper}>
-                    <img
+                    <Image
                       src={person.image}
                       alt={person.name}
+                      width={220}
+                      height={220}
+                      sizes="220px"
                       style={welcomeStyles.image}
                     />
                   </div>

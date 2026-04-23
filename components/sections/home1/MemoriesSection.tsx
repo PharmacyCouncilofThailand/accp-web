@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { useState, useCallback } from 'react';
+import Image from 'next/image';
 
 // ============================================================================
 // Configuration
@@ -237,10 +238,13 @@ export default function MemoriesSection() {
                             data-aos-delay={index * 80}
                             onClick={() => openLightbox(memory.img)}
                         >
-                            <img
+                            <Image
                                 src={getImagePath(memory.img)}
                                 alt={`Memory ${memory.year}`}
                                 className="memory-card__image"
+                                width={600}
+                                height={450}
+                                sizes="(max-width: 575px) 100vw, (max-width: 991px) 50vw, 33vw"
                             />
                             <div className="memory-card__overlay">
                                 <i className="fa-solid fa-magnifying-glass-plus" />
@@ -259,10 +263,13 @@ export default function MemoriesSection() {
                     >
                         <i className="fa-solid fa-xmark" />
                     </button>
-                    <img
+                    <Image
                         src={getImagePath(lightboxImage)}
                         alt="Full size memory"
                         className="lightbox__image"
+                        width={1200}
+                        height={900}
+                        sizes="90vw"
                         onClick={(e) => e.stopPropagation()}
                     />
                 </div>

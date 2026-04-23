@@ -115,6 +115,7 @@ POST /api/registrations/register
 {
   "email": "attendee@example.com",
   "firstName": "John",
+  "middleName": "William",
   "lastName": "Doe",
   "affiliation": "University of Bangkok",
   "country": "Thailand",

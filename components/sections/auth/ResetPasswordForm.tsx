@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useLocale } from 'next-intl';
 import { useRouter, useSearchParams } from 'next/navigation';
 import toast from 'react-hot-toast';
@@ -133,7 +134,8 @@ export default function ResetPasswordForm() {
             {/* Logo */}
             <div style={{ textAlign: 'center', marginBottom: '24px' }}>
                 <Link href={`/${locale}`}>
-                    <img src="/assets/img/logo/accp_logo_main.png" alt="ACCP 2026"
+                    <Image src="/assets/img/logo/accp_logo_main.png" alt="ACCP 2026"
+                        width={80} height={80} sizes="80px"
                         style={{ height: '80px', width: 'auto' }} />
                 </Link>
             </div>

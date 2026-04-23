@@ -5,6 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 import { TicketType, api } from "@/lib/api";
 import { useTicketSelector } from "@/hooks/useTicketSelector";
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 
 interface RegistrationThaiFeesProps {
@@ -271,7 +272,7 @@ export default function RegistrationThaiFees({
                   {option.features &&
                     option.features.map((feature, idx) => (
                       <li key={idx}>
-                        <img src="/assets/img/icons/check2.svg" alt="" />
+                        <Image src="/assets/img/icons/check2.svg" alt="" width={16} height={16} />
                         {feature}
                       </li>
                     ))}
@@ -289,7 +290,7 @@ export default function RegistrationThaiFees({
                         <ul>
                           {addon.features.map((feature, idx) => (
                             <li key={idx}>
-                              <img src="/assets/img/icons/check2.svg" alt="" />
+                              <Image src="/assets/img/icons/check2.svg" alt="" width={16} height={16} />
                               {feature}
                             </li>
                           ))}

@@ -1,4 +1,5 @@
 'use client'
+import Image from 'next/image'
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
@@ -9,14 +10,14 @@ const FLOOR_PLANS = {
         label: 'World Ballroom',
         dateRange: 'July 9, 11',
         fullDate: 'July 9, 11, 2026',
-        image: '/assets/img/Venue Floor Plan/Centara Grand _ Bangkok Convention Centre at CentralWorld - Floor Plan WorldBallroom.jpg',
+        image: '/assets/img/venue-floor-plan/floor-plan-world-ballroom.jpg',
     },
     convention: {
         id: 'convention',
         label: 'Convention Centre',
         dateRange: 'July 10',
         fullDate: 'July 10, 2026',
-        image: '/assets/img/Venue Floor Plan/Centara Grand _ Bangkok Convention Centre at CentralWorld - Floor Plan Bangkok Convention Centre.jpg',
+        image: '/assets/img/venue-floor-plan/floor-plan-convention-centre.jpg',
     }
 } as const;
 
@@ -99,9 +100,12 @@ export default function MapSection() {
                                     <div style={{ position: 'absolute', top: '15px', right: '15px', background: 'rgba(255,255,255,0.8)', padding: '8px', borderRadius: '50%', color: '#333' }}>
                                         <i className="fa-solid fa-magnifying-glass-plus"></i>
                                     </div>
-                                    <img
+                                    <Image
                                         src={currentPlan.image}
                                         alt={`${currentPlan.label} Floor Plan`}
+                                        width={1200}
+                                        height={800}
+                                        sizes="(max-width: 991px) 100vw, 58vw"
                                         style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
                                     />
                                 </div>
@@ -185,15 +189,20 @@ export default function MapSection() {
                     >
                         <i className="fa-solid fa-xmark"></i>
                     </button>
-                    <img
+                    <Image
                         src={currentPlan.image}
                         alt="Full Screen Floor Plan"
+                        width={2000}
+                        height={1400}
+                        sizes="95vw"
                         style={{
                             maxWidth: '95%',
                             maxHeight: '95%',
                             objectFit: 'contain',
                             borderRadius: '5px',
-                            boxShadow: '0 0 20px rgba(0,0,0,0.5)'
+                            boxShadow: '0 0 20px rgba(0,0,0,0.5)',
+                            width: 'auto',
+                            height: 'auto'
                         }}
                     />
                 </div>

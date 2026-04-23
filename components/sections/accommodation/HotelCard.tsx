@@ -1,4 +1,5 @@
 import { memo } from 'react'
+import Image from 'next/image'
 import type { Hotel } from '@/data/hotelData'
 
 // Extract styles to constants to avoid recreating objects on each render
@@ -64,9 +65,12 @@ function HotelCard({ hotel }: { hotel: Hotel }) {
                         <div className="col-md-3">
                             <div style={HOTEL_IMAGE_STYLE}>
                                 {hotel.image ? (
-                                    <img
+                                    <Image
                                         src={hotel.image}
                                         alt={hotel.name}
+                                        width={400}
+                                        height={150}
+                                        sizes="(max-width: 768px) 100vw, 25vw"
                                         style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '12px' }}
                                     />
                                 ) : (

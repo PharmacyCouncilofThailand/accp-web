@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import { welcomeMessages } from "@/data/welcomeData"
 
 export default function WelcomeMessageList() {
@@ -29,9 +30,12 @@ export default function WelcomeMessageList() {
                                             padding: '5px',
                                             margin: '0 auto'
                                         }}>
-                                            <img
+                                            <Image
                                                 src={person.image}
                                                 alt={person.name}
+                                                width={200}
+                                                height={200}
+                                                sizes="200px"
                                                 style={{
                                                     width: '100%',
                                                     height: '100%',
@@ -131,9 +135,12 @@ export default function WelcomeMessageList() {
                                             padding: '5px',
                                             margin: '0 auto'
                                         }}>
-                                            <img
+                                            <Image
                                                 src={person.image}
                                                 alt={person.name}
+                                                width={200}
+                                                height={200}
+                                                sizes="200px"
                                                 style={{
                                                     width: '100%',
                                                     height: '100%',

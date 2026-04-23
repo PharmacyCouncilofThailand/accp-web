@@ -1,7 +1,8 @@
 "use client";
 import { useState, useCallback } from "react";
 import { useTranslations, useLocale } from "next-intl";
-import Link from "next/link";
+import Link from "next/link"
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import UserProfileDropdown from "./header/UserProfileDropdown";
@@ -39,9 +40,12 @@ export default function MobileMenu({
       >
         <div className="logosicon-area">
           <div className="logos">
-            <img
+            <Image
               src="/assets/img/logo/accp_logo_main.png"
               alt="ACCP 2026"
+              width={140}
+              height={140}
+              sizes="140px"
               style={{
                 height: "140px",
                 width: "auto",

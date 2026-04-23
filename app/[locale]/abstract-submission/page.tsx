@@ -34,6 +34,7 @@ export default function AbstractSubmission() {
   const [formData, setFormData] = useState({
     // Author Information
     firstName: "",
+    middleName: "",
     lastName: "",
     email: "",
     affiliation: "",
@@ -68,6 +69,7 @@ export default function AbstractSubmission() {
     Array<{
       id: string;
       firstName: string;
+      middleName: string;
       lastName: string;
       email: string;
       institution: string;
@@ -81,6 +83,7 @@ export default function AbstractSubmission() {
       {
         id: `coauthor-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         firstName: "",
+        middleName: "",
         lastName: "",
         email: "",
         institution: "",
@@ -157,6 +160,7 @@ export default function AbstractSubmission() {
               setFormData((prev) => ({
                 ...prev,
                 firstName: userData.user.firstName || "",
+                middleName: userData.user.middleName || "",
                 lastName: userData.user.lastName || "",
                 email: userData.user.email || "",
                 affiliation: userData.user.institution || "",
@@ -285,6 +289,9 @@ export default function AbstractSubmission() {
 
       // Add basic fields
       formDataToSend.append("firstName", formData.firstName);
+      if (formData.middleName.trim()) {
+        formDataToSend.append("middleName", formData.middleName.trim());
+      }
       formDataToSend.append("lastName", formData.lastName);
       formDataToSend.append("email", formData.email);
       formDataToSend.append("affiliation", formData.affiliation);
@@ -456,7 +463,8 @@ export default function AbstractSubmission() {
                         }}
                       >
                         <p>
-                          <strong>Name:</strong> {formData.firstName}{" "}
+                          <strong>Name:</strong> {formData.firstName}
+                          {formData.middleName ? ` ${formData.middleName}` : ""}{" "}
                           {formData.lastName}
                         </p>
                         <p>
@@ -510,7 +518,9 @@ export default function AbstractSubmission() {
                             }}
                           >
                             <strong>
-                              {index + 1}. {author.firstName} {author.lastName}
+                              {index + 1}. {author.firstName}
+                              {author.middleName ? ` ${author.middleName}` : ""}{" "}
+                              {author.lastName}
                             </strong>
                             <span style={{ color: "#666", marginLeft: "12px" }}>
                               {author.email}
@@ -876,7 +886,7 @@ export default function AbstractSubmission() {
                     </h3>
 
                     <div className="row">
-                      <div className="col-12 col-md-6">
+                      <div className="col-12 col-md-4">
                         <div className="submission-input-group">
                           <label className="submission-label">
                             {t("firstName")} *
@@ -892,7 +902,22 @@ export default function AbstractSubmission() {
                           />
                         </div>
                       </div>
-                      <div className="col-12 col-md-6">
+                      <div className="col-12 col-md-4">
+                        <div className="submission-input-group">
+                          <label className="submission-label">
+                            {t("middleName")}
+                          </label>
+                          <input
+                            type="text"
+                            name="middleName"
+                            value={formData.middleName}
+                            onChange={handleInputChange}
+                            className="submission-input"
+                            placeholder={t("middleNamePlaceholder")}
+                          />
+                        </div>
+                      </div>
+                      <div className="col-12 col-md-4">
                         <div className="submission-input-group">
                           <label className="submission-label">
                             {t("lastName")} *
@@ -1044,7 +1069,7 @@ export default function AbstractSubmission() {
                             <div className="col-12 col-md-4">
                               <div className="submission-input-group">
                                 <label className="submission-label">
-                                  First Name *
+                                  {t("firstName")} *
                                 </label>
                                 <input
                                   type="text"
@@ -1057,14 +1082,34 @@ export default function AbstractSubmission() {
                                     )
                                   }
                                   className="submission-input"
-                                  placeholder="Enter first name"
+                                  placeholder={t("firstNamePlaceholder")}
                                 />
                               </div>
                             </div>
                             <div className="col-12 col-md-4">
                               <div className="submission-input-group">
                                 <label className="submission-label">
-                                  Last Name *
+                                  {t("middleName")}
+                                </label>
+                                <input
+                                  type="text"
+                                  value={coAuthor.middleName}
+                                  onChange={(e) =>
+                                    handleCoAuthorChange(
+                                      coAuthor.id,
+                                      "middleName",
+                                      e.target.value,
+                                    )
+                                  }
+                                  className="submission-input"
+                                  placeholder={t("middleNamePlaceholder")}
+                                />
+                              </div>
+                            </div>
+                            <div className="col-12 col-md-4">
+                              <div className="submission-input-group">
+                                <label className="submission-label">
+                                  {t("lastName")} *
                                 </label>
                                 <input
                                   type="text"
@@ -1077,14 +1122,17 @@ export default function AbstractSubmission() {
                                     )
                                   }
                                   className="submission-input"
-                                  placeholder="Enter last name"
+                                  placeholder={t("lastNamePlaceholder")}
                                 />
                               </div>
                             </div>
+                          </div>
+
+                          <div className="row">
                             <div className="col-12 col-md-4">
                               <div className="submission-input-group">
                                 <label className="submission-label">
-                                  Email *
+                                  {t("email")} *
                                 </label>
                                 <input
                                   type="email"
@@ -1097,17 +1145,14 @@ export default function AbstractSubmission() {
                                     )
                                   }
                                   className="submission-input"
-                                  placeholder="email@example.com"
+                                  placeholder={t("emailPlaceholder")}
                                 />
                               </div>
                             </div>
-                          </div>
-
-                          <div className="row">
-                            <div className="col-12 col-md-8">
+                            <div className="col-12 col-md-4">
                               <div className="submission-input-group">
                                 <label className="submission-label">
-                                  Institution *
+                                  {t("affiliation")} *
                                 </label>
                                 <input
                                   type="text"
@@ -1120,14 +1165,14 @@ export default function AbstractSubmission() {
                                     )
                                   }
                                   className="submission-input"
-                                  placeholder="University / Hospital / Organization"
+                                  placeholder={t("affiliationPlaceholder")}
                                 />
                               </div>
                             </div>
                             <div className="col-12 col-md-4">
                               <div className="submission-input-group">
                                 <label className="submission-label">
-                                  Country *
+                                  {t("country")} *
                                 </label>
                                 <input
                                   type="text"
@@ -1140,7 +1185,7 @@ export default function AbstractSubmission() {
                                     )
                                   }
                                   className="submission-input"
-                                  placeholder="Country"
+                                  placeholder={t("countryPlaceholder")}
                                 />
                               </div>
                             </div>

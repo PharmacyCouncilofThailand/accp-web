@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useLocale } from "next-intl";
 import toast from "react-hot-toast";
 import { Hourglass } from "react-loader-spinner";
@@ -144,9 +145,12 @@ export default function ForgotPasswordForm() {
       {/* Logo */}
       <div style={{ textAlign: "center", marginBottom: "24px" }}>
         <Link href={`/${locale}`}>
-          <img
+          <Image
             src="/assets/img/logo/accp_logo_main.png"
             alt="ACCP 2026"
+            width={80}
+            height={80}
+            sizes="80px"
             style={{ height: "80px", width: "auto" }}
           />
         </Link>

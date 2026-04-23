@@ -26,6 +26,7 @@ export default function Register() {
         // Personal Information
         title: '',
         firstName: '',
+        middleName: '',
         lastName: '',
         email: '',
         confirmEmail: '',
@@ -353,13 +354,19 @@ export default function Register() {
                                                         </select>
                                                     </div>
                                                 </div>
-                                                <div className="col-md-5">
+                                                <div className="col-md-3">
                                                     <div style={{ marginBottom: '20px' }}>
                                                         <label style={labelStyle}>First Name *</label>
                                                         <input type="text" name="firstName" value={formData.firstName} onChange={handleInputChange} style={inputStyle} required placeholder="First name" />
                                                     </div>
                                                 </div>
-                                                <div className="col-md-5">
+                                                <div className="col-md-3">
+                                                    <div style={{ marginBottom: '20px' }}>
+                                                        <label style={labelStyle}>Middle Name</label>
+                                                        <input type="text" name="middleName" value={formData.middleName} onChange={handleInputChange} style={inputStyle} placeholder="Middle name (optional)" />
+                                                    </div>
+                                                </div>
+                                                <div className="col-md-4">
                                                     <div style={{ marginBottom: '20px' }}>
                                                         <label style={labelStyle}>Last Name *</label>
                                                         <input type="text" name="lastName" value={formData.lastName} onChange={handleInputChange} style={inputStyle} required placeholder="Last name" />
@@ -637,7 +644,7 @@ export default function Register() {
 
                                                 <div style={{ backgroundColor: '#f8f9fa', padding: '20px', borderRadius: '12px', marginBottom: '20px' }}>
                                                     <h5 style={{ marginBottom: '12px', color: '#1a1a2e' }}>Personal Information</h5>
-                                                    <p style={{ margin: '4px 0', color: '#666' }}><strong>Name:</strong> {formData.title} {formData.firstName} {formData.lastName}</p>
+                                                    <p style={{ margin: '4px 0', color: '#666' }}><strong>Name:</strong> {formData.title} {formData.firstName}{formData.middleName ? ` ${formData.middleName}` : ''} {formData.lastName}</p>
                                                     <p style={{ margin: '4px 0', color: '#666' }}><strong>Email:</strong> {formData.email}</p>
                                                     <p style={{ margin: '4px 0', color: '#666' }}><strong>Affiliation:</strong> {formData.affiliation}</p>
                                                     <p style={{ margin: '4px 0', color: '#666' }}><strong>Country:</strong> {formData.country}</p>

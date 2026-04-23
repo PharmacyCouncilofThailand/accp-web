@@ -1,6 +1,7 @@
 "use client";
 import Countdown from "@/components/elements/Countdown";
 import Link from "next/link";
+import Image from "next/image";
 import { useState, useEffect } from "react";
 
 export default function Section1() {
@@ -20,10 +21,14 @@ export default function Section1() {
     <>
       <div className="hero1-section-area">
         <div className="bg1">
-          <img
+          <Image
             src="/assets/img/bg/header-bg2.png"
             alt=""
             className="header-bg1"
+            width={1920}
+            height={1080}
+            priority
+            sizes="100vw"
           />
         </div>
         <div className="container">
@@ -85,9 +90,13 @@ export default function Section1() {
                   data-aos="zoom-in"
                   data-aos-duration={1000}
                 >
-                  <img
+                  <Image
                     src="/assets/img/all-images/hero/hero-img1.png"
                     alt="ACCP 2026 Conference"
+                    width={600}
+                    height={600}
+                    priority
+                    sizes="(max-width: 768px) 100vw, 40vw"
                   />
                 </div>
               </div>
