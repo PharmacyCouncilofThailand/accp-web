@@ -120,7 +120,7 @@ export default function About() {
 							<div className="row">
 								<div className="col-12" data-aos="fade-up" data-aos-duration={1000}>
 									<div className="history-timeline-wrapper" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
-										<Image src="/assets/img/all-images/about/The_1st_EACDCPPE_Alabama_USA.png" alt="History of ACCP Timeline" width={1400} height={400} sizes="100vw" style={{ width: '100%', minWidth: '600px', borderRadius: '8px' }} />
+										<Image src="/assets/img/all-images/about/The_1st_EACDCPPE_Alabama_USA.png" alt="History of ACCP Timeline" width={1847} height={1688} sizes="100vw" style={{ width: '100%', height: 'auto', minWidth: '600px', borderRadius: '8px' }} />
 									</div>
 								</div>
 							</div>
