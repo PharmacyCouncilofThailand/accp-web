@@ -1,13 +1,15 @@
 "use client";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
 import { useSearchParams } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 
 export default function ResubmitDocumentPage() {
   const t = useTranslations("resubmitDocument");
   const locale = useLocale();
   const searchParams = useSearchParams();
+  const { user, logout } = useAuth();
 
   const [email, setEmail] = useState(searchParams.get("email") || "");
   const [password, setPassword] = useState("");
@@ -15,9 +17,23 @@ export default function ResubmitDocumentPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [wasAutoLoggedOut, setWasAutoLoggedOut] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const rejectionReason = searchParams.get("reason") || "";
+
+  // Force-logout when user lands on this page while logged in.
+  // Their cached JWT/role/status may be stale (e.g. admin just changed role).
+  // Re-authenticating ensures the password they enter belongs to the correct
+  // account and prevents stale UI state after a successful resubmit.
+  useEffect(() => {
+    if (user) {
+      logout();
+      setWasAutoLoggedOut(true);
+    }
+    // Only run on mount; we intentionally ignore changes to user/logout
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const ALLOWED_TYPES = [
     "application/pdf",
@@ -243,6 +259,25 @@ export default function ResubmitDocumentPage() {
           >
             {t("description")}
           </p>
+
+          {/* Auto-logout notice */}
+          {wasAutoLoggedOut && (
+            <div
+              style={{
+                padding: "12px 16px",
+                background: "#e3f2fd",
+                border: "1px solid #2196f3",
+                borderRadius: "8px",
+                marginBottom: "20px",
+                fontSize: "14px",
+                color: "#0d47a1",
+              }}
+            >
+              {locale === "th"
+                ? "คุณถูกออกจากระบบชั่วคราว เนื่องจากสถานะบัญชีของคุณมีการเปลี่ยนแปลง กรุณายืนยันตัวตนด้วย email และ password ของคุณอีกครั้งเพื่ออัพโหลดเอกสาร"
+                : "You have been logged out because your account status has changed. Please confirm your email and password to upload your document."}
+            </div>
+          )}
 
           {/* Rejection Reason (if available) */}
           {rejectionReason && (
