@@ -66,8 +66,7 @@ export default function Payment() {
   const currency: "THB" | "USD" = isThaiPayment ? "THB" : "USD";
 
   const needTaxInvoice =
-    isThaiPayment &&
-    (checkoutData.needTaxInvoice || searchParams.get("needTaxInvoice") === "true");
+    checkoutData.needTaxInvoice || searchParams.get("needTaxInvoice") === "true";
   const promoCode = searchParams.get("promoCode") || undefined;
 
   // Ticket data from context (cached, single fetch)

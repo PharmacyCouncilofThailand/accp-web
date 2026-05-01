@@ -410,7 +410,7 @@ export default function Registration() {
       method: checkoutData.paymentMethod,
     });
 
-    if (isThai && checkoutData.needTaxInvoice) {
+    if (checkoutData.needTaxInvoice) {
       params.set("needTaxInvoice", "true");
     }
     if (isAddonOnly) params.set("mode", "addon");
