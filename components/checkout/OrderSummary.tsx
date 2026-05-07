@@ -28,9 +28,9 @@ interface OrderSummaryProps {
 
 // Fee config matching backend paySolutionsFee.ts
 const FEE_CONFIG = {
-  promptpay: { rate: 0.01, vat: 0.07 },
-  card: { rate: 0.028, vat: 0.07 },
-  usd_card: { rate: 0.03, vat: 0.07 },
+  promptpay: { rate: 0.0135, vat: 0.07, minFee: 5 },
+  card: { rate: 0.028, vat: 0.07, minFee: 0 },
+  usd_card: { rate: 0.03, vat: 0.07, minFee: 0 },
 } as const;
 
 type FeeMethod = keyof typeof FEE_CONFIG;
@@ -46,7 +46,8 @@ function toSatang(value: number): number {
 function calculateNetFromGross(grossSatang: number, method: FeeMethod) {
   const cfg = FEE_CONFIG[method];
   const gross = grossSatang / 100;
-  const processingFee = round2(gross * cfg.rate);
+  const rawFee = round2(gross * cfg.rate);
+  const processingFee = cfg.minFee > 0 ? Math.max(rawFee, cfg.minFee) : rawFee;
   const processingVat = round2(processingFee * cfg.vat);
   const net = round2(gross - processingFee - processingVat);
 
