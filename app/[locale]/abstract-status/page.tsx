@@ -89,6 +89,11 @@ export default function AbstractStatus() {
         };
     }, [abstracts]);
 
+    const presentingAuthor = selectedAbstract?.author || selectedAbstract;
+    const presentingAuthorName = presentingAuthor?.firstName && presentingAuthor?.lastName
+        ? `${presentingAuthor.firstName}${presentingAuthor.middleName ? ` ${presentingAuthor.middleName}` : ''} ${presentingAuthor.lastName}`.trim()
+        : selectedAbstract?.authorName || 'N/A';
+
     return (
         <Layout headerStyle={1} footerStyle={1} headerBgWhite={true}>
             <div className="abstract-page-container">
@@ -738,9 +743,7 @@ export default function AbstractStatus() {
                                                     Name
                                                 </div>
                                                 <div style={{ fontWeight: '600', color: '#1a237e' }}>
-                                                    {selectedAbstract.firstName && selectedAbstract.lastName 
-                                                        ? `${selectedAbstract.firstName}${selectedAbstract.middleName ? ` ${selectedAbstract.middleName}` : ''} ${selectedAbstract.lastName}`.trim()
-                                                        : selectedAbstract.authorName || 'N/A'}
+                                                    {presentingAuthorName}
                                                 </div>
                                             </div>
                                             <div style={{
@@ -753,7 +756,7 @@ export default function AbstractStatus() {
                                                     Email
                                                 </div>
                                                 <div style={{ fontWeight: '600', color: '#1a237e', wordBreak: 'break-all' }}>
-                                                    {selectedAbstract.email || selectedAbstract.authorEmail || 'N/A'}
+                                                    {presentingAuthor?.email || selectedAbstract.authorEmail || 'N/A'}
                                                 </div>
                                             </div>
                                             <div style={{
@@ -766,7 +769,7 @@ export default function AbstractStatus() {
                                                     Phone
                                                 </div>
                                                 <div style={{ fontWeight: '600', color: '#1a237e' }}>
-                                                    {selectedAbstract.phone || selectedAbstract.authorPhone || 'N/A'}
+                                                    {presentingAuthor?.phone || selectedAbstract.authorPhone || 'N/A'}
                                                 </div>
                                             </div>
                                             <div style={{
@@ -779,7 +782,7 @@ export default function AbstractStatus() {
                                                     Country
                                                 </div>
                                                 <div style={{ fontWeight: '600', color: '#1a237e' }}>
-                                                    {selectedAbstract.country || selectedAbstract.authorCountry || 'N/A'}
+                                                    {presentingAuthor?.country || selectedAbstract.authorCountry || 'N/A'}
                                                 </div>
                                             </div>
                                             <div style={{ gridColumn: '1 / -1', background: '#f8f9fa', padding: '12px', borderRadius: '8px' }}>
@@ -788,7 +791,7 @@ export default function AbstractStatus() {
                                                     Institution/Affiliation
                                                 </div>
                                                 <div style={{ fontWeight: '600', color: '#1a237e' }}>
-                                                    {selectedAbstract.affiliation || selectedAbstract.institution || selectedAbstract.authorAffiliation || 'N/A'}
+                                                    {selectedAbstract.affiliation || presentingAuthor?.institution || selectedAbstract.authorAffiliation || 'N/A'}
                                                 </div>
                                             </div>
                                         </div>
