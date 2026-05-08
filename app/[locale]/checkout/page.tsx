@@ -50,6 +50,13 @@ export default function Registration() {
   } = useCheckoutWizard();
 
   const isThai = user?.delegateType?.startsWith("thai") ?? false;
+  const isThaiPromptPayFeeNoticeUser = [
+    "thstd",
+    "thpro",
+    "thai_student",
+    "thai_pharmacist",
+  ].includes(String(user?.delegateType || ""));
+  const [showPromptPayFeeNotice, setShowPromptPayFeeNotice] = useState(false);
 
   // Auto-switch QR to card for USD users (QR is THB-only)
   useEffect(() => {
@@ -57,6 +64,12 @@ export default function Registration() {
       updateCheckoutData({ paymentMethod: "card" });
     }
   }, [isThai, checkoutData.paymentMethod, updateCheckoutData]);
+
+  useEffect(() => {
+    if (isThaiPromptPayFeeNoticeUser) {
+      setShowPromptPayFeeNotice(true);
+    }
+  }, [isThaiPromptPayFeeNoticeUser]);
 
   const [isLoading, setIsLoading] = useState(true);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -485,6 +498,95 @@ export default function Registration() {
   return (
     <Layout headerStyle={1} footerStyle={1}>
       <div>
+        {showPromptPayFeeNotice && (
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="promptpay-fee-notice-title"
+            style={{
+              position: "fixed",
+              inset: 0,
+              zIndex: 9999,
+              backgroundColor: "rgba(0, 0, 0, 0.45)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "20px",
+            }}
+          >
+            <div
+              style={{
+                width: "100%",
+                maxWidth: "460px",
+                backgroundColor: "#fff",
+                borderRadius: "18px",
+                padding: "28px",
+                boxShadow: "0 24px 60px rgba(0,0,0,0.22)",
+                border: "1px solid #e9f5ee",
+              }}
+            >
+              <div
+                style={{
+                  width: "48px",
+                  height: "48px",
+                  borderRadius: "50%",
+                  backgroundColor: "#e8f8ef",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginBottom: "16px",
+                }}
+              >
+                <i
+                  className="fa-solid fa-circle-info"
+                  style={{ color: "#00A651", fontSize: "22px" }}
+                />
+              </div>
+              <h3
+                id="promptpay-fee-notice-title"
+                style={{
+                  margin: "0 0 10px",
+                  fontSize: "20px",
+                  fontWeight: 700,
+                  color: "#1a1a2e",
+                }}
+              >
+                {locale === "th"
+                  ? "แจ้งปรับค่าธรรมเนียม QR PromptPay"
+                  : "QR PromptPay Fee Update"}
+              </h3>
+              <p
+                style={{
+                  margin: "0 0 20px",
+                  fontSize: "15px",
+                  lineHeight: 1.7,
+                  color: "#4b5563",
+                }}
+              >
+                {locale === "th"
+                  ? "การชำระเงินผ่าน Thai QR PromptPay มีการปรับค่าธรรมเนียมเป็น 1.35%"
+                  : "Thai QR PromptPay payment fee has been updated to 1.35%."}
+              </p>
+              <button
+                type="button"
+                onClick={() => setShowPromptPayFeeNotice(false)}
+                style={{
+                  width: "100%",
+                  border: "none",
+                  borderRadius: "999px",
+                  padding: "12px 18px",
+                  backgroundColor: "#00C853",
+                  color: "#fff",
+                  fontSize: "15px",
+                  fontWeight: 700,
+                  cursor: "pointer",
+                }}
+              >
+                {locale === "th" ? "รับทราบ" : "Got it"}
+              </button>
+            </div>
+          </div>
+        )}
         {/* Header */}
         <div
           className="inner-page-header"
