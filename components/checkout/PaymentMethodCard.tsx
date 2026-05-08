@@ -33,7 +33,7 @@ const PAYMENT_ICONS: Record<
 
 // Fee rate labels — rate + VAT 7%, matching paySolutionsFee.ts FEE_CONFIG
 const FEE_LABEL: Record<string, string> = {
-  qr: "Fee 1%",
+  qr: "Fee 1.35%",
   card_thb: "Fee 2.8%",
   card_usd: "Fee 3%",
 };
