@@ -363,19 +363,23 @@ export default function Header1({
                           </li>
                         </ul>
                       </li>
-                      <li className={openDropdown === 'registration' ? 'dropdown-open' : ''}>
-                                                <a
-                                                    href="#"
-                                                    onClick={(e) => toggleDropdown('registration', e)}
-                                                    style={{ color: isActive(`/${locale}/registration`) || openDropdown === 'registration' ? '#FFBA00' : isHeaderWhite ? '#333' : '#fff', fontWeight: isActive(`/${locale}/registration`) ? '600' : 'normal', cursor: 'pointer' }}
-                                                >
-                                                    {t('registration')} <i className={`fa-solid ${openDropdown === 'registration' ? 'fa-angle-up' : 'fa-angle-down'}`} />
-                                                </a>
-                                                <ul className="dropdown-padding" style={getDropdownStyle('registration')}>
-                                                    <li><Link href={`/${locale}/registration`}>{t('registrationInfo')}</Link></li>
-                                                    <li><Link href={`/${locale}/registration-policies`}>{t('policies')}</Link></li>
-                                                </ul>
-                                            </li>
+                      <li>
+                        <Link
+                          href={`/${locale}/registration`}
+                          style={{
+                            color: isActive(`/${locale}/registration`)
+                              ? "#FFBA00"
+                              : isHeaderWhite
+                                ? "#333"
+                                : "#fff",
+                            fontWeight: isActive(`/${locale}/registration`)
+                              ? "600"
+                              : "normal",
+                          }}
+                        >
+                          {t("registration")}
+                        </Link>
+                      </li>
                       <li
                         className={
                           openDropdown === "travel" ? "dropdown-open" : ""
