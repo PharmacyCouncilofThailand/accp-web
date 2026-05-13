@@ -676,7 +676,7 @@ export default function Register() {
                                                     <label style={{ display: 'flex', alignItems: 'flex-start', cursor: 'pointer' }}>
                                                         <input type="checkbox" name="agreeTerms" checked={formData.agreeTerms} onChange={handleInputChange} style={{ marginRight: '12px', marginTop: '4px' }} required />
                                                         <span style={{ fontSize: '14px', color: '#333' }}>
-                                                            I agree to the <Link href="/registration-policies" style={{ color: '#FFBA00' }}>registration policies and cancellation terms</Link> *
+                                                            I agree to the registration policies and cancellation terms *
                                                         </span>
                                                     </label>
                                                 </div>

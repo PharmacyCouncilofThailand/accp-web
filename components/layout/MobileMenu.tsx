@@ -173,15 +173,6 @@ export default function MobileMenu({
                 {t("registrationInfo")}
               </Link>
             </li>
-            {/* Registration dropdown - Temporarily hidden
-                        <li className="has-sub hash-has-sub"><span className={`submenu-button ${isAccordion == 4 ? "submenu-opened" : ""}`} onClick={() => handleAccordion(4)}><em /></span>
-                            <Link href={`/${locale}/registration`} className="hash-nav">{t('registration')}</Link>
-                            <ul className={`sub-menu ${isAccordion == 4 ? "open-sub" : ""}`} style={{ display: `${isAccordion == 4 ? "block" : "none"}` }}>
-                                <li className="hash-has-sub"><Link href={`/${locale}/registration`} className="hash-nav">{t('registrationInfo')}</Link></li>
-                                <li className="hash-has-sub"><Link href={`/${locale}/registration-policies`} className="hash-nav">{t('policies')}</Link></li>
-                            </ul>
-                        </li>
-                        */}
             <li className="has-sub hash-has-sub">
               <span
                 className={`submenu-button ${isAccordion == 5 ? "submenu-opened" : ""}`}
