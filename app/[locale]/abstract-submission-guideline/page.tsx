@@ -2,6 +2,8 @@
 import Layout from "@/components/layout/Layout"
 import Link from "next/link"
 import { useTranslations } from 'next-intl'
+import AbstractSubmissionClosedNotice from "@/components/sections/abstracts/AbstractSubmissionClosedNotice"
+import { ABSTRACT_SUBMISSION_IS_CLOSED } from "@/lib/abstractSubmissionStatus"
 
 export default function AbstractSubmissionGuideline() {
     const tCommon = useTranslations('common')
@@ -327,19 +329,26 @@ export default function AbstractSubmissionGuideline() {
                                         paddingTop: '30px',
                                         borderTop: '1px solid #e9ecef'
                                     }}>
-                                        <Link href="/call-for-abstracts" style={{
-                                            display: 'inline-block',
-                                            backgroundColor: '#c9a227',
-                                            color: 'white',
-                                            padding: '18px 50px',
-                                            borderRadius: '6px',
-                                            fontSize: '18px',
-                                            fontWeight: '600',
-                                            textDecoration: 'none',
-                                            letterSpacing: '0.5px'
-                                        }}>
-                                            {tCommon('submitAbstract')}
-                                        </Link>
+                                        {ABSTRACT_SUBMISSION_IS_CLOSED ? (
+                                            <AbstractSubmissionClosedNotice
+                                                variant="inline"
+                                                showActions={false}
+                                            />
+                                        ) : (
+                                            <Link href="/call-for-abstracts" style={{
+                                                display: 'inline-block',
+                                                backgroundColor: '#c9a227',
+                                                color: 'white',
+                                                padding: '18px 50px',
+                                                borderRadius: '6px',
+                                                fontSize: '18px',
+                                                fontWeight: '600',
+                                                textDecoration: 'none',
+                                                letterSpacing: '0.5px'
+                                            }}>
+                                                {tCommon('submitAbstract')}
+                                            </Link>
+                                        )}
                                     </div>
 
                                 </div>
