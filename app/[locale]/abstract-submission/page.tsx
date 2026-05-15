@@ -6,6 +6,8 @@ import { useTranslations } from "next-intl";
 import { useAuth } from "@/context/AuthContext";
 import { Hourglass } from "react-loader-spinner";
 import toast from "react-hot-toast";
+import AbstractSubmissionClosedNotice from "@/components/sections/abstracts/AbstractSubmissionClosedNotice";
+import { ABSTRACT_SUBMISSION_IS_CLOSED } from "@/lib/abstractSubmissionStatus";
 
 export default function AbstractSubmission() {
   const t = useTranslations("abstractSubmission");
@@ -142,6 +144,10 @@ export default function AbstractSubmission() {
   // Autofill user data when logged in
   useEffect(() => {
     const autofillUserData = async () => {
+      if (ABSTRACT_SUBMISSION_IS_CLOSED) {
+        return;
+      }
+
       if (user && token) {
         // Fetch detailed user profile using JWT
         try {
@@ -177,6 +183,12 @@ export default function AbstractSubmission() {
 
     autofillUserData();
   }, [isAuthenticated, user, token]);
+
+  useEffect(() => {
+    if (ABSTRACT_SUBMISSION_IS_CLOSED) {
+      toast.error(t("closed.toast"), { id: "abstract-submission-closed" });
+    }
+  }, [t]);
 
   // Scroll to top when form is submitted successfully
   useEffect(() => {
@@ -263,6 +275,12 @@ export default function AbstractSubmission() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (ABSTRACT_SUBMISSION_IS_CLOSED) {
+      toast.error(t("closed.toast"), { id: "abstract-submission-closed" });
+      return;
+    }
+
     setIsSubmitting(true);
     setSubmitStatus("idle");
 
@@ -701,6 +719,44 @@ export default function AbstractSubmission() {
                       {t("viewGuidelines")}
                     </Link>
                   </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (ABSTRACT_SUBMISSION_IS_CLOSED) {
+    return (
+      <Layout headerStyle={1} footerStyle={1}>
+        <div>
+          <div
+            className="inner-page-header"
+            style={{ backgroundImage: "url(/assets/img/bg/header-bg16.png)" }}
+          >
+            <div className="container">
+              <div className="row">
+                <div className="col-lg-8 m-auto">
+                  <div className="heading1 text-center">
+                    <h1>{t("pageTitle")}</h1>
+                    <div className="space20" />
+                    <Link href="/">
+                      {tCommon("home")} <i className="fa-solid fa-angle-right" />{" "}
+                      <span>{t("breadcrumb")}</span>
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="sp1" style={{ backgroundColor: "#f8f9fa" }}>
+            <div className="container">
+              <div className="row">
+                <div className="col-lg-10 m-auto">
+                  <AbstractSubmissionClosedNotice />
                 </div>
               </div>
             </div>

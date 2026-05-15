@@ -924,6 +924,16 @@
     "trackingId": "Tracking ID:",
     "returnHome": "Return to Home",
     "viewGuidelines": "View Guidelines",
+    "closed": {
+      "badge": "Submission closed",
+      "title": "Abstract submission is now closed",
+      "description": "Thank you for your interest in ACCP 2026. New abstract submissions are no longer being accepted.",
+      "deadline": "The final submission date was {date}.",
+      "button": "Submission Closed",
+      "toast": "Abstract submission is closed. The final submission date was 15 May 2026.",
+      "viewGuidelines": "View Abstract Information",
+      "viewStatus": "View My Abstract Status"
+    },
     "categories": {
       "clinicalPharmacy": "Clinical Pharmacy",
       "socialAdministrative": "Social and Administrative Pharmacy",

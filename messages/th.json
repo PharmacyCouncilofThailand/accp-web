@@ -938,6 +938,16 @@
     "successWaitMessage": "ผลการตอบรับจะประกาศภายใน",
     "successDate": "2 สัปดาห์หลังจากส่ง",
     "trackingIdLabel": "รหัสติดตาม",
+    "closed": {
+      "badge": "ปิดรับส่งแล้ว",
+      "title": "ระบบส่งบทคัดย่อปิดรับแล้ว",
+      "description": "ขอบคุณที่ให้ความสนใจ ACCP 2026 ขณะนี้ไม่สามารถส่งบทคัดย่อใหม่ได้แล้ว",
+      "deadline": "วันสุดท้ายของการส่งบทคัดย่อคือ {date}",
+      "button": "ปิดรับส่งแล้ว",
+      "toast": "ระบบส่งบทคัดย่อปิดรับแล้ว วันสุดท้ายคือ 15 May 2026",
+      "viewGuidelines": "ดูข้อมูลบทคัดย่อ",
+      "viewStatus": "ดูสถานะบทคัดย่อของฉัน"
+    },
     "categories": {
       "clinicalPharmacy": "Clinical Pharmacy",
       "socialAdministrative": "Social and Administrative Pharmacy",

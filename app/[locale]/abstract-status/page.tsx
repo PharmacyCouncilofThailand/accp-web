@@ -5,6 +5,8 @@ import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { Hourglass } from 'react-loader-spinner';
 import Layout from '@/components/layout/Layout';
+import AbstractSubmissionClosedNotice from '@/components/sections/abstracts/AbstractSubmissionClosedNotice';
+import { ABSTRACT_SUBMISSION_IS_CLOSED } from '@/lib/abstractSubmissionStatus';
 
 const getStatusColor = (status: string) => {
     switch (status) {
@@ -38,6 +40,7 @@ const formatDate = (dateString: string) => {
 
 export default function AbstractStatus() {
     const t = useTranslations('abstracts');
+    const tClosed = useTranslations('abstractSubmission.closed');
     const tUser = useTranslations('userProfile');
     const { user, token } = useAuth();
     
@@ -138,37 +141,66 @@ export default function AbstractStatus() {
                             </p>
                         </div>
 
-                        <Link
-                            href="/call-for-abstracts"
-                            style={{
-                                background: '#00C853',
-                                color: 'white',
-                                padding: '14px 28px',
-                                borderRadius: '12px',
-                                textDecoration: 'none',
-                                fontWeight: '600',
-                                fontSize: '16px',
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: '8px',
-                                boxShadow: '0 4px 20px rgba(0, 200, 83, 0.3)',
-                                transition: 'all 0.3s ease',
-                                border: 'none',
-                                cursor: 'pointer'
-                            }}
-                            onMouseEnter={(e) => {
-                                e.currentTarget.style.transform = 'translateY(-2px)';
-                                e.currentTarget.style.boxShadow = '0 6px 25px rgba(0, 200, 83, 0.4)';
-                            }}
-                            onMouseLeave={(e) => {
-                                e.currentTarget.style.transform = 'translateY(0)';
-                                e.currentTarget.style.boxShadow = '0 4px 20px rgba(0, 200, 83, 0.3)';
-                            }}
-                        >
-                            <i className="fa-solid fa-plus" />
-                            {t('submitNew')}
-                        </Link>
+                        {ABSTRACT_SUBMISSION_IS_CLOSED ? (
+                            <span
+                                aria-disabled="true"
+                                style={{
+                                    background: 'rgba(255, 255, 255, 0.18)',
+                                    color: 'white',
+                                    padding: '14px 28px',
+                                    borderRadius: '12px',
+                                    fontWeight: '700',
+                                    fontSize: '16px',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '8px',
+                                    border: '1px solid rgba(255, 255, 255, 0.35)',
+                                    cursor: 'not-allowed'
+                                }}
+                            >
+                                <i className="fa-solid fa-ban" />
+                                {tClosed('button')}
+                            </span>
+                        ) : (
+                            <Link
+                                href="/call-for-abstracts"
+                                style={{
+                                    background: '#00C853',
+                                    color: 'white',
+                                    padding: '14px 28px',
+                                    borderRadius: '12px',
+                                    textDecoration: 'none',
+                                    fontWeight: '600',
+                                    fontSize: '16px',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '8px',
+                                    boxShadow: '0 4px 20px rgba(0, 200, 83, 0.3)',
+                                    transition: 'all 0.3s ease',
+                                    border: 'none',
+                                    cursor: 'pointer'
+                                }}
+                                onMouseEnter={(e) => {
+                                    e.currentTarget.style.transform = 'translateY(-2px)';
+                                    e.currentTarget.style.boxShadow = '0 6px 25px rgba(0, 200, 83, 0.4)';
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.currentTarget.style.transform = 'translateY(0)';
+                                    e.currentTarget.style.boxShadow = '0 4px 20px rgba(0, 200, 83, 0.3)';
+                                }}
+                            >
+                                <i className="fa-solid fa-plus" />
+                                {t('submitNew')}
+                            </Link>
+                        )}
                     </div>
+
+                    {ABSTRACT_SUBMISSION_IS_CLOSED && (
+                        <AbstractSubmissionClosedNotice
+                            variant="banner"
+                            showActions={false}
+                        />
+                    )}
 
                     {/* Summary Cards */}
                     <div style={{ 
@@ -321,10 +353,27 @@ export default function AbstractStatus() {
                             <p style={{ color: '#999', marginBottom: '24px' }}>
                                 {t('emptyState.message')}
                             </p>
-                            <Link href="/abstract-submission" className="abstract-primary-button">
-                                <i className="fa-solid fa-plus" />
-                                {t('emptyState.submitButton')}
-                            </Link>
+                            {ABSTRACT_SUBMISSION_IS_CLOSED ? (
+                                <span
+                                    className="abstract-primary-button"
+                                    aria-disabled="true"
+                                    style={{
+                                        background: '#9ca3af',
+                                        cursor: 'not-allowed',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '8px'
+                                    }}
+                                >
+                                    <i className="fa-solid fa-ban" />
+                                    {tClosed('button')}
+                                </span>
+                            ) : (
+                                <Link href="/abstract-submission" className="abstract-primary-button">
+                                    <i className="fa-solid fa-plus" />
+                                    {t('emptyState.submitButton')}
+                                </Link>
+                            )}
                         </div>
                     )}
 

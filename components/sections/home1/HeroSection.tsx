@@ -6,6 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useTickets } from "@/context/TicketContext";
 import { useTicketSelector } from "@/hooks/useTicketSelector";
 import { api } from "@/lib/api";
+import { ABSTRACT_SUBMISSION_IS_CLOSED } from "@/lib/abstractSubmissionStatus";
 import { useEffect, useState } from "react";
 
 const heroStyles = {
@@ -359,17 +360,37 @@ export default function HeroSection() {
                   }}
                 >
                   {renderRegisterButton()}
-                  <Link
-                    href="/call-for-abstracts"
-                    className="vl-btn2"
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    {t("common.submitAbstract")}
-                  </Link>
+                  {ABSTRACT_SUBMISSION_IS_CLOSED ? (
+                    <span
+                      className="vl-btn2"
+                      aria-disabled="true"
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        opacity: 0.72,
+                        cursor: "not-allowed",
+                      }}
+                    >
+                      <i
+                        className="fa-solid fa-ban"
+                        style={{ marginRight: "8px" }}
+                      />
+                      {t("abstractSubmission.closed.button")}
+                    </span>
+                  ) : (
+                    <Link
+                      href="/call-for-abstracts"
+                      className="vl-btn2"
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      {t("common.submitAbstract")}
+                    </Link>
+                  )}
                 </div>
               </div>
             </div>

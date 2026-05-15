@@ -1,6 +1,7 @@
 "use client";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
+import { ABSTRACT_SUBMISSION_IS_CLOSED } from "@/lib/abstractSubmissionStatus";
 
 export default function CtaSection() {
   const t = useTranslations();
@@ -82,22 +83,43 @@ export default function CtaSection() {
                     ></i>
                     AVAILABLE ON 23 FEB 2026
                   </span>
-                  <Link
-                    href="/call-for-abstracts"
-                    className="vl-btn2"
-                    style={{
-                      background: "transparent",
-                      color: "#1a1a2e",
-                      padding: "14px 28px",
-                      borderRadius: "8px",
-                      fontWeight: "600",
-                      textDecoration: "none",
-                      display: "inline-block",
-                      border: "2px solid #1a1a2e",
-                    }}
-                  >
-                    {t("common.submitAbstract").toUpperCase()}
-                  </Link>
+                  {ABSTRACT_SUBMISSION_IS_CLOSED ? (
+                    <span
+                      className="vl-btn2"
+                      aria-disabled="true"
+                      style={{
+                        background: "#9ca3af",
+                        color: "#ffffff",
+                        padding: "14px 28px",
+                        borderRadius: "8px",
+                        fontWeight: "700",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "8px",
+                        cursor: "not-allowed",
+                      }}
+                    >
+                      <i className="fa-solid fa-ban" />
+                      {t("abstractSubmission.closed.button").toUpperCase()}
+                    </span>
+                  ) : (
+                    <Link
+                      href="/call-for-abstracts"
+                      className="vl-btn2"
+                      style={{
+                        background: "transparent",
+                        color: "#1a1a2e",
+                        padding: "14px 28px",
+                        borderRadius: "8px",
+                        fontWeight: "600",
+                        textDecoration: "none",
+                        display: "inline-block",
+                        border: "2px solid #1a1a2e",
+                      }}
+                    >
+                      {t("common.submitAbstract").toUpperCase()}
+                    </Link>
+                  )}
                 </div>
 
                 {/* Event Info */}

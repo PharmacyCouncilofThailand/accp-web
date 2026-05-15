@@ -9,15 +9,14 @@ import AbstractTopicList from "@/components/sections/abstracts/AbstractTopicList
 import AbstractCallInstructions from "@/components/sections/abstracts/AbstractCallInstructions";
 import CallSubmissionSteps from "@/components/sections/abstracts/CallSubmissionSteps";
 import AbstractExample from "@/components/sections/abstracts/AbstractExample";
+import AbstractSubmissionClosedNotice from "@/components/sections/abstracts/AbstractSubmissionClosedNotice";
+import { ABSTRACT_SUBMISSION_IS_CLOSED } from "@/lib/abstractSubmissionStatus";
 
 export default function CallForAbstracts() {
   const t = useTranslations("callForAbstracts");
   const tCommon = useTranslations("common");
   const locale = useLocale();
-  const { user, isAuthenticated } = useAuth();
-
-  // Allow any authenticated user to submit abstracts
-  const canSubmitAbstract = isAuthenticated;
+  const { isAuthenticated } = useAuth();
 
   return (
     <>
@@ -50,43 +49,50 @@ export default function CallForAbstracts() {
           <AbstractCallInstructions />
           <CallSubmissionSteps />
           <AbstractExample>
-            <div className="text-center mt-4">
-              <Link
-                href={
-                  isAuthenticated ? "/abstract-submission" : `/${locale}/login`
-                }
-                className="btn"
-                style={{
-                  background:
-                    "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
-                  color: "white",
-                  padding: "15px 40px",
-                  fontSize: "16px",
-                  fontWeight: "600",
-                  border: "none",
-                  borderRadius: "6px",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.5px",
-                  display: "inline-block",
-                  textDecoration: "none",
-                  transition: "all 0.3s ease",
-                  boxShadow: "0 4px 15px rgba(245, 158, 11, 0.3)",
-                  marginTop: "20px",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = "translateY(-2px)";
-                  e.currentTarget.style.boxShadow =
-                    "0 6px 20px rgba(245, 158, 11, 0.4)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = "translateY(0)";
-                  e.currentTarget.style.boxShadow =
-                    "0 4px 15px rgba(245, 158, 11, 0.3)";
-                }}
-              >
-                {tCommon("submitAbstract")}
-              </Link>
-            </div>
+            {ABSTRACT_SUBMISSION_IS_CLOSED ? (
+              <AbstractSubmissionClosedNotice
+                variant="inline"
+                showActions={false}
+              />
+            ) : (
+              <div className="text-center mt-4">
+                <Link
+                  href={
+                    isAuthenticated ? "/abstract-submission" : `/${locale}/login`
+                  }
+                  className="btn"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
+                    color: "white",
+                    padding: "15px 40px",
+                    fontSize: "16px",
+                    fontWeight: "600",
+                    border: "none",
+                    borderRadius: "6px",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.5px",
+                    display: "inline-block",
+                    textDecoration: "none",
+                    transition: "all 0.3s ease",
+                    boxShadow: "0 4px 15px rgba(245, 158, 11, 0.3)",
+                    marginTop: "20px",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = "translateY(-2px)";
+                    e.currentTarget.style.boxShadow =
+                      "0 6px 20px rgba(245, 158, 11, 0.4)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = "translateY(0)";
+                    e.currentTarget.style.boxShadow =
+                      "0 4px 15px rgba(245, 158, 11, 0.3)";
+                  }}
+                >
+                  {tCommon("submitAbstract")}
+                </Link>
+              </div>
+            )}
           </AbstractExample>
         </div>
       </Layout>
