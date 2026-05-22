@@ -83,6 +83,10 @@ export default function Registration() {
   // Addon-only mode: detected from URL ?mode=addon
   const isAddonOnly = searchParams.get("mode") === "addon";
   const [purchasedAddOns, setPurchasedAddOns] = useState<string[]>([]);
+  const purchasedAddOnSet = useMemo(
+    () => new Set(purchasedAddOns.map((id) => id.toLowerCase())),
+    [purchasedAddOns],
+  );
 
   // Promo code state
   const [promoInput, setPromoInput] = useState("");
@@ -124,6 +128,33 @@ export default function Registration() {
       })
       .catch(() => {});
   }, [isAuthenticated, token, isAddonOnly]);
+
+  useEffect(() => {
+    if (purchasedAddOnSet.size === 0) return;
+
+    const selectedAddOns = checkoutData.selectedAddOns.filter(
+      (id) => !purchasedAddOnSet.has(id.toLowerCase()),
+    );
+
+    if (selectedAddOns.length === checkoutData.selectedAddOns.length) return;
+
+    const updates: Partial<typeof checkoutData> = { selectedAddOns };
+    if (
+      checkoutData.selectedAddOns.includes("workshop") &&
+      !selectedAddOns.includes("workshop")
+    ) {
+      updates.selectedWorkshopTopic = "";
+    }
+    if (
+      checkoutData.selectedAddOns.includes("gala") &&
+      !selectedAddOns.includes("gala")
+    ) {
+      updates.dietaryRequirement = "none";
+      updates.dietaryOtherText = "";
+    }
+
+    updateCheckoutData(updates);
+  }, [checkoutData.selectedAddOns, purchasedAddOnSet, updateCheckoutData]);
 
   // Derive workshop options dynamically from ticket sessions
   const workshopOptions = useMemo(() => {
@@ -220,7 +251,7 @@ export default function Registration() {
   );
 
   const selectedAddOnCount = checkoutData.selectedAddOns.filter(
-    (id) => !purchasedAddOns.includes(id),
+    (id) => !purchasedAddOnSet.has(id.toLowerCase()),
   ).length;
   const hasSelectedTickets = isAddonOnly
     ? selectedAddOnCount > 0
@@ -348,7 +379,9 @@ export default function Registration() {
       const currency = isThai ? "THB" : "USD";
       const res = await api.payments.preview(token, {
         packageId: isAddonOnly ? undefined : checkoutData.selectedPackage,
-        addOnIds: checkoutData.selectedAddOns,
+        addOnIds: checkoutData.selectedAddOns.filter(
+          (id) => !purchasedAddOnSet.has(id.toLowerCase()),
+        ),
         currency: currency as "THB" | "USD",
         promoCode: promoInput.trim(),
         paymentMethod: checkoutData.paymentMethod,
@@ -413,7 +446,11 @@ export default function Registration() {
         ? pkg?.priceTHB || 0
         : pkg?.priceUSD || 0;
     const addOnsPrice = addOns
-      .filter((a) => checkoutData.selectedAddOns.includes(a.id))
+      .filter(
+        (a) =>
+          checkoutData.selectedAddOns.includes(a.id) &&
+          !purchasedAddOnSet.has(a.id.toLowerCase()),
+      )
       .reduce((sum, a) => (isThai ? sum + a.priceTHB : sum + a.priceUSD), 0);
     const total = packagePrice + addOnsPrice;
 
@@ -450,35 +487,37 @@ export default function Registration() {
               ? currentPackage?.priceTHB || 0
               : currentPackage?.priceUSD || 0,
           },
-      addOns: checkoutData.selectedAddOns.map((id) => {
-        const addon = addOns.find((a) => a.id === id);
-        let details = "";
+      addOns: checkoutData.selectedAddOns
+        .filter((id) => !purchasedAddOnSet.has(id.toLowerCase()))
+        .map((id) => {
+          const addon = addOns.find((a) => a.id === id);
+          let details = "";
 
-        if (id === "workshop" && checkoutData.selectedWorkshopTopic) {
-          const option = workshopOptions.find(
-            (o) => o.value === checkoutData.selectedWorkshopTopic,
-          );
-          if (option) details = option.label;
-        }
-
-        if (id === "gala" && checkoutData.dietaryRequirement) {
-          if (
-            checkoutData.dietaryRequirement === "other" &&
-            checkoutData.dietaryOtherText
-          ) {
-            details = checkoutData.dietaryOtherText;
-          } else {
-            details = t(`dietaryOptions.${checkoutData.dietaryRequirement}`);
+          if (id === "workshop" && checkoutData.selectedWorkshopTopic) {
+            const option = workshopOptions.find(
+              (o) => o.value === checkoutData.selectedWorkshopTopic,
+            );
+            if (option) details = option.label;
           }
-        }
 
-        return {
-          id,
-          name: t(`addOns.${id}`),
-          price: isThai ? addon?.priceTHB || 0 : addon?.priceUSD || 0,
-          details,
-        };
-      }),
+          if (id === "gala" && checkoutData.dietaryRequirement) {
+            if (
+              checkoutData.dietaryRequirement === "other" &&
+              checkoutData.dietaryOtherText
+            ) {
+              details = checkoutData.dietaryOtherText;
+            } else {
+              details = t(`dietaryOptions.${checkoutData.dietaryRequirement}`);
+            }
+          }
+
+          return {
+            id,
+            name: t(`addOns.${id}`),
+            price: isThai ? addon?.priceTHB || 0 : addon?.priceUSD || 0,
+            details,
+          };
+        }),
     };
   }, [
     checkoutData.selectedPackage,
@@ -488,7 +527,11 @@ export default function Registration() {
     checkoutData.dietaryOtherText,
     isThai,
     currentPackage,
+    locale,
+    addOns,
+    workshopOptions,
     t,
+    purchasedAddOnSet,
   ]);
 
   if (!isAuthenticated || isLoading) {
@@ -941,7 +984,9 @@ export default function Registration() {
 
                   {addOns.map((addon) => {
                     const isFull = addonFullMap[addon.id] || false;
-                    const alreadyPurchased = purchasedAddOns.includes(addon.id);
+                    const alreadyPurchased = purchasedAddOnSet.has(
+                      addon.id.toLowerCase(),
+                    );
                     const isDisabled = isFull || alreadyPurchased;
                     return (
                       <label

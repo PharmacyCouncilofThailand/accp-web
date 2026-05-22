@@ -71,6 +71,20 @@ export default function Payment() {
 
   // Ticket data from context (cached, single fetch)
   const { tickets, packages: apiPackages, addOns: apiAddOns } = useTickets();
+  const purchasedAddOnSet = useMemo(
+    () =>
+      new Set(
+        (checkoutData.purchasedAddOns || []).map((id) => id.toLowerCase()),
+      ),
+    [checkoutData.purchasedAddOns],
+  );
+  const payableAddOnIds = useMemo(
+    () =>
+      checkoutData.selectedAddOns.filter(
+        (id) => !purchasedAddOnSet.has(id.toLowerCase()),
+      ),
+    [checkoutData.selectedAddOns, purchasedAddOnSet],
+  );
 
   // Derive workshop options dynamically from ticket sessions
   const workshopOptions = useMemo(() => {
@@ -106,7 +120,7 @@ export default function Payment() {
       ? currentPackage?.priceTHB || 0
       : currentPackage?.priceUSD || 0;
   const addOnsPrice = apiAddOns
-    .filter((a) => checkoutData.selectedAddOns.includes(a.id))
+    .filter((a) => payableAddOnIds.includes(a.id))
     .reduce(
       (sum, a) => (isThaiPayment ? sum + a.priceTHB : sum + a.priceUSD),
       0,
@@ -129,7 +143,7 @@ export default function Payment() {
       };
 
   const orderAddOns = useMemo(() => {
-    return checkoutData.selectedAddOns
+    return payableAddOnIds
       .map((addOnId) => {
         const addon = apiAddOns.find((a) => a.id === addOnId);
         if (!addon) return null;
@@ -171,7 +185,7 @@ export default function Payment() {
         } => item !== null,
       );
   }, [
-    checkoutData.selectedAddOns,
+    payableAddOnIds,
     checkoutData.selectedWorkshopTopic,
     checkoutData.dietaryRequirement,
     checkoutData.dietaryOtherText,
@@ -300,7 +314,7 @@ export default function Payment() {
     if (redirectForm) return;
     // For full mode, need selectedPackage; for addon-only, need at least one addon
     if (!isAddonOnly && !checkoutData.selectedPackage) return;
-    if (isAddonOnly && checkoutData.selectedAddOns.length === 0) return;
+    if (isAddonOnly && payableAddOnIds.length === 0) return;
     if (!tickets.length || !tickets[0]?.eventId) return;
 
     const createIntent = async () => {
@@ -318,7 +332,7 @@ export default function Payment() {
           body: JSON.stringify({
             eventId: tickets[0]?.eventId,
             packageId: isAddonOnly ? "" : checkoutData.selectedPackage,
-            addOnIds: checkoutData.selectedAddOns,
+            addOnIds: payableAddOnIds,
             currency,
             paymentMethod: checkoutData.paymentMethod,
             promoCode,
@@ -398,7 +412,7 @@ export default function Payment() {
     isInitialized,
     token,
     checkoutData.selectedPackage,
-    checkoutData.selectedAddOns,
+    payableAddOnIds,
     checkoutData.paymentMethod,
     checkoutData.selectedWorkshopTopic,
     checkoutData.needTaxInvoice,
