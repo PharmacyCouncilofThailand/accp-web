@@ -1,6 +1,10 @@
+import { setRequestLocale } from 'next-intl/server';
 import ForgotPasswordForm from '@/components/sections/auth/ForgotPasswordForm';
 
-export default function ForgotPasswordPage() {
+export default async function ForgotPasswordPage({ params }: { params: Promise<{ locale: string }> }) {
+    const { locale } = await params;
+    setRequestLocale(locale);
+
   return (
     <div style={{
       minHeight: '100vh',

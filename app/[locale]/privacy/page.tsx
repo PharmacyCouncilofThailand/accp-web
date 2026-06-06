@@ -1,4 +1,8 @@
-export default function PrivacyPage() {
+import { setRequestLocale } from 'next-intl/server';
+export default async function PrivacyPage({ params }: { params: Promise<{ locale: string }> }) {
+    const { locale } = await params;
+    setRequestLocale(locale);
+
     return (
         <div className="container mx-auto px-4 py-12">
             <h1 className="text-3xl font-bold mb-6">Privacy Policy</h1>

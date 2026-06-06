@@ -1,9 +1,13 @@
+import { setRequestLocale } from 'next-intl/server';
 
 
 import Countdown from '@/components/elements/Countdown'
 import Layout from "@/components/layout/Layout"
 import Link from "next/link"
-export default function Blog() {
+export default async function Blog({ params }: { params: Promise<{ locale: string }> }) {
+    const { locale } = await params;
+    setRequestLocale(locale);
+
 
 	return (
 		<>

@@ -1,4 +1,4 @@
-
+import { setRequestLocale } from 'next-intl/server';
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -7,10 +7,14 @@ export const metadata: Metadata = {
     keywords: "registration, fees, accp 2026",
 };
 
-export default function Layout({
+export default async function Layout({
     children,
+    params
 }: {
     children: React.ReactNode;
+    params: Promise<{ locale: string }>;
 }) {
+    const { locale } = await params;
+    setRequestLocale(locale);
     return <>{children}</>;
 }
