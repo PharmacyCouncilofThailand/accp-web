@@ -1,67 +1,136 @@
 'use client'
-import { useTranslations } from 'next-intl';
+
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { useState, useEffect, useMemo } from 'react';
-import { useAuth } from '@/context/AuthContext';
-import { Hourglass } from 'react-loader-spinner';
+import { useLocale } from 'next-intl';
 import Layout from '@/components/layout/Layout';
-import AbstractSubmissionClosedNotice from '@/components/sections/abstracts/AbstractSubmissionClosedNotice';
+import { useAuth } from '@/context/AuthContext';
 import { ABSTRACT_SUBMISSION_IS_CLOSED } from '@/lib/abstractSubmissionStatus';
 
-const getStatusColor = (status: string) => {
-    switch (status) {
-        case 'accepted':
-            return '#00C853';
-        case 'rejected':
-            return '#D32F2F';
-        case 'pending':
-        default:
-            return '#FF9800';
-    }
+type AbstractStatusValue = 'all' | 'pending' | 'accepted' | 'rejected';
+
+type CoAuthor = {
+    firstName?: string | null;
+    middleName?: string | null;
+    lastName?: string | null;
+    email?: string | null;
+    institution?: string | null;
+    country?: string | null;
 };
 
-const getStatusIcon = (status: string) => {
-    switch (status) {
-        case 'accepted':
-            return 'fa-circle-check';
-        case 'underReview':
-            return 'fa-clock';
-        case 'rejected':
-            return 'fa-circle-xmark';
-        default:
-            return 'fa-circle';
-    }
+type AbstractItem = {
+    id: number;
+    trackingId?: string | null;
+    title?: string | null;
+    category?: string | null;
+    presentationType?: 'oral' | 'poster' | string | null;
+    status?: 'pending' | 'accepted' | 'rejected' | string;
+    keywords?: string | null;
+    background?: string | null;
+    objective?: string | null;
+    methods?: string | null;
+    results?: string | null;
+    conclusion?: string | null;
+    fullPaperUrl?: string | null;
+    createdAt?: string | null;
+    reviewComments?: string | null;
+    author?: CoAuthor | null;
+    coAuthors?: CoAuthor[];
 };
 
-const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Bangkok' });
+const API_URL = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
+
+const categoryLabels: Record<string, string> = {
+    clinical_pharmacy: 'Clinical Pharmacy',
+    social_administrative: 'Social & Administrative Pharmacy',
+    community_pharmacy: 'Community Pharmacy',
+    pharmacology_toxicology: 'Pharmacology & Toxicology',
+    pharmacy_education: 'Pharmacy Education',
+    digital_pharmacy: 'Digital Pharmacy & Innovation',
 };
 
-export default function AbstractStatus() {
-    const t = useTranslations('abstracts');
-    const tClosed = useTranslations('abstractSubmission.closed');
-    const tUser = useTranslations('userProfile');
-    const { user, token } = useAuth();
-    
-    const [abstracts, setAbstracts] = useState<any[]>([]);
+const statusMeta: Record<string, { label: string; icon: string; tone: string }> = {
+    pending: { label: 'Under Review', icon: 'fa-clock', tone: 'amber' },
+    accepted: { label: 'Accepted', icon: 'fa-circle-check', tone: 'green' },
+    rejected: { label: 'Rejected', icon: 'fa-circle-xmark', tone: 'red' },
+};
+
+const fullName = (person?: CoAuthor | null) =>
+    [person?.firstName, person?.middleName, person?.lastName].filter(Boolean).join(' ').trim();
+
+const formatDate = (value?: string | null) => {
+    if (!value) return 'Not available';
+    return new Date(value).toLocaleDateString('en-US', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        timeZone: 'Asia/Bangkok',
+    });
+};
+
+const normalize = (value?: string | null) => (value || '').toLowerCase();
+
+function StatusPill({ status }: { status?: string }) {
+    const meta = statusMeta[status || 'pending'] || statusMeta.pending;
+
+    return (
+        <span className={`abstract-status-pill abstract-status-pill-${meta.tone}`}>
+            <i className={`fa-solid ${meta.icon}`} />
+            {meta.label}
+        </span>
+    );
+}
+
+function MetricCard({ label, value, icon, tone }: { label: string; value: number; icon: string; tone: string }) {
+    return (
+        <div className={`abstract-status-metric abstract-status-metric-${tone}`}>
+            <span>
+                <i className={`fa-solid ${icon}`} />
+            </span>
+            <div>
+                <strong>{value}</strong>
+                <small>{label}</small>
+            </div>
+        </div>
+    );
+}
+
+function InfoBlock({ label, children }: { label: string; children: React.ReactNode }) {
+    return (
+        <div className="abstract-detail-info">
+            <span>{label}</span>
+            <strong>{children || 'Not available'}</strong>
+        </div>
+    );
+}
+
+export default function AbstractStatusPage() {
+    const locale = useLocale();
+    const { user, token, isAuthenticated } = useAuth();
+    const [abstracts, setAbstracts] = useState<AbstractItem[]>([]);
+    const [selectedId, setSelectedId] = useState<number | null>(null);
+    const [search, setSearch] = useState('');
+    const [statusFilter, setStatusFilter] = useState<AbstractStatusValue>('all');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [selectedAbstract, setSelectedAbstract] = useState<any | null>(null);
-    const [showModal, setShowModal] = useState(false);
 
     useEffect(() => {
+        let ignore = false;
+
         const fetchAbstracts = async () => {
             if (!user || !token) {
                 setLoading(false);
                 return;
             }
 
+            setLoading(true);
+            setError(null);
+
             try {
-                const API_URL = process.env.NEXT_PUBLIC_API_URL;
                 const response = await fetch(`${API_URL}/api/abstracts/user`, {
                     headers: {
-                        'Authorization': `Bearer ${token}`,
+                        Authorization: `Bearer ${token}`,
+                        Accept: 'application/json',
                     },
                 });
 
@@ -70,1090 +139,806 @@ export default function AbstractStatus() {
                 }
 
                 const data = await response.json();
+                const items = (data.abstracts || []) as AbstractItem[];
 
-                setAbstracts(data.abstracts || []);
+                if (!ignore) {
+                    setAbstracts(items);
+                    setSelectedId(items[0]?.id || null);
+                }
             } catch (err) {
-                console.error('Error fetching abstracts:', err);
-                setError('Failed to load abstracts');
+                console.error('Failed to load abstracts:', err);
+                if (!ignore) {
+                    setError('Unable to load your abstracts right now.');
+                }
             } finally {
-                setLoading(false);
+                if (!ignore) {
+                    setLoading(false);
+                }
             }
         };
 
         fetchAbstracts();
+
+        return () => {
+            ignore = true;
+        };
     }, [user, token]);
 
-    // Calculate summary stats
-    const { totalSubmitted, acceptedCount, underReviewCount } = useMemo(() => {
-        return {
-            totalSubmitted: abstracts.length,
-            acceptedCount: abstracts.filter(a => a.status === 'accepted').length,
-            underReviewCount: abstracts.filter(a => a.status === 'pending').length
-        };
-    }, [abstracts]);
+    const metrics = useMemo(() => ({
+        total: abstracts.length,
+        accepted: abstracts.filter((item) => item.status === 'accepted').length,
+        pending: abstracts.filter((item) => item.status === 'pending').length,
+        rejected: abstracts.filter((item) => item.status === 'rejected').length,
+    }), [abstracts]);
 
-    const presentingAuthor = selectedAbstract?.author || selectedAbstract;
-    const presentingAuthorName = presentingAuthor?.firstName && presentingAuthor?.lastName
-        ? `${presentingAuthor.firstName}${presentingAuthor.middleName ? ` ${presentingAuthor.middleName}` : ''} ${presentingAuthor.lastName}`.trim()
-        : selectedAbstract?.authorName || 'N/A';
+    const filteredAbstracts = useMemo(() => {
+        const keyword = search.trim().toLowerCase();
+
+        return abstracts.filter((item) => {
+            if (statusFilter !== 'all' && item.status !== statusFilter) {
+                return false;
+            }
+
+            if (!keyword) {
+                return true;
+            }
+
+            const haystack = [
+                item.trackingId,
+                item.title,
+                item.category,
+                item.presentationType,
+                item.status,
+                fullName(item.author),
+                item.author?.institution,
+                item.keywords,
+            ].map(normalize).join(' ');
+
+            return haystack.includes(keyword);
+        });
+    }, [abstracts, search, statusFilter]);
+
+    const selectedAbstract = useMemo(() => (
+        abstracts.find((item) => item.id === selectedId) || filteredAbstracts[0] || null
+    ), [abstracts, filteredAbstracts, selectedId]);
+
+    const selectedPresenter = fullName(selectedAbstract?.author) || 'Not available';
+    const selectedCategory = selectedAbstract?.category
+        ? categoryLabels[selectedAbstract.category] || selectedAbstract.category.replace(/_/g, ' ')
+        : 'Not available';
 
     return (
         <Layout headerStyle={1} footerStyle={1} headerBgWhite={true}>
-            <div className="abstract-page-container">
-                <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-                    {/* Header */}
-                    <div style={{
-                        background: 'linear-gradient(135deg, #1a237e 0%, #3949ab 100%)',
-                        borderRadius: '20px',
-                        padding: '40px',
-                        marginBottom: '32px',
-                        boxShadow: '0 10px 40px rgba(26, 35, 126, 0.2)',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        flexWrap: 'wrap',
-                        gap: '24px'
-                    }}>
-                        <div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-                                <div style={{
-                                    width: '48px',
-                                    height: '48px',
-                                    background: 'rgba(255, 186, 0, 0.2)',
-                                    borderRadius: '12px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center'
-                                }}>
-                                    <i className="fa-solid fa-file-lines" style={{ color: '#FFBA00', fontSize: '24px' }} />
-                                </div>
-                                <h1 style={{ 
-                                    fontSize: '32px', 
-                                    fontWeight: '700', 
-                                    color: 'white',
-                                    margin: 0
-                                }}>
-                                    {t('pageTitle')}
-                                </h1>
-                            </div>
-                            <p style={{ 
-                                color: 'rgba(255, 255, 255, 0.9)', 
-                                fontSize: '16px',
-                                margin: 0,
-                                maxWidth: '600px'
-                            }}>
-                                {t('pageDescription')}
-                            </p>
-                        </div>
-
+            <main className="abstract-status-redesign">
+                <section className="abstract-status-hero">
+                    <div className="abstract-status-hero-copy">
+                        <span>Abstract Portal</span>
+                        <h1>Track your abstract review status</h1>
+                        <p>
+                            Review submitted abstracts, acceptance outcomes, presentation format, and submission details in one focused workspace.
+                        </p>
+                    </div>
+                    <div className="abstract-status-hero-actions">
+                        <Link href={`/${locale}/program-oral-poster`}>
+                            <i className="fa-solid fa-list-check" />
+                            Accepted Abstracts
+                        </Link>
                         {ABSTRACT_SUBMISSION_IS_CLOSED ? (
-                            <span
-                                aria-disabled="true"
-                                style={{
-                                    background: 'rgba(255, 255, 255, 0.18)',
-                                    color: 'white',
-                                    padding: '14px 28px',
-                                    borderRadius: '12px',
-                                    fontWeight: '700',
-                                    fontSize: '16px',
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    gap: '8px',
-                                    border: '1px solid rgba(255, 255, 255, 0.35)',
-                                    cursor: 'not-allowed'
-                                }}
-                            >
-                                <i className="fa-solid fa-ban" />
-                                {tClosed('button')}
+                            <span className="abstract-status-closed">
+                                <i className="fa-solid fa-lock" />
+                                Submission Closed
                             </span>
                         ) : (
-                            <Link
-                                href="/call-for-abstracts"
-                                style={{
-                                    background: '#00C853',
-                                    color: 'white',
-                                    padding: '14px 28px',
-                                    borderRadius: '12px',
-                                    textDecoration: 'none',
-                                    fontWeight: '600',
-                                    fontSize: '16px',
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    gap: '8px',
-                                    boxShadow: '0 4px 20px rgba(0, 200, 83, 0.3)',
-                                    transition: 'all 0.3s ease',
-                                    border: 'none',
-                                    cursor: 'pointer'
-                                }}
-                                onMouseEnter={(e) => {
-                                    e.currentTarget.style.transform = 'translateY(-2px)';
-                                    e.currentTarget.style.boxShadow = '0 6px 25px rgba(0, 200, 83, 0.4)';
-                                }}
-                                onMouseLeave={(e) => {
-                                    e.currentTarget.style.transform = 'translateY(0)';
-                                    e.currentTarget.style.boxShadow = '0 4px 20px rgba(0, 200, 83, 0.3)';
-                                }}
-                            >
+                            <Link href={`/${locale}/abstract-submission`} className="abstract-status-primary">
                                 <i className="fa-solid fa-plus" />
-                                {t('submitNew')}
+                                Submit Abstract
                             </Link>
                         )}
                     </div>
+                </section>
 
-                    {ABSTRACT_SUBMISSION_IS_CLOSED && (
-                        <AbstractSubmissionClosedNotice
-                            variant="banner"
-                            showActions={false}
-                        />
-                    )}
+                {!isAuthenticated ? (
+                    <section className="abstract-status-auth-state">
+                        <i className="fa-solid fa-user-lock" />
+                        <h2>Sign in to view your abstract status</h2>
+                        <p>Your submitted abstracts are linked to your registered ACCP 2026 account.</p>
+                        <Link href={`/${locale}/login`}>Login</Link>
+                    </section>
+                ) : (
+                    <>
+                        <section className="abstract-status-metrics-grid">
+                            <MetricCard label="Submitted" value={metrics.total} icon="fa-file-lines" tone="blue" />
+                            <MetricCard label="Accepted" value={metrics.accepted} icon="fa-circle-check" tone="green" />
+                            <MetricCard label="Under Review" value={metrics.pending} icon="fa-clock" tone="amber" />
+                            <MetricCard label="Rejected" value={metrics.rejected} icon="fa-circle-xmark" tone="red" />
+                        </section>
 
-                    {/* Summary Cards */}
-                    <div style={{ 
-                        display: 'grid', 
-                        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
-                        gap: '24px',
-                        marginBottom: '32px'
-                    }}>
-                        <div style={{
-                            background: 'linear-gradient(135deg, #e8eaf6 0%, #c5cae9 100%)',
-                            borderRadius: '16px',
-                            padding: '28px',
-                            boxShadow: '0 4px 20px rgba(26, 35, 126, 0.1)',
-                            border: '1px solid rgba(26, 35, 126, 0.1)',
-                            transition: 'all 0.3s ease',
-                            cursor: 'default'
-                        }}
-                        onMouseEnter={(e) => {
-                            e.currentTarget.style.transform = 'translateY(-4px)';
-                            e.currentTarget.style.boxShadow = '0 8px 30px rgba(26, 35, 126, 0.15)';
-                        }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.transform = 'translateY(0)';
-                            e.currentTarget.style.boxShadow = '0 4px 20px rgba(26, 35, 126, 0.1)';
-                        }}>
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-                                <div style={{ fontSize: '14px', fontWeight: '600', color: '#5c6bc0', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                                    {t('totalSubmitted')}
-                                </div>
-                                <div style={{
-                                    width: '40px',
-                                    height: '40px',
-                                    background: 'rgba(92, 107, 192, 0.2)',
-                                    borderRadius: '10px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center'
-                                }}>
-                                    <i className="fa-solid fa-file-lines" style={{ color: '#1a237e', fontSize: '18px' }} />
-                                </div>
-                            </div>
-                            <div style={{ fontSize: '48px', fontWeight: '700', color: '#1a237e', lineHeight: '1' }}>
-                                {totalSubmitted}
-                            </div>
-                        </div>
-
-                        <div style={{
-                            background: 'linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%)',
-                            borderRadius: '16px',
-                            padding: '28px',
-                            boxShadow: '0 4px 20px rgba(0, 200, 83, 0.1)',
-                            border: '1px solid rgba(0, 200, 83, 0.1)',
-                            transition: 'all 0.3s ease',
-                            cursor: 'default'
-                        }}
-                        onMouseEnter={(e) => {
-                            e.currentTarget.style.transform = 'translateY(-4px)';
-                            e.currentTarget.style.boxShadow = '0 8px 30px rgba(0, 200, 83, 0.15)';
-                        }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.transform = 'translateY(0)';
-                            e.currentTarget.style.boxShadow = '0 4px 20px rgba(0, 200, 83, 0.1)';
-                        }}>
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-                                <div style={{ fontSize: '14px', fontWeight: '600', color: '#66bb6a', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                                    {t('accepted')}
-                                </div>
-                                <div style={{
-                                    width: '40px',
-                                    height: '40px',
-                                    background: 'rgba(102, 187, 106, 0.2)',
-                                    borderRadius: '10px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center'
-                                }}>
-                                    <i className="fa-solid fa-circle-check" style={{ color: '#00C853', fontSize: '18px' }} />
-                                </div>
-                            </div>
-                            <div style={{ fontSize: '48px', fontWeight: '700', color: '#00C853', lineHeight: '1' }}>
-                                {acceptedCount}
-                            </div>
-                        </div>
-
-                        <div style={{
-                            background: 'linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%)',
-                            borderRadius: '16px',
-                            padding: '28px',
-                            boxShadow: '0 4px 20px rgba(255, 152, 0, 0.1)',
-                            border: '1px solid rgba(255, 152, 0, 0.1)',
-                            transition: 'all 0.3s ease',
-                            cursor: 'default'
-                        }}
-                        onMouseEnter={(e) => {
-                            e.currentTarget.style.transform = 'translateY(-4px)';
-                            e.currentTarget.style.boxShadow = '0 8px 30px rgba(255, 152, 0, 0.15)';
-                        }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.transform = 'translateY(0)';
-                            e.currentTarget.style.boxShadow = '0 4px 20px rgba(255, 152, 0, 0.1)';
-                        }}>
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-                                <div style={{ fontSize: '14px', fontWeight: '600', color: '#ffa726', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                                    {t('underReview')}
-                                </div>
-                                <div style={{
-                                    width: '40px',
-                                    height: '40px',
-                                    background: 'rgba(255, 167, 38, 0.2)',
-                                    borderRadius: '10px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center'
-                                }}>
-                                    <i className="fa-solid fa-clock" style={{ color: '#FF9800', fontSize: '18px' }} />
-                                </div>
-                            </div>
-                            <div style={{ fontSize: '48px', fontWeight: '700', color: '#FF9800', lineHeight: '1' }}>
-                                {underReviewCount}
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Loading State */}
-                    {loading && (
-                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '60px 20px' }}>
-                            <Hourglass
-                                visible={true}
-                                height="60"
-                                width="60"
-                                ariaLabel="hourglass-loading"
-                                colors={['#1a237e', '#FFBA00']}
-                            />
-                        </div>
-                    )}
-
-                    {/* Empty State */}
-                    {!loading && abstracts.length === 0 && (
-                        <div style={{
-                            textAlign: 'center',
-                            padding: '60px 20px',
-                            background: '#f5f5f5',
-                            borderRadius: '12px',
-                            marginTop: '24px'
-                        }}>
-                            <i className="fa-solid fa-inbox" style={{ fontSize: '64px', color: '#bdbdbd', marginBottom: '16px' }} />
-                            <h3 style={{ fontSize: '20px', fontWeight: '600', color: '#666', marginBottom: '8px' }}>
-                                {t('emptyState.title')}
-                            </h3>
-                            <p style={{ color: '#999', marginBottom: '24px' }}>
-                                {t('emptyState.message')}
-                            </p>
-                            {ABSTRACT_SUBMISSION_IS_CLOSED ? (
-                                <span
-                                    className="abstract-primary-button"
-                                    aria-disabled="true"
-                                    style={{
-                                        background: '#9ca3af',
-                                        cursor: 'not-allowed',
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                        gap: '8px'
-                                    }}
-                                >
-                                    <i className="fa-solid fa-ban" />
-                                    {tClosed('button')}
-                                </span>
-                            ) : (
-                                <Link href="/abstract-submission" className="abstract-primary-button">
-                                    <i className="fa-solid fa-plus" />
-                                    {t('emptyState.submitButton')}
-                                </Link>
-                            )}
-                        </div>
-                    )}
-
-                    {/* Abstract List */}
-                    {!loading && abstracts.map((abstract) => {
-                        const statusColor = getStatusColor(abstract.status);
-                        return (
-                        <div key={abstract.id} style={{
-                            background: 'white',
-                            borderRadius: '20px',
-                            padding: '0',
-                            marginBottom: '24px',
-                            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
-                            border: `2px solid ${statusColor}20`,
-                            overflow: 'hidden',
-                            position: 'relative',
-                            transition: 'all 0.3s ease'
-                        }}
-                        onMouseEnter={(e) => {
-                            e.currentTarget.style.transform = 'translateY(-4px)';
-                            e.currentTarget.style.boxShadow = '0 8px 30px rgba(0, 0, 0, 0.12)';
-                        }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.transform = 'translateY(0)';
-                            e.currentTarget.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.08)';
-                        }}>
-                            {/* Decorative gradient bar */}
-                            <div style={{
-                                position: 'absolute',
-                                top: 0,
-                                left: 0,
-                                right: 0,
-                                height: '5px',
-                                background: `linear-gradient(90deg, ${statusColor} 0%, ${statusColor}cc 100%)`
-                            }} />
-
-                            {/* Status Badge */}
-                            <div style={{
-                                position: 'absolute',
-                                top: '20px',
-                                right: '20px',
-                                background: statusColor,
-                                color: 'white',
-                                padding: '8px 16px',
-                                borderRadius: '20px',
-                                fontSize: '13px',
-                                fontWeight: '600',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '6px',
-                                boxShadow: `0 4px 15px ${statusColor}40`,
-                                textTransform: 'capitalize'
-                            }}>
-                                <i className={`fa-solid ${getStatusIcon(abstract.status)}`} />
-                                {t(`status.${abstract.status}`)}
-                            </div>
-
-                            {/* Abstract Details */}
-                            <div style={{ padding: '32px', paddingTop: '28px' }}>
-                                <h2 style={{
-                                    fontSize: '22px',
-                                    fontWeight: '700',
-                                    color: '#1a1a2e',
-                                    marginBottom: '16px',
-                                    marginTop: '0',
-                                    paddingRight: '140px',
-                                    lineHeight: '1.4'
-                                }}>
-                                    {abstract.title}
-                                </h2>
-
-                                <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap' }}>
-                                    <div style={{
-                                        background: 'linear-gradient(135deg, #e8eaf6 0%, #c5cae9 100%)',
-                                        color: '#1a237e',
-                                        padding: '6px 14px',
-                                        borderRadius: '8px',
-                                        fontSize: '13px',
-                                        fontWeight: '600',
-                                        border: '1px solid rgba(26, 35, 126, 0.1)'
-                                    }}>
-                                        <i className="fa-solid fa-tag" style={{ marginRight: '6px', fontSize: '11px' }} />
-                                        {abstract.category}
+                        <section className="abstract-status-workspace">
+                            <aside className="abstract-status-sidebar">
+                                <div className="abstract-status-tools">
+                                    <div className="abstract-status-search">
+                                        <i className="fa-solid fa-magnifying-glass" />
+                                        <input
+                                            type="search"
+                                            value={search}
+                                            onChange={(event) => setSearch(event.target.value)}
+                                            placeholder="Search title, ID, category..."
+                                            aria-label="Search abstracts"
+                                        />
+                                        {search && (
+                                            <button type="button" onClick={() => setSearch('')} aria-label="Clear search">
+                                                <i className="fa-solid fa-xmark" />
+                                            </button>
+                                        )}
                                     </div>
-                                    <div style={{
-                                        background: 'linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%)',
-                                        color: '#e65100',
-                                        padding: '6px 14px',
-                                        borderRadius: '8px',
-                                        fontSize: '13px',
-                                        fontWeight: '600',
-                                        border: '1px solid rgba(230, 81, 0, 0.1)'
-                                    }}>
-                                        <i className="fa-solid fa-microphone" style={{ marginRight: '6px', fontSize: '11px' }} />
-                                        {abstract.presentationType === 'oral' ? t('oralPresentation') : t('posterPresentation')}
+                                    <div className="abstract-status-tabs" aria-label="Filter abstracts by status">
+                                        {(['all', 'pending', 'accepted', 'rejected'] as AbstractStatusValue[]).map((status) => (
+                                            <button
+                                                key={status}
+                                                type="button"
+                                                className={statusFilter === status ? 'active' : ''}
+                                                onClick={() => setStatusFilter(status)}
+                                            >
+                                                {status === 'all' ? 'All' : statusMeta[status].label}
+                                            </button>
+                                        ))}
                                     </div>
                                 </div>
 
-                                <div style={{ 
-                                    display: 'grid', 
-                                    gridTemplateColumns: 'auto 1fr', 
-                                    gap: '12px 20px',
-                                    marginBottom: '20px',
-                                    padding: '16px',
-                                    background: '#f8f9fa',
-                                    borderRadius: '12px'
-                                }}>
-                                    <div style={{ fontSize: '14px', color: '#666', fontWeight: '500' }}>
-                                        <i className="fa-solid fa-hashtag" style={{ marginRight: '6px', color: '#999' }} />
-                                        {t('abstractId')}:
+                                {loading ? (
+                                    <div className="abstract-status-loading">
+                                        <i className="fa-solid fa-spinner fa-spin" />
+                                        Loading abstracts...
                                     </div>
-                                    <div style={{ fontSize: '14px', fontWeight: '700', color: '#1a237e', fontFamily: 'monospace' }}>
-                                        {abstract.trackingId}
+                                ) : error ? (
+                                    <div className="abstract-status-error">
+                                        <i className="fa-solid fa-triangle-exclamation" />
+                                        {error}
                                     </div>
-
-                                    <div style={{ fontSize: '14px', color: '#666', fontWeight: '500' }}>
-                                        <i className="fa-solid fa-calendar" style={{ marginRight: '6px', color: '#999' }} />
-                                        {t('submittedDate')}:
+                                ) : filteredAbstracts.length === 0 ? (
+                                    <div className="abstract-status-empty">
+                                        <i className="fa-solid fa-inbox" />
+                                        <h3>No abstracts found</h3>
+                                        <p>Try clearing the search or changing the filter.</p>
                                     </div>
-                                    <div style={{ fontSize: '14px', fontWeight: '600', color: '#333' }}>
-                                        {formatDate(abstract.createdAt)}
-                                    </div>
-                                </div>
-
-                                {/* Presentation Details (if accepted) */}
-                                {abstract.presentationDetails && (
-                                    <div className="presentation-details-box">
-                                        <h3 className="abstract-subsection-title" style={{ color: '#00695c' }}>
-                                            <i className="fa-solid fa-calendar-check" />
-                                            {t('presentationSchedule')}
-                                        </h3>
-                                        <div className="presentation-grid">
-                                            <div>
-                                                <div className="abstract-grid-label">{t('session')}</div>
-                                                <div className="abstract-grid-value">{abstract.presentationDetails.session}</div>
-                                            </div>
-                                            <div>
-                                                <div className="abstract-grid-label">{t('room')}</div>
-                                                <div className="abstract-grid-value">{abstract.presentationDetails.room}</div>
-                                            </div>
-                                            <div>
-                                                <div className="abstract-grid-label">{t('date')}</div>
-                                                <div className="abstract-grid-value">{abstract.presentationDetails.date}</div>
-                                            </div>
-                                            <div>
-                                                <div className="abstract-grid-label">{t('time')}</div>
-                                                <div className="abstract-grid-value">{abstract.presentationDetails.time}</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* Review Comments */}
-                                {abstract.reviewComments && (
-                                    <div className="review-comments-box">
-                                        <h3 className="abstract-subsection-title" style={{ color: '#1a237e' }}>
-                                            <i className="fa-solid fa-comment-dots" />
-                                            {t('reviewerComments')}
-                                        </h3>
-                                        <p className="review-comments-text">
-                                            {abstract.reviewComments}
-                                        </p>
-                                    </div>
-                                )}
-
-                                {/* Action Buttons */}
-                                <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-                                    <button 
-                                        onClick={() => {
-                                            setSelectedAbstract(abstract);
-                                            setShowModal(true);
-                                        }}
-                                        style={{ 
-                                            background: 'linear-gradient(135deg, #1a237e 0%, #3949ab 100%)',
-                                            color: 'white',
-                                            border: 'none',
-                                            padding: '12px 24px',
-                                            borderRadius: '10px',
-                                            fontSize: '14px',
-                                            fontWeight: '600',
-                                            cursor: 'pointer',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: '8px',
-                                            boxShadow: '0 4px 15px rgba(26, 35, 126, 0.2)',
-                                            transition: 'all 0.3s ease',
-                                            flex: '1',
-                                            minWidth: '140px',
-                                            justifyContent: 'center'
-                                        }}
-                                        onMouseEnter={(e) => {
-                                            e.currentTarget.style.transform = 'translateY(-2px)';
-                                            e.currentTarget.style.boxShadow = '0 6px 20px rgba(26, 35, 126, 0.3)';
-                                        }}
-                                        onMouseLeave={(e) => {
-                                            e.currentTarget.style.transform = 'translateY(0)';
-                                            e.currentTarget.style.boxShadow = '0 4px 15px rgba(26, 35, 126, 0.2)';
-                                        }}
-                                    >
-                                        <i className="fa-solid fa-list-ul" />
-                                        View Detail
-                                    </button>
-
-                                    <button 
-                                        onClick={() => abstract.fullPaperUrl && window.open(abstract.fullPaperUrl, '_blank')}
-                                        disabled={!abstract.fullPaperUrl}
-                                        style={{ 
-                                            background: abstract.fullPaperUrl ? 'linear-gradient(135deg, #FFBA00 0%, #FFD54F 100%)' : '#e0e0e0',
-                                            color: abstract.fullPaperUrl ? '#1a1a2e' : '#999',
-                                            border: 'none',
-                                            padding: '12px 24px',
-                                            borderRadius: '10px',
-                                            fontSize: '14px',
-                                            fontWeight: '600',
-                                            cursor: abstract.fullPaperUrl ? 'pointer' : 'not-allowed',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: '8px',
-                                            boxShadow: abstract.fullPaperUrl ? '0 4px 15px rgba(255, 186, 0, 0.2)' : 'none',
-                                            transition: 'all 0.3s ease',
-                                            flex: '1',
-                                            minWidth: '140px',
-                                            justifyContent: 'center'
-                                        }}
-                                        onMouseEnter={(e) => {
-                                            if (abstract.fullPaperUrl) {
-                                                e.currentTarget.style.transform = 'translateY(-2px)';
-                                                e.currentTarget.style.boxShadow = '0 6px 20px rgba(255, 186, 0, 0.3)';
-                                            }
-                                        }}
-                                        onMouseLeave={(e) => {
-                                            if (abstract.fullPaperUrl) {
-                                                e.currentTarget.style.transform = 'translateY(0)';
-                                                e.currentTarget.style.boxShadow = '0 4px 15px rgba(255, 186, 0, 0.2)';
-                                            }
-                                        }}
-                                    >
-                                        <i className="fa-solid fa-eye" />
-                                        {t('viewFullAbstract')}
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    );
-                    })}
-                </div>
-
-                {/* Abstract Detail Modal */}
-                {showModal && selectedAbstract && (
-                    <div 
-                        style={{
-                            position: 'fixed',
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
-                            background: 'rgba(0, 0, 0, 0.7)',
-                            zIndex: 9999,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            padding: '20px',
-                            animation: 'fadeIn 0.3s ease'
-                        }}
-                        onClick={() => setShowModal(false)}
-                    >
-                        <div 
-                            style={{
-                                background: 'white',
-                                borderRadius: '16px',
-                                maxWidth: '900px',
-                                width: '100%',
-                                maxHeight: '90vh',
-                                overflow: 'auto',
-                                position: 'relative',
-                                boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
-                                animation: 'slideUp 0.3s ease'
-                            }}
-                            onClick={(e) => e.stopPropagation()}
-                        >
-                            {/* Modal Header */}
-                            <div style={{
-                                position: 'sticky',
-                                top: 0,
-                                background: 'linear-gradient(135deg, #1a237e 0%, #3949ab 100%)',
-                                color: 'white',
-                                padding: '24px 32px',
-                                borderRadius: '16px 16px 0 0',
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'center',
-                                zIndex: 1
-                            }}>
-                                <div>
-                                    <h2 style={{ margin: 0, fontSize: '24px', fontWeight: '700' }}>
-                                        Abstract Details
-                                    </h2>
-                                    <p style={{ margin: '4px 0 0', opacity: 0.9, fontSize: '14px', color: 'white' }}>
-                                        {selectedAbstract.trackingId}
-                                    </p>
-                                </div>
-                                <button
-                                    onClick={() => setShowModal(false)}
-                                    style={{
-                                        background: 'rgba(255,255,255,0.2)',
-                                        border: 'none',
-                                        borderRadius: '50%',
-                                        width: '40px',
-                                        height: '40px',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        cursor: 'pointer',
-                                        color: 'white',
-                                        fontSize: '20px',
-                                        transition: 'all 0.3s ease'
-                                    }}
-                                    onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.3)'}
-                                    onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'}
-                                >
-                                    <i className="fa-solid fa-xmark" />
-                                </button>
-                            </div>
-
-                            {/* Modal Content */}
-                            <div style={{ padding: '32px' }}>
-                                {/* Category and Type */}
-                                <div style={{ 
-                                    display: 'grid', 
-                                    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
-                                    gap: '16px',
-                                    marginBottom: '32px'
-                                }}>
-                                    <div style={{
-                                        background: '#f5f5f5',
-                                        padding: '16px',
-                                        borderRadius: '12px'
-                                    }}>
-                                        <div style={{ fontSize: '14px', color: '#666', marginBottom: '4px' }}>Category</div>
-                                        <div style={{ fontSize: '16px', fontWeight: '600', color: '#1a237e' }}>
-                                            {selectedAbstract.category}
-                                        </div>
-                                    </div>
-                                    <div style={{
-                                        background: '#f5f5f5',
-                                        padding: '16px',
-                                        borderRadius: '12px'
-                                    }}>
-                                        <div style={{ fontSize: '14px', color: '#666', marginBottom: '4px' }}>Presentation Type</div>
-                                        <div style={{ fontSize: '16px', fontWeight: '600', color: '#1a237e' }}>
-                                            {selectedAbstract.presentationType === 'oral' ? 'Oral Presentation' : 'Poster Presentation'}
-                                        </div>
-                                    </div>
-                                    <div style={{
-                                        background: '#f5f5f5',
-                                        padding: '16px',
-                                        borderRadius: '12px'
-                                    }}>
-                                        <div style={{ fontSize: '14px', color: '#666', marginBottom: '4px' }}>Status</div>
-                                        <div style={{ 
-                                            fontSize: '16px', 
-                                            fontWeight: '600', 
-                                            color: getStatusColor(selectedAbstract.status)
-                                        }}>
-                                            {t(`status.${selectedAbstract.status}`)}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Presenting Author */}
-                                <div style={{ marginBottom: '32px' }}>
-                                    <div style={{
-                                        background: 'linear-gradient(135deg, #e8eaf6 0%, #c5cae9 100%)',
-                                        padding: '16px 20px',
-                                        borderRadius: '12px 12px 0 0',
-                                        marginBottom: '0',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '10px'
-                                    }}>
-                                        <div style={{
-                                            width: '36px',
-                                            height: '36px',
-                                            background: 'rgba(26, 35, 126, 0.2)',
-                                            borderRadius: '8px',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center'
-                                        }}>
-                                            <i className="fa-solid fa-user" style={{ color: '#1a237e', fontSize: '16px' }} />
-                                        </div>
-                                        <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#1a237e', margin: 0 }}>
-                                            Presenting Author
-                                        </h3>
-                                    </div>
-                                    <div style={{
-                                        background: 'white',
-                                        border: '2px solid #e8eaf6',
-                                        borderTop: 'none',
-                                        borderRadius: '0 0 12px 12px',
-                                        padding: '20px'
-                                    }}>
-                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px', fontSize: '14px' }}>
-                                            <div style={{
-                                                background: '#f8f9fa',
-                                                padding: '12px',
-                                                borderRadius: '8px'
-                                            }}>
-                                                <div style={{ color: '#666', marginBottom: '6px', fontSize: '13px', fontWeight: '500' }}>
-                                                    <i className="fa-solid fa-user-circle" style={{ marginRight: '6px', color: '#999' }} />
-                                                    Name
-                                                </div>
-                                                <div style={{ fontWeight: '600', color: '#1a237e' }}>
-                                                    {presentingAuthorName}
-                                                </div>
-                                            </div>
-                                            <div style={{
-                                                background: '#f8f9fa',
-                                                padding: '12px',
-                                                borderRadius: '8px'
-                                            }}>
-                                                <div style={{ color: '#666', marginBottom: '6px', fontSize: '13px', fontWeight: '500' }}>
-                                                    <i className="fa-solid fa-envelope" style={{ marginRight: '6px', color: '#999' }} />
-                                                    Email
-                                                </div>
-                                                <div style={{ fontWeight: '600', color: '#1a237e', wordBreak: 'break-all' }}>
-                                                    {presentingAuthor?.email || selectedAbstract.authorEmail || 'N/A'}
-                                                </div>
-                                            </div>
-                                            <div style={{
-                                                background: '#f8f9fa',
-                                                padding: '12px',
-                                                borderRadius: '8px'
-                                            }}>
-                                                <div style={{ color: '#666', marginBottom: '6px', fontSize: '13px', fontWeight: '500' }}>
-                                                    <i className="fa-solid fa-phone" style={{ marginRight: '6px', color: '#999' }} />
-                                                    Phone
-                                                </div>
-                                                <div style={{ fontWeight: '600', color: '#1a237e' }}>
-                                                    {presentingAuthor?.phone || selectedAbstract.authorPhone || 'N/A'}
-                                                </div>
-                                            </div>
-                                            <div style={{
-                                                background: '#f8f9fa',
-                                                padding: '12px',
-                                                borderRadius: '8px'
-                                            }}>
-                                                <div style={{ color: '#666', marginBottom: '6px', fontSize: '13px', fontWeight: '500' }}>
-                                                    <i className="fa-solid fa-globe" style={{ marginRight: '6px', color: '#999' }} />
-                                                    Country
-                                                </div>
-                                                <div style={{ fontWeight: '600', color: '#1a237e' }}>
-                                                    {presentingAuthor?.country || selectedAbstract.authorCountry || 'N/A'}
-                                                </div>
-                                            </div>
-                                            <div style={{ gridColumn: '1 / -1', background: '#f8f9fa', padding: '12px', borderRadius: '8px' }}>
-                                                <div style={{ color: '#666', marginBottom: '6px', fontSize: '13px', fontWeight: '500' }}>
-                                                    <i className="fa-solid fa-building" style={{ marginRight: '6px', color: '#999' }} />
-                                                    Institution/Affiliation
-                                                </div>
-                                                <div style={{ fontWeight: '600', color: '#1a237e' }}>
-                                                    {selectedAbstract.affiliation || presentingAuthor?.institution || selectedAbstract.authorAffiliation || 'N/A'}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Co-Authors */}
-                                {selectedAbstract.coAuthors && selectedAbstract.coAuthors.length > 0 && (
-                                    <div style={{ marginBottom: '32px' }}>
-                                        <div style={{
-                                            background: 'linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%)',
-                                            padding: '16px 20px',
-                                            borderRadius: '12px 12px 0 0',
-                                            marginBottom: '0',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: '10px'
-                                        }}>
-                                            <div style={{
-                                                width: '36px',
-                                                height: '36px',
-                                                background: 'rgba(0, 200, 83, 0.2)',
-                                                borderRadius: '8px',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center'
-                                            }}>
-                                                <i className="fa-solid fa-users" style={{ color: '#00C853', fontSize: '16px' }} />
-                                            </div>
-                                            <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#00695c', margin: 0 }}>
-                                                Co-Authors ({selectedAbstract.coAuthors.length})
-                                            </h3>
-                                        </div>
-                                        <div style={{
-                                            background: 'white',
-                                            border: '2px solid #e8f5e9',
-                                            borderTop: 'none',
-                                            borderRadius: '0 0 12px 12px',
-                                            padding: '20px'
-                                        }}>
-                                            {selectedAbstract.coAuthors.map((author: any, idx: number) => (
-                                                <div key={idx} style={{
-                                                    background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
-                                                    padding: '14px 16px',
-                                                    borderRadius: '10px',
-                                                    marginBottom: idx < selectedAbstract.coAuthors.length - 1 ? '12px' : '0',
-                                                    fontSize: '14px',
-                                                    border: '1px solid #dee2e6'
-                                                }}>
-                                                    <div style={{ fontWeight: '700', color: '#1a237e', marginBottom: '6px', fontSize: '15px' }}>
-                                                        {idx + 1}. {author.firstName}
-                                                        {author.middleName ? ` ${author.middleName}` : ''} {author.lastName}
-                                                    </div>
-                                                    <div style={{ color: '#666', fontSize: '13px', display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
-                                                        <span>
-                                                            <i className="fa-solid fa-envelope" style={{ marginRight: '4px', color: '#999' }} />
-                                                            {author.email}
-                                                        </span>
-                                                        <span>
-                                                            <i className="fa-solid fa-building" style={{ marginRight: '4px', color: '#999' }} />
-                                                            {author.institution}
-                                                        </span>
-                                                        <span>
-                                                            <i className="fa-solid fa-globe" style={{ marginRight: '4px', color: '#999' }} />
-                                                            {author.country}
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* Title */}
-                                <div style={{ marginBottom: '32px' }}>
-                                    <div style={{
-                                        background: 'linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%)',
-                                        padding: '16px 20px',
-                                        borderRadius: '12px 12px 0 0',
-                                        marginBottom: '0',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '10px'
-                                    }}>
-                                        <div style={{
-                                            width: '36px',
-                                            height: '36px',
-                                            background: 'rgba(255, 152, 0, 0.2)',
-                                            borderRadius: '8px',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center'
-                                        }}>
-                                            <i className="fa-solid fa-heading" style={{ color: '#e65100', fontSize: '16px' }} />
-                                        </div>
-                                        <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#e65100', margin: 0 }}>
-                                            Title
-                                        </h3>
-                                    </div>
-                                    <div style={{
-                                        background: 'white',
-                                        border: '2px solid #fff3e0',
-                                        borderTop: 'none',
-                                        borderRadius: '0 0 12px 12px',
-                                        padding: '20px'
-                                    }}>
-                                        <p style={{ fontSize: '16px', lineHeight: '1.7', color: '#1a1a2e', margin: 0, fontWeight: '500' }}>
-                                            {selectedAbstract.title}
-                                        </p>
-                                    </div>
-                                </div>
-
-                                {/* Abstract Content Sections */}
-                                {(selectedAbstract.background || selectedAbstract.methods || selectedAbstract.results || selectedAbstract.conclusion) && (
-                                    <div style={{ marginBottom: '32px' }}>
-                                        <div style={{
-                                            background: 'linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%)',
-                                            padding: '16px 20px',
-                                            borderRadius: '12px 12px 0 0',
-                                            marginBottom: '0',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: '10px'
-                                        }}>
-                                            <div style={{
-                                                width: '36px',
-                                                height: '36px',
-                                                background: 'rgba(25, 118, 210, 0.2)',
-                                                borderRadius: '8px',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center'
-                                            }}>
-                                                <i className="fa-solid fa-align-left" style={{ color: '#1976d2', fontSize: '16px' }} />
-                                            </div>
-                                            <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#1565c0', margin: 0 }}>
-                                                Abstract Content
-                                            </h3>
-                                        </div>
-                                        <div style={{
-                                            background: 'white',
-                                            border: '2px solid #e3f2fd',
-                                            borderTop: 'none',
-                                            borderRadius: '0 0 12px 12px',
-                                            padding: '24px'
-                                        }}>
-                                            {selectedAbstract.background && (
-                                                <div style={{ marginBottom: '20px' }}>
-                                                    <div style={{
-                                                        display: 'inline-block',
-                                                        background: 'linear-gradient(135deg, #e8eaf6 0%, #c5cae9 100%)',
-                                                        padding: '6px 14px',
-                                                        borderRadius: '6px',
-                                                        marginBottom: '10px'
-                                                    }}>
-                                                        <h4 style={{ fontSize: '15px', fontWeight: '700', color: '#1a237e', margin: 0 }}>
-                                                            Background
-                                                        </h4>
-                                                    </div>
-                                                    <p style={{ fontSize: '15px', lineHeight: '1.8', color: '#333', textAlign: 'justify', margin: 0 }}>
-                                                        {selectedAbstract.background}
-                                                    </p>
-                                                </div>
-                                            )}
-
-                                            {selectedAbstract.methods && (
-                                                <div style={{ marginBottom: '20px' }}>
-                                                    <div style={{
-                                                        display: 'inline-block',
-                                                        background: 'linear-gradient(135deg, #e8eaf6 0%, #c5cae9 100%)',
-                                                        padding: '6px 14px',
-                                                        borderRadius: '6px',
-                                                        marginBottom: '10px'
-                                                    }}>
-                                                        <h4 style={{ fontSize: '15px', fontWeight: '700', color: '#1a237e', margin: 0 }}>
-                                                            Methods
-                                                        </h4>
-                                                    </div>
-                                                    <p style={{ fontSize: '15px', lineHeight: '1.8', color: '#333', textAlign: 'justify', margin: 0 }}>
-                                                        {selectedAbstract.methods}
-                                                    </p>
-                                                </div>
-                                            )}
-
-                                            {selectedAbstract.results && (
-                                                <div style={{ marginBottom: '20px' }}>
-                                                    <div style={{
-                                                        display: 'inline-block',
-                                                        background: 'linear-gradient(135deg, #e8eaf6 0%, #c5cae9 100%)',
-                                                        padding: '6px 14px',
-                                                        borderRadius: '6px',
-                                                        marginBottom: '10px'
-                                                    }}>
-                                                        <h4 style={{ fontSize: '15px', fontWeight: '700', color: '#1a237e', margin: 0 }}>
-                                                            Results
-                                                        </h4>
-                                                    </div>
-                                                    <p style={{ fontSize: '15px', lineHeight: '1.8', color: '#333', textAlign: 'justify', margin: 0 }}>
-                                                        {selectedAbstract.results}
-                                                    </p>
-                                                </div>
-                                            )}
-
-                                            {selectedAbstract.conclusion && (
-                                                <div style={{ marginBottom: '0' }}>
-                                                    <div style={{
-                                                        display: 'inline-block',
-                                                        background: 'linear-gradient(135deg, #e8eaf6 0%, #c5cae9 100%)',
-                                                        padding: '6px 14px',
-                                                        borderRadius: '6px',
-                                                        marginBottom: '10px'
-                                                    }}>
-                                                        <h4 style={{ fontSize: '15px', fontWeight: '700', color: '#1a237e', margin: 0 }}>
-                                                            Conclusion
-                                                        </h4>
-                                                    </div>
-                                                    <p style={{ fontSize: '15px', lineHeight: '1.8', color: '#333', textAlign: 'justify', margin: 0 }}>
-                                                        {selectedAbstract.conclusion}
-                                                    </p>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* Keywords */}
-                                {selectedAbstract.keywords && (
-                                    <div style={{ marginBottom: '24px' }}>
-                                        <h3 style={{ fontSize: '20px', fontWeight: '700', color: '#1a237e', marginBottom: '12px' }}>
-                                            Keywords
-                                        </h3>
-                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                                            {selectedAbstract.keywords.split(',').map((keyword: string, idx: number) => (
-                                                <span key={idx} style={{
-                                                    background: '#e8eaf6',
-                                                    color: '#1a237e',
-                                                    padding: '6px 16px',
-                                                    borderRadius: '20px',
-                                                    fontSize: '14px',
-                                                    fontWeight: '500'
-                                                }}>
-                                                    {keyword.trim()}
+                                ) : (
+                                    <div className="abstract-status-list">
+                                        {filteredAbstracts.map((item) => (
+                                            <button
+                                                key={item.id}
+                                                type="button"
+                                                className={`abstract-status-row ${selectedAbstract?.id === item.id ? 'active' : ''}`}
+                                                onClick={() => setSelectedId(item.id)}
+                                            >
+                                                <span className="abstract-row-code">{item.trackingId || `ABS-${item.id}`}</span>
+                                                <span className="abstract-row-title">{item.title || 'Untitled abstract'}</span>
+                                                <span className="abstract-row-meta">
+                                                    {item.presentationType === 'oral' ? 'Oral' : 'Poster'} · {formatDate(item.createdAt)}
                                                 </span>
+                                                <StatusPill status={item.status} />
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </aside>
+
+                            <section className="abstract-status-detail-panel">
+                                {selectedAbstract ? (
+                                    <>
+                                        <div className="abstract-detail-header">
+                                            <div>
+                                                <span>{selectedAbstract.trackingId || `ABS-${selectedAbstract.id}`}</span>
+                                                <h2>{selectedAbstract.title || 'Untitled abstract'}</h2>
+                                            </div>
+                                            <StatusPill status={selectedAbstract.status} />
+                                        </div>
+
+                                        <div className="abstract-detail-info-grid">
+                                            <InfoBlock label="Presenter">{selectedPresenter}</InfoBlock>
+                                            <InfoBlock label="Presentation">{selectedAbstract.presentationType === 'oral' ? 'Oral Presentation' : 'Poster Presentation'}</InfoBlock>
+                                            <InfoBlock label="Category">{selectedCategory}</InfoBlock>
+                                            <InfoBlock label="Submitted">{formatDate(selectedAbstract.createdAt)}</InfoBlock>
+                                        </div>
+
+                                        {selectedAbstract.keywords && (
+                                            <div className="abstract-keyword-strip">
+                                                {selectedAbstract.keywords.split(',').map((keyword) => (
+                                                    <span key={keyword}>{keyword.trim()}</span>
+                                                ))}
+                                            </div>
+                                        )}
+
+                                        <div className="abstract-detail-content">
+                                            {[
+                                                ['Background', selectedAbstract.background],
+                                                ['Objective', selectedAbstract.objective],
+                                                ['Methods', selectedAbstract.methods],
+                                                ['Results', selectedAbstract.results],
+                                                ['Conclusion', selectedAbstract.conclusion],
+                                            ].filter(([, value]) => value).map(([label, value]) => (
+                                                <article key={label}>
+                                                    <h3>{label}</h3>
+                                                    <p>{value}</p>
+                                                </article>
                                             ))}
                                         </div>
+
+                                        {selectedAbstract.coAuthors && selectedAbstract.coAuthors.length > 0 && (
+                                            <div className="abstract-coauthor-panel">
+                                                <h3>Co-authors</h3>
+                                                <div>
+                                                    {selectedAbstract.coAuthors.map((author, index) => (
+                                                        <span key={`${author.email || index}-${index}`}>
+                                                            {index + 1}. {fullName(author) || 'Unnamed author'}
+                                                            {author.institution ? ` · ${author.institution}` : ''}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {selectedAbstract.fullPaperUrl && (
+                                            <a className="abstract-file-link" href={selectedAbstract.fullPaperUrl} target="_blank" rel="noreferrer">
+                                                <i className="fa-solid fa-file-pdf" />
+                                                View Uploaded File
+                                            </a>
+                                        )}
+                                    </>
+                                ) : (
+                                    <div className="abstract-status-empty abstract-status-detail-empty">
+                                        <i className="fa-solid fa-file-circle-info" />
+                                        <h3>Select an abstract</h3>
+                                        <p>Your abstract details will appear here.</p>
                                     </div>
                                 )}
-
-
-
-                                {/* Presentation Details */}
-                                {selectedAbstract.presentationDetails && (
-                                    <div style={{
-                                        background: '#e8f5e9',
-                                        padding: '20px',
-                                        borderRadius: '12px',
-                                        marginBottom: '24px'
-                                    }}>
-                                        <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#00695c', marginBottom: '16px' }}>
-                                            <i className="fa-solid fa-calendar-check" style={{ marginRight: '8px' }} />
-                                            Presentation Schedule
-                                        </h3>
-                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
-                                            <div>
-                                                <div style={{ fontSize: '14px', color: '#666' }}>Session</div>
-                                                <div style={{ fontSize: '16px', fontWeight: '600', color: '#00695c' }}>
-                                                    {selectedAbstract.presentationDetails.session}
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <div style={{ fontSize: '14px', color: '#666' }}>Room</div>
-                                                <div style={{ fontSize: '16px', fontWeight: '600', color: '#00695c' }}>
-                                                    {selectedAbstract.presentationDetails.room}
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <div style={{ fontSize: '14px', color: '#666' }}>Date</div>
-                                                <div style={{ fontSize: '16px', fontWeight: '600', color: '#00695c' }}>
-                                                    {selectedAbstract.presentationDetails.date}
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <div style={{ fontSize: '14px', color: '#666' }}>Time</div>
-                                                <div style={{ fontSize: '16px', fontWeight: '600', color: '#00695c' }}>
-                                                    {selectedAbstract.presentationDetails.time}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* Review Comments */}
-                                {selectedAbstract.reviewComments && (
-                                    <div style={{
-                                        background: '#fff3e0',
-                                        padding: '20px',
-                                        borderRadius: '12px',
-                                        marginBottom: '24px'
-                                    }}>
-                                        <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#e65100', marginBottom: '12px' }}>
-                                            <i className="fa-solid fa-comment-dots" style={{ marginRight: '8px' }} />
-                                            Reviewer Comments
-                                        </h3>
-                                        <p style={{ fontSize: '16px', lineHeight: '1.6', color: '#555', margin: 0 }}>
-                                            {selectedAbstract.reviewComments}
-                                        </p>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    </div>
+                            </section>
+                        </section>
+                    </>
                 )}
-            </div>
+            </main>
+
+            <style jsx global>{`
+                .abstract-status-redesign {
+                    background:
+                        linear-gradient(180deg, #f7f9fc 0%, #ffffff 44%, #f8fafc 100%);
+                    min-height: 100vh;
+                    padding: 118px 24px 94px;
+                }
+
+                .abstract-status-redesign > section {
+                    margin-left: auto;
+                    margin-right: auto;
+                    max-width: 1220px;
+                }
+
+                .abstract-status-hero {
+                    align-items: end;
+                    display: grid;
+                    gap: 30px;
+                    grid-template-columns: minmax(0, 1fr) auto;
+                    margin-bottom: 28px;
+                }
+
+                .abstract-status-hero-copy span {
+                    align-items: center;
+                    color: #1a237e;
+                    display: inline-flex;
+                    font-size: 13px;
+                    font-weight: 900;
+                    gap: 10px;
+                    letter-spacing: 1.4px;
+                    margin-bottom: 14px;
+                    text-transform: uppercase;
+                }
+
+                .abstract-status-hero-copy span::before {
+                    background: #ffba00;
+                    content: "";
+                    display: inline-block;
+                    height: 3px;
+                    width: 42px;
+                }
+
+                .abstract-status-hero h1 {
+                    color: #101828;
+                    font-size: clamp(34px, 5vw, 62px);
+                    font-weight: 900;
+                    letter-spacing: 0;
+                    line-height: 1.02;
+                    margin: 0 0 16px;
+                    max-width: 820px;
+                }
+
+                .abstract-status-hero p {
+                    color: #536170;
+                    font-size: 17px;
+                    line-height: 1.75;
+                    margin: 0;
+                    max-width: 720px;
+                }
+
+                .abstract-status-hero-actions {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 12px;
+                    justify-content: flex-end;
+                }
+
+                .abstract-status-hero-actions a,
+                .abstract-status-closed {
+                    align-items: center;
+                    border-radius: 8px;
+                    display: inline-flex;
+                    font-size: 14px;
+                    font-weight: 900;
+                    gap: 10px;
+                    min-height: 48px;
+                    padding: 13px 18px;
+                    text-decoration: none;
+                }
+
+                .abstract-status-hero-actions a {
+                    background: #ffffff;
+                    border: 1px solid #dfe7f0;
+                    color: #1a237e;
+                    box-shadow: 0 14px 32px rgba(14, 23, 49, 0.08);
+                }
+
+                .abstract-status-hero-actions .abstract-status-primary {
+                    background: #1a237e;
+                    border-color: #1a237e;
+                    color: #ffffff;
+                }
+
+                .abstract-status-closed {
+                    background: #f2f4f7;
+                    border: 1px solid #d0d5dd;
+                    color: #667085;
+                }
+
+                .abstract-status-metrics-grid {
+                    display: grid;
+                    gap: 16px;
+                    grid-template-columns: repeat(4, minmax(0, 1fr));
+                    margin-bottom: 28px;
+                }
+
+                .abstract-status-metric {
+                    align-items: center;
+                    background: #ffffff;
+                    border: 1px solid #e4eaf2;
+                    border-radius: 8px;
+                    box-shadow: 0 18px 42px rgba(14, 23, 49, 0.08);
+                    display: flex;
+                    gap: 14px;
+                    padding: 18px;
+                }
+
+                .abstract-status-metric > span {
+                    align-items: center;
+                    border-radius: 8px;
+                    display: flex;
+                    font-size: 18px;
+                    height: 46px;
+                    justify-content: center;
+                    width: 46px;
+                }
+
+                .abstract-status-metric strong {
+                    color: #101828;
+                    display: block;
+                    font-size: 31px;
+                    font-weight: 900;
+                    line-height: 1;
+                    margin-bottom: 4px;
+                }
+
+                .abstract-status-metric small {
+                    color: #667085;
+                    font-size: 12px;
+                    font-weight: 900;
+                    letter-spacing: 0.9px;
+                    text-transform: uppercase;
+                }
+
+                .abstract-status-metric-blue > span { background: #eef2ff; color: #1a237e; }
+                .abstract-status-metric-green > span { background: #dff8ed; color: #047857; }
+                .abstract-status-metric-amber > span { background: #fff0c9; color: #a35b00; }
+                .abstract-status-metric-red > span { background: #fee4e2; color: #b42318; }
+
+                .abstract-status-workspace {
+                    align-items: start;
+                    display: grid;
+                    gap: 28px;
+                    grid-template-columns: minmax(360px, 0.72fr) minmax(0, 1fr);
+                }
+
+                .abstract-status-sidebar,
+                .abstract-status-detail-panel,
+                .abstract-status-auth-state {
+                    background: #ffffff;
+                    border: 1px solid #e4eaf2;
+                    border-radius: 8px;
+                    box-shadow: 0 24px 60px rgba(14, 23, 49, 0.09);
+                }
+
+                .abstract-status-tools {
+                    border-bottom: 1px solid #edf1f7;
+                    padding: 22px;
+                }
+
+                .abstract-status-search {
+                    align-items: center;
+                    background: #f8fafc;
+                    border: 1px solid #dfe7f0;
+                    border-radius: 8px;
+                    display: grid;
+                    gap: 10px;
+                    grid-template-columns: 18px minmax(0, 1fr) auto;
+                    margin-bottom: 14px;
+                    min-height: 52px;
+                    padding: 0 13px;
+                }
+
+                .abstract-status-search i {
+                    color: #1a237e;
+                }
+
+                .abstract-status-search input {
+                    background: transparent;
+                    border: 0;
+                    color: #101828;
+                    font-size: 14px;
+                    font-weight: 800;
+                    height: 50px;
+                    outline: 0;
+                    width: 100%;
+                }
+
+                .abstract-status-search button {
+                    align-items: center;
+                    background: #ffffff;
+                    border: 1px solid #dfe7f0;
+                    border-radius: 8px;
+                    color: #667085;
+                    cursor: pointer;
+                    display: flex;
+                    height: 30px;
+                    justify-content: center;
+                    width: 30px;
+                }
+
+                .abstract-status-tabs {
+                    display: grid;
+                    gap: 8px;
+                    grid-template-columns: repeat(4, 1fr);
+                }
+
+                .abstract-status-tabs button {
+                    background: #ffffff;
+                    border: 1px solid #dfe7f0;
+                    border-radius: 8px;
+                    color: #667085;
+                    cursor: pointer;
+                    font-size: 12px;
+                    font-weight: 900;
+                    min-height: 40px;
+                    padding: 8px;
+                }
+
+                .abstract-status-tabs button.active {
+                    background: #1a237e;
+                    border-color: #1a237e;
+                    color: #ffffff;
+                }
+
+                .abstract-status-list {
+                    display: grid;
+                    max-height: 740px;
+                    overflow: auto;
+                }
+
+                .abstract-status-row {
+                    background: #ffffff;
+                    border: 0;
+                    border-bottom: 1px solid #edf1f7;
+                    cursor: pointer;
+                    display: grid;
+                    gap: 7px;
+                    justify-items: start;
+                    padding: 20px 22px;
+                    text-align: left;
+                }
+
+                .abstract-status-row.active {
+                    background: #f5f8ff;
+                    box-shadow: inset 4px 0 0 #1a237e;
+                }
+
+                .abstract-row-code {
+                    color: #1a237e;
+                    font-size: 12px;
+                    font-weight: 900;
+                    letter-spacing: 0.7px;
+                }
+
+                .abstract-row-title {
+                    color: #101828;
+                    font-size: 15px;
+                    font-weight: 900;
+                    line-height: 1.45;
+                }
+
+                .abstract-row-meta {
+                    color: #667085;
+                    font-size: 13px;
+                    font-weight: 700;
+                }
+
+                .abstract-status-pill {
+                    align-items: center;
+                    border-radius: 999px;
+                    display: inline-flex;
+                    font-size: 12px;
+                    font-weight: 900;
+                    gap: 7px;
+                    line-height: 1;
+                    padding: 8px 10px;
+                }
+
+                .abstract-status-pill-green { background: #dff8ed; color: #047857; }
+                .abstract-status-pill-amber { background: #fff0c9; color: #a35b00; }
+                .abstract-status-pill-red { background: #fee4e2; color: #b42318; }
+
+                .abstract-status-detail-panel {
+                    min-height: 620px;
+                    padding: 32px;
+                }
+
+                .abstract-detail-header {
+                    align-items: start;
+                    border-bottom: 1px solid #edf1f7;
+                    display: flex;
+                    gap: 18px;
+                    justify-content: space-between;
+                    margin-bottom: 22px;
+                    padding-bottom: 24px;
+                }
+
+                .abstract-detail-header span {
+                    color: #1a237e;
+                    display: block;
+                    font-size: 13px;
+                    font-weight: 900;
+                    letter-spacing: 1px;
+                    margin-bottom: 10px;
+                    text-transform: uppercase;
+                }
+
+                .abstract-detail-header h2 {
+                    color: #101828;
+                    font-size: clamp(24px, 3vw, 36px);
+                    font-weight: 900;
+                    letter-spacing: 0;
+                    line-height: 1.16;
+                    margin: 0;
+                }
+
+                .abstract-detail-info-grid {
+                    display: grid;
+                    gap: 12px;
+                    grid-template-columns: repeat(4, minmax(0, 1fr));
+                    margin-bottom: 22px;
+                }
+
+                .abstract-detail-info {
+                    background: #f8fafc;
+                    border: 1px solid #e4eaf2;
+                    border-radius: 8px;
+                    padding: 14px;
+                }
+
+                .abstract-detail-info span {
+                    color: #667085;
+                    display: block;
+                    font-size: 11px;
+                    font-weight: 900;
+                    letter-spacing: 0.7px;
+                    margin-bottom: 6px;
+                    text-transform: uppercase;
+                }
+
+                .abstract-detail-info strong {
+                    color: #101828;
+                    display: block;
+                    font-size: 14px;
+                    font-weight: 900;
+                    line-height: 1.4;
+                    overflow-wrap: anywhere;
+                }
+
+                .abstract-keyword-strip {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 8px;
+                    margin-bottom: 24px;
+                }
+
+                .abstract-keyword-strip span {
+                    background: #eef2ff;
+                    border-radius: 999px;
+                    color: #1a237e;
+                    font-size: 12px;
+                    font-weight: 900;
+                    padding: 8px 11px;
+                }
+
+                .abstract-detail-content {
+                    display: grid;
+                    gap: 16px;
+                }
+
+                .abstract-detail-content article {
+                    border-left: 4px solid #ffba00;
+                    padding-left: 16px;
+                }
+
+                .abstract-detail-content h3,
+                .abstract-coauthor-panel h3 {
+                    color: #101828;
+                    font-size: 16px;
+                    font-weight: 900;
+                    letter-spacing: 0;
+                    margin: 0 0 8px;
+                }
+
+                .abstract-detail-content p {
+                    color: #475467;
+                    font-size: 15px;
+                    line-height: 1.75;
+                    margin: 0;
+                }
+
+                .abstract-coauthor-panel {
+                    background: #f8fafc;
+                    border: 1px solid #e4eaf2;
+                    border-radius: 8px;
+                    margin-top: 24px;
+                    padding: 18px;
+                }
+
+                .abstract-coauthor-panel div {
+                    display: grid;
+                    gap: 8px;
+                }
+
+                .abstract-coauthor-panel span {
+                    color: #475467;
+                    font-size: 14px;
+                    font-weight: 700;
+                    line-height: 1.55;
+                }
+
+                .abstract-file-link {
+                    align-items: center;
+                    background: #1a237e;
+                    border-radius: 8px;
+                    color: #ffffff;
+                    display: inline-flex;
+                    font-size: 14px;
+                    font-weight: 900;
+                    gap: 10px;
+                    margin-top: 24px;
+                    padding: 13px 16px;
+                    text-decoration: none;
+                }
+
+                .abstract-file-link:hover {
+                    color: #ffffff;
+                }
+
+                .abstract-status-loading,
+                .abstract-status-error,
+                .abstract-status-empty,
+                .abstract-status-auth-state {
+                    align-items: center;
+                    color: #667085;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 12px;
+                    justify-content: center;
+                    min-height: 260px;
+                    padding: 30px;
+                    text-align: center;
+                }
+
+                .abstract-status-auth-state {
+                    max-width: 760px;
+                    min-height: 360px;
+                }
+
+                .abstract-status-auth-state i,
+                .abstract-status-empty i,
+                .abstract-status-loading i,
+                .abstract-status-error i {
+                    color: #1a237e;
+                    font-size: 34px;
+                }
+
+                .abstract-status-auth-state h2,
+                .abstract-status-empty h3 {
+                    color: #101828;
+                    font-size: 25px;
+                    font-weight: 900;
+                    letter-spacing: 0;
+                    margin: 0;
+                }
+
+                .abstract-status-auth-state p,
+                .abstract-status-empty p {
+                    margin: 0;
+                }
+
+                .abstract-status-auth-state a {
+                    background: #1a237e;
+                    border-radius: 8px;
+                    color: #ffffff;
+                    font-weight: 900;
+                    margin-top: 10px;
+                    padding: 13px 22px;
+                    text-decoration: none;
+                }
+
+                .abstract-status-detail-empty {
+                    min-height: 520px;
+                }
+
+                @media (max-width: 1199px) {
+                    .abstract-status-metrics-grid,
+                    .abstract-detail-info-grid {
+                        grid-template-columns: repeat(2, minmax(0, 1fr));
+                    }
+
+                    .abstract-status-workspace {
+                        grid-template-columns: 1fr;
+                    }
+
+                    .abstract-status-list {
+                        max-height: none;
+                    }
+                }
+
+                @media (max-width: 767px) {
+                    .abstract-status-redesign {
+                        padding: 94px 16px 68px;
+                    }
+
+                    .abstract-status-hero {
+                        grid-template-columns: 1fr;
+                    }
+
+                    .abstract-status-hero-actions {
+                        justify-content: flex-start;
+                    }
+
+                    .abstract-status-metrics-grid,
+                    .abstract-detail-info-grid {
+                        grid-template-columns: 1fr;
+                    }
+
+                    .abstract-status-tabs {
+                        grid-template-columns: repeat(2, 1fr);
+                    }
+
+                    .abstract-detail-header {
+                        flex-direction: column;
+                    }
+
+                    .abstract-status-detail-panel {
+                        padding: 22px;
+                    }
+                }
+            `}</style>
         </Layout>
     );
 }

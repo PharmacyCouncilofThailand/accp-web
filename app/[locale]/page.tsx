@@ -9,6 +9,9 @@ const WelcomeSection = dynamic(() => import('@/components/sections/home1/Welcome
 const MemoriesSection = dynamic(() => import('@/components/sections/home1/MemoriesSection'), {
     loading: () => <div style={{ minHeight: '400px' }} />,
 })
+const SpeakersSection = dynamic(() => import('@/components/sections/home1/SpeakersSection'), {
+    loading: () => <div style={{ minHeight: '620px' }} />,
+})
 const MapSection = dynamic(() => import('@/components/sections/home1/MapSection'), {
     loading: () => <div style={{ minHeight: '500px' }} />,
 })
@@ -24,6 +27,7 @@ export default function Home() {
                 <HeroSection />
                 <WelcomeSection />
                 <MemoriesSection />
+                <SpeakersSection />
                 <MapSection />
                 <SponsorsList />
                 <MemorialPopup />

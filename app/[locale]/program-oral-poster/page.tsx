@@ -2,9 +2,7 @@
 import Layout from "@/components/layout/Layout"
 import Link from "next/link"
 import { useTranslations, useLocale } from 'next-intl';
-import OralPresentations from '@/components/sections/program/OralPresentations';
-import PosterSession from '@/components/sections/program/PosterSession';
-import ProgramSearch from '@/components/sections/program/ProgramSearch';
+import AcceptedAbstractsDirectory from '@/components/sections/program/AcceptedAbstractsDirectory';
 
 export default function OralPoster() {
     const tCommon = useTranslations('common');
@@ -31,32 +29,7 @@ export default function OralPoster() {
                         </div>
                     </div>
 
-                    {/* Introduction */}
-                    <div className="service1-section-area sp1">
-                        <div className="container">
-                            <div className="row">
-                                <div className="col-lg-8 m-auto">
-                                    <div className="heading2 text-center space-margin60">
-                                        <h5 data-aos="fade-up" data-aos-duration={800}>{tOralPoster('researchPresentations')}</h5>
-                                        <div className="space16" />
-                                        <h2 className="text-anime-style-3">{tOralPoster('oralAndPosterTitle')}</h2>
-                                        <div className="space16" />
-                                        <p data-aos="fade-up" data-aos-duration={1000}>
-                                            {tOralPoster('oralAndPosterDesc')}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <ProgramSearch />
-
-                    <OralPresentations />
-
-                    <PosterSession />
-
-
+                    <AcceptedAbstractsDirectory />
                 </div>
             </Layout>
         </>
