@@ -3,7 +3,6 @@ import Layout from "@/components/layout/Layout"
 import Link from "next/link"
 import { useTranslations, useLocale } from 'next-intl';
 import PlenarySpeakers from '@/components/sections/program/PlenarySpeakers';
-import PlenarySchedule from '@/components/sections/program/PlenarySchedule';
 
 export default function PlenaryKeynotes() {
     const tCommon = useTranslations('common');
@@ -48,9 +47,6 @@ export default function PlenaryKeynotes() {
                     </div>
 
                     <PlenarySpeakers />
-
-                    <PlenarySchedule />
-
 
                 </div>
             </Layout>
