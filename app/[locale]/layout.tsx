@@ -1,5 +1,5 @@
 import { NextIntlClientProvider } from 'next-intl';
-import { getMessages } from 'next-intl/server';
+import { getMessages, setRequestLocale } from 'next-intl/server';
 import { routing } from '@/i18n/routing';
 import { notFound } from 'next/navigation';
 import { AuthProvider } from '@/context/AuthContext';
@@ -23,6 +23,9 @@ export default async function LocaleLayout({
     if (!routing.locales.includes(locale as any)) {
         notFound();
     }
+
+    // Enable static rendering for next-intl
+    setRequestLocale(locale);
 
     // Get messages for this locale
     const messages = await getMessages();

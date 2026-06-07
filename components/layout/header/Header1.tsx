@@ -38,6 +38,7 @@ export default function Header1({
   headerBgWhite,
 }: HeaderProps) {
   const t = useTranslations("common");
+  const tOralPoster = useTranslations("oralPoster");
   const locale = useLocale();
   const pathname = usePathname();
   const { isAuthenticated } = useAuth();
@@ -262,6 +263,8 @@ export default function Header1({
                           style={{
                             color:
                               isActive(`/${locale}/program`) ||
+                              isActive(`/${locale}/program-plenary`) ||
+                              isActive(`/${locale}/program-oral-poster`) ||
                               isActive(`/${locale}/gala-dinner`) ||
                               isActive(`/${locale}/preconference-workshops`) ||
                               openDropdown === "program"
@@ -271,6 +274,8 @@ export default function Header1({
                                   : "#fff",
                             fontWeight:
                               isActive(`/${locale}/program`) ||
+                              isActive(`/${locale}/program-plenary`) ||
+                              isActive(`/${locale}/program-oral-poster`) ||
                               isActive(`/${locale}/gala-dinner`) ||
                               isActive(`/${locale}/preconference-workshops`)
                                 ? "600"
@@ -292,13 +297,26 @@ export default function Header1({
                               {t("programOverview")}
                             </Link>
                           </li>
-                          {/* Hidden Program submenu items (kept for future use) */}
-                          {/*
-                          <li><Link href={`/${locale}/program`}>{t("programOverview")}</Link></li>
-                          <li><Link href={`/${locale}/program-plenary`}>{t("plenaryKeynotes")}</Link></li>
-                          <li><Link href={`/${locale}/program-symposium`}>{t("symposia")}</Link></li>
-                          <li><Link href={`/${locale}/program-oral-poster`}>{t("oralPoster")}</Link></li>
-                          */}
+                          <li>
+                            <Link href={`/${locale}/program-plenary`}>
+                              {t("plenaryKeynotes")}
+                            </Link>
+                          </li>
+                          {/* <li>
+                            <Link href={`/${locale}/program-symposium`}>
+                              {t("symposia")}
+                            </Link>
+                          </li> */}
+                          <li>
+                            <Link href={`/${locale}/program-oral-poster`}>
+                              {t("oralPoster")}
+                            </Link>
+                          </li>
+                          <li>
+                            <Link href={`/${locale}/program-oral-poster/presentation-guideline`}>
+                              {tOralPoster("guidelines")}
+                            </Link>
+                          </li>
                           <li>
                             <Link href={`/${locale}/gala-dinner`}>
                               {t("galaDinner")}

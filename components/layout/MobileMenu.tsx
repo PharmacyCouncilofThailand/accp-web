@@ -18,6 +18,7 @@ export default function MobileMenu({
 }: MobileMenuProps) {
   const [isAccordion, setIsAccordion] = useState<number | null>(null);
   const t = useTranslations("common");
+  const tOralPoster = useTranslations("oralPoster");
   const tContact = useTranslations("contact");
   const locale = useLocale();
   const pathname = usePathname();
@@ -114,12 +115,29 @@ export default function MobileMenu({
                     {t("programOverview")}
                   </Link>
                 </li>
-                {/* Hidden Program submenu items (kept for future use) */}
-                {/*
-                <li className="hash-has-sub"><Link href={`/${locale}/program-plenary`} className="hash-nav">{t("plenaryKeynotes")}</Link></li>
-                <li className="hash-has-sub"><Link href={`/${locale}/program-symposium`} className="hash-nav">{t("symposia")}</Link></li>
-                <li className="hash-has-sub"><Link href={`/${locale}/program-oral-poster`} className="hash-nav">{t("oralPoster")}</Link></li>
-                */}
+                <li className="hash-has-sub">
+                  <Link href={`/${locale}/program-plenary`} className="hash-nav">
+                    {t("plenaryKeynotes")}
+                  </Link>
+                </li>
+                {/* <li className="hash-has-sub">
+                  <Link href={`/${locale}/program-symposium`} className="hash-nav">
+                    {t("symposia")}
+                  </Link>
+                </li> */}
+                <li className="hash-has-sub">
+                  <Link href={`/${locale}/program-oral-poster`} className="hash-nav">
+                    {t("oralPoster")}
+                  </Link>
+                </li>
+                <li className="hash-has-sub">
+                  <Link
+                    href={`/${locale}/program-oral-poster/presentation-guideline`}
+                    className="hash-nav"
+                  >
+                    {tOralPoster("guidelines")}
+                  </Link>
+                </li>
                 <li className="hash-has-sub">
                   <Link href={`/${locale}/gala-dinner`} className="hash-nav">
                     {t("galaDinner")}

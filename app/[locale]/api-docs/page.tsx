@@ -1,3 +1,4 @@
+import { setRequestLocale } from 'next-intl/server';
 import Layout from "@/components/layout/Layout";
 import Link from "next/link";
 
@@ -139,7 +140,10 @@ POST /api/registrations/register
 }`,
 };
 
-export default function ApiDocs() {
+export default async function ApiDocs({ params }: { params: Promise<{ locale: string }> }) {
+    const { locale } = await params;
+    setRequestLocale(locale);
+
   return (
     <>
       <Layout headerStyle={1} footerStyle={1}>

@@ -1,3 +1,4 @@
+import { setRequestLocale } from 'next-intl/server';
 import dynamic from 'next/dynamic'
 import Layout from "@/components/layout/Layout"
 import HeroSection from '@/components/sections/home1/HeroSection';
@@ -9,6 +10,9 @@ const WelcomeSection = dynamic(() => import('@/components/sections/home1/Welcome
 const MemoriesSection = dynamic(() => import('@/components/sections/home1/MemoriesSection'), {
     loading: () => <div style={{ minHeight: '400px' }} />,
 })
+const SpeakersSection = dynamic(() => import('@/components/sections/home1/SpeakersSection'), {
+    loading: () => <div style={{ minHeight: '620px' }} />,
+})
 const MapSection = dynamic(() => import('@/components/sections/home1/MapSection'), {
     loading: () => <div style={{ minHeight: '500px' }} />,
 })
@@ -17,13 +21,17 @@ const SponsorsList = dynamic(() => import('@/components/sections/sponsorship/Spo
 })
 const MemorialPopup = dynamic(() => import('@/components/elements/MemorialPopup'))
 
-export default function Home() {
+export default async function Home({ params }: { params: Promise<{ locale: string }> }) {
+    const { locale } = await params;
+    setRequestLocale(locale);
+
     return (
         <>
             <Layout headerStyle={1} footerStyle={1}>
                 <HeroSection />
                 <WelcomeSection />
                 <MemoriesSection />
+                <SpeakersSection />
                 <MapSection />
                 <SponsorsList />
                 <MemorialPopup />

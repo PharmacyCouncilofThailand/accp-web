@@ -1,3 +1,4 @@
+import { setRequestLocale } from 'next-intl/server';
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
@@ -6,10 +7,14 @@ export const metadata: Metadata = {
     keywords: ["program", "plenary", "symposia", "ACCP 2026", "clinical pharmacy conference"],
 }
 
-export default function ProgramLayout({
+export default async function ProgramLayout({
     children,
+    params
 }: {
-    children: React.ReactNode
+    children: React.ReactNode;
+    params: Promise<{ locale: string }>;
 }) {
+    const { locale } = await params;
+    setRequestLocale(locale);
     return children
 }
