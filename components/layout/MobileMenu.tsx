@@ -116,6 +116,16 @@ export default function MobileMenu({
                   </Link>
                 </li>
                 <li className="hash-has-sub">
+                  <Link href={`/${locale}/program-plenary`} className="hash-nav">
+                    {t("plenaryKeynotes")}
+                  </Link>
+                </li>
+                {/* <li className="hash-has-sub">
+                  <Link href={`/${locale}/program-symposium`} className="hash-nav">
+                    {t("symposia")}
+                  </Link>
+                </li> */}
+                <li className="hash-has-sub">
                   <Link href={`/${locale}/program-oral-poster`} className="hash-nav">
                     {t("oralPoster")}
                   </Link>
@@ -128,12 +138,6 @@ export default function MobileMenu({
                     {tOralPoster("guidelines")}
                   </Link>
                 </li>
-                {/* Hidden Program submenu items (kept for future use) */}
-                {/*
-                <li className="hash-has-sub"><Link href={`/${locale}/program-plenary`} className="hash-nav">{t("plenaryKeynotes")}</Link></li>
-                <li className="hash-has-sub"><Link href={`/${locale}/program-symposium`} className="hash-nav">{t("symposia")}</Link></li>
-                <li className="hash-has-sub"><Link href={`/${locale}/program-oral-poster`} className="hash-nav">{t("oralPoster")}</Link></li>
-                */}
                 <li className="hash-has-sub">
                   <Link href={`/${locale}/gala-dinner`} className="hash-nav">
                     {t("galaDinner")}
