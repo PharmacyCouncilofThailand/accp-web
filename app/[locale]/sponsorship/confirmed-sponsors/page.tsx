@@ -2,7 +2,7 @@
 import Layout from "@/components/layout/Layout"
 import Link from "next/link"
 import { useTranslations, useLocale } from 'next-intl';
-import SponsorsList from '@/components/sections/sponsorship/SponsorsList';
+import ConfirmedSponsorsShowcase from '@/components/sections/sponsorship/ConfirmedSponsorsShowcase';
 
 export default function ConfirmedSponsors() {
     const tCommon = useTranslations('common');
@@ -26,9 +26,9 @@ export default function ConfirmedSponsors() {
                     </div>
                 </div>
 
-                <div className="space100" />
-                <SponsorsList />
-                <div className="space100" />
+                <div className="space80" />
+                <ConfirmedSponsorsShowcase />
+                <div className="space80" />
             </div>
         </Layout>
     )
