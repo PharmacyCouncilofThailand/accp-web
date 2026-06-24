@@ -138,7 +138,10 @@ export const committeeData: CommitteeCategory[] = [
             { name: "Dr. Busaya Kulabusaya", affiliation: "Department of Pharmaceutical Care, Siriraj Hospital, Mahidol University", title: "" },
             { name: "Dr. Kittika Yampayon", affiliation: "Department of Pharmacy, Siriraj Hospital, Mahidol University", title: "" },
             { name: "Dr. Thitipon Yaowaluk", affiliation: "Department of Pharmacy, Siriraj Hospital, Mahidol University", title: "" },
-            { name: "Mrs. Anusara Kraunual", affiliation: "Department of Pharmacy, Somdet Chaopraya Institute of Psychiatry", title: "" }
+            { name: "Miss Anusara Kraunual", affiliation: "Department of Pharmacy, Somdet Chaopraya Institute of Psychiatry", title: "" },
+            { name: "Assoc. Prof. Dr. Pornwalai Boonmuang", affiliation: "Department of Pharmaceutical Care, Silpakorn University", title: "" },
+            { name: "Asst. Prof. Dr. Taniya Paiboonvong", affiliation: "Department of Pharmacy Practice, College of Pharmacy, Rangsit University", title: "" },
+            { name: "Asst. Prof. Dr. Abhisit Prawang", affiliation: "Department of Pharmacy Practice, College of Pharmacy, Rangsit University", title: "" }
         ]
     }
 ]

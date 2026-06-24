@@ -5,19 +5,19 @@ import { useState } from 'react';
 
 // Configuration for Floor Plans
 const FLOOR_PLANS = {
-    ballroom: {
-        id: 'ballroom',
-        label: 'World Ballroom',
-        dateRange: 'July 9, 11',
-        fullDate: 'July 9, 11, 2026',
-        image: '/assets/img/venue-floor-plan/floor-plan-world-ballroom.jpg',
-    },
     convention: {
         id: 'convention',
         label: 'Convention Centre',
-        dateRange: 'July 10',
-        fullDate: 'July 10, 2026',
+        dateRange: 'July 9',
+        fullDate: 'July 9, 2026',
         image: '/assets/img/venue-floor-plan/floor-plan-convention-centre.jpg',
+    },
+    ballroom: {
+        id: 'ballroom',
+        label: 'World Ballroom',
+        dateRange: 'July 10, 11',
+        fullDate: 'July 10, 11, 2026',
+        image: '/assets/img/venue-floor-plan/floor-plan-world-ballroom.jpg',
     }
 } as const;
 
@@ -25,7 +25,7 @@ type TabType = keyof typeof FLOOR_PLANS;
 
 export default function MapSection() {
     const t = useTranslations();
-    const [activeTab, setActiveTab] = useState<TabType>('ballroom');
+    const [activeTab, setActiveTab] = useState<TabType>('convention');
     const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
     const currentPlan = FLOOR_PLANS[activeTab];

@@ -226,7 +226,7 @@ export default function AbstractStatusPage() {
                         {ABSTRACT_SUBMISSION_IS_CLOSED ? (
                             <span className="abstract-status-closed">
                                 <i className="fa-solid fa-lock" />
-                                Submission Closed
+                                Submission Abstract Close
                             </span>
                         ) : (
                             <Link href={`/${locale}/abstract-submission`} className="abstract-status-primary">

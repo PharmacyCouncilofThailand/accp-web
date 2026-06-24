@@ -355,7 +355,7 @@ export default function HeroSection() {
                   style={{
                     display: "flex",
                     alignItems: "stretch",
-                    gap: "16px",
+                    gap: "12px",
                     flexWrap: "wrap",
                   }}
                 >
