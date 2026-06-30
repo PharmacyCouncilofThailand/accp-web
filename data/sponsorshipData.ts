@@ -109,6 +109,10 @@ export const sponsorCategories: SponsorCategory[] = [
                 name: 'Ultramedica Co., Ltd.',
                 logo: sponsorLogo('logo_pharmaceutical company', 'อัลตร้าเมดิคา จำกัด_Vismax.jpg'),
             },
+            {
+                name: 'China Pharmacy Online',
+                logo: sponsorLogo('logo_pharmaceutical company', '5787524E-74D3-4710-998A-5815D813A82B.png'),
+            },
         ],
     },
     {
