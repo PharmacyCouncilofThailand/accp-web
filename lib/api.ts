@@ -301,7 +301,7 @@ export const api = {
         myTickets: (token: string) =>
             fetchAPI<MyTicketsResponse>('/api/payments/my-tickets', { token }),
 
-        preview: (token: string, data: { packageId?: string; addOnIds: string[]; currency: 'THB' | 'USD'; promoCode?: string; paymentMethod?: 'qr' | 'card' }) =>
+        preview: (token: string, data: { packageId?: string; addOnIds: string[]; currency: 'THB' | 'USD'; promoCode?: string; paymentMethod?: 'qr' | 'card' | 'alipay' }) =>
             fetchAPI<{
                 success: boolean;
                 data: {
@@ -313,6 +313,8 @@ export const api = {
                     fee: number;
                     total: number;
                     currency: string;
+                    chargeCurrency?: string;
+                    chargeNet?: number;
                     feeMethod: string;
                     promoValid: boolean;
                     promoError: string | null;
@@ -329,7 +331,7 @@ export const api = {
             addOnIds: string[];
             currency: 'THB' | 'USD';
             promoCode?: string;
-            paymentMethod?: 'qr' | 'card';
+            paymentMethod?: 'qr' | 'card' | 'alipay';
             workshopSessionId?: number;
             needTaxInvoice?: boolean;
             taxName?: string;

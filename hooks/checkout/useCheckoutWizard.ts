@@ -24,7 +24,7 @@ export interface CheckoutData {
   dietaryOtherText: string;
 
   // Step 4: Payment
-  paymentMethod: "qr" | "card";
+  paymentMethod: "qr" | "card" | "alipay";
 
   // Dynamic fields
   currency?: "THB" | "USD";
@@ -90,7 +90,8 @@ export function useCheckoutWizard(totalSteps: number = 4) {
         const savedCheckoutData = data.checkoutData || {};
         const normalizedPaymentMethod =
           savedCheckoutData.paymentMethod === "qr" ||
-          savedCheckoutData.paymentMethod === "card"
+          savedCheckoutData.paymentMethod === "card" ||
+          savedCheckoutData.paymentMethod === "alipay"
             ? savedCheckoutData.paymentMethod
             : "card";
         const normalizedNeedTaxInvoice = savedCheckoutData.needTaxInvoice === true;

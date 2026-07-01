@@ -18,6 +18,7 @@ import { useTickets } from "@/context/TicketContext";
 import type { ResolvedPackage, ResolvedAddOn } from "@/utils/tickets";
 import { api } from "@/lib/api";
 import type { LinkedSession } from "@/lib/api";
+import { convertUsdToThb } from "@/utils/alipayCharge";
 
 export default function Registration() {
   const t = useTranslations("checkout");
@@ -471,6 +472,26 @@ export default function Registration() {
   const currentPackage = registrationPackages.find(
     (p) => p.id === checkoutData.selectedPackage,
   );
+
+  const thbChargeSubtotal = useMemo(() => {
+    if (isThai) return undefined;
+    const packageUsd = isAddonOnly ? 0 : currentPackage?.priceUSD || 0;
+    const addOnsUsd = addOns
+      .filter(
+        (a) =>
+          checkoutData.selectedAddOns.includes(a.id) &&
+          !purchasedAddOnSet.has(a.id.toLowerCase()),
+      )
+      .reduce((sum, a) => sum + a.priceUSD, 0);
+    return convertUsdToThb(packageUsd + addOnsUsd);
+  }, [
+    isThai,
+    isAddonOnly,
+    currentPackage,
+    addOns,
+    checkoutData.selectedAddOns,
+    purchasedAddOnSet,
+  ]);
 
   const orderSummary = useMemo(() => {
     return {
@@ -1312,6 +1333,7 @@ export default function Registration() {
                     addOns={orderSummary.addOns}
                     isThai={isThai}
                     paymentMethod={checkoutData.paymentMethod}
+                    thbChargeSubtotal={thbChargeSubtotal}
                     promoDiscount={promoDiscount}
                     onRemoveAddOn={(id) => {
                       const newAddOns = checkoutData.selectedAddOns.filter(
@@ -1497,10 +1519,26 @@ export default function Registration() {
                           isSelected={checkoutData.paymentMethod === "qr"}
                           onSelect={(id) =>
                             updateCheckoutData({
-                              paymentMethod: id as "qr" | "card",
+                              paymentMethod: id as "qr" | "card" | "alipay",
                             })
                           }
                           processingTime={t("instant")}
+                          currency="THB"
+                        />
+                      )}
+                      {!isThai && (
+                        <PaymentMethodCard
+                          id="alipay"
+                          title={t("alipayPayment")}
+                          description={t("alipayPaymentDesc")}
+                          icon="fa-brands fa-alipay"
+                          isSelected={checkoutData.paymentMethod === "alipay"}
+                          onSelect={(id) =>
+                            updateCheckoutData({
+                              paymentMethod: id as "qr" | "card" | "alipay",
+                            })
+                          }
+                          processingTime={t("processingTimeCard")}
                           currency="THB"
                         />
                       )}
@@ -1512,7 +1550,7 @@ export default function Registration() {
                         isSelected={checkoutData.paymentMethod === "card"}
                         onSelect={(id) =>
                           updateCheckoutData({
-                            paymentMethod: id as "qr" | "card",
+                            paymentMethod: id as "qr" | "card" | "alipay",
                           })
                         }
                         processingTime={t("processingTimeCard")}
