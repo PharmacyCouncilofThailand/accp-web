@@ -301,7 +301,7 @@ export const api = {
         myTickets: (token: string) =>
             fetchAPI<MyTicketsResponse>('/api/payments/my-tickets', { token }),
 
-        preview: (token: string, data: { packageId?: string; addOnIds: string[]; currency: 'THB' | 'USD'; promoCode?: string; paymentMethod?: 'qr' | 'card' | 'alipay' }) =>
+        preview: (token: string, data: { eventId: number; packageId?: string; addOnIds: string[]; currency: 'THB' | 'USD'; promoCode?: string; paymentMethod?: 'qr' | 'card' | 'alipay' }) =>
             fetchAPI<{
                 success: boolean;
                 data: {

@@ -373,12 +373,20 @@ export default function Registration() {
 
   const handleApplyPromo = async () => {
     if (!promoInput.trim() || !token) return;
+
+    const eventId = tickets[0]?.eventId;
+    if (!eventId) {
+      setPromoError(t("promoInvalid"));
+      return;
+    }
+
     setPromoLoading(true);
     setPromoError(null);
 
     try {
       const currency = isThai ? "THB" : "USD";
       const res = await api.payments.preview(token, {
+        eventId,
         packageId: isAddonOnly ? undefined : checkoutData.selectedPackage,
         addOnIds: checkoutData.selectedAddOns.filter(
           (id) => !purchasedAddOnSet.has(id.toLowerCase()),
