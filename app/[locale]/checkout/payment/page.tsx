@@ -9,6 +9,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useCheckoutWizard } from "@/hooks/checkout/useCheckoutWizard";
 import OrderSummary from "@/components/checkout/OrderSummary";
 import { useTickets } from "@/context/TicketContext";
+import { calculatePaySolutionsFee } from "@/utils/paySolutionsFee";
+import { convertUsdToThb } from "@/utils/alipayCharge";
 import type { LinkedSession } from "@/lib/api";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
@@ -194,6 +196,21 @@ export default function Payment() {
     tCheckout,
   ]);
 
+  const thbChargeSubtotal = useMemo(() => {
+    if (isThaiPayment) return undefined;
+    const packageUsd = isAddonOnly ? 0 : currentPackage?.priceUSD || 0;
+    const addOnsUsd = apiAddOns
+      .filter((a) => payableAddOnIds.includes(a.id))
+      .reduce((sum, a) => sum + a.priceUSD, 0);
+    return convertUsdToThb(packageUsd + addOnsUsd);
+  }, [
+    isThaiPayment,
+    isAddonOnly,
+    currentPackage,
+    apiAddOns,
+    payableAddOnIds,
+  ]);
+
   // Payment gateway state
   const [redirectForm, setRedirectForm] = useState<RedirectFormPayload | null>(null);
   const [paymentRefNo, setPaymentRefNo] = useState<string | null>(null);
@@ -203,6 +220,9 @@ export default function Payment() {
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [feeAmount, setFeeAmount] = useState<number>(0);
   const [chargeTotal, setChargeTotal] = useState<number>(0);
+  const [chargeCurrency, setChargeCurrency] = useState<"THB" | "USD">(
+    isThaiPayment ? "THB" : "USD",
+  );
   const [isCancelling, setIsCancelling] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [showRefreshModal, setShowRefreshModal] = useState(false);
@@ -214,6 +234,26 @@ export default function Payment() {
     discountAmount: number;
   } | null>(null);
   const [retryCount, setRetryCount] = useState(0);
+
+  const isAlipayPayment = checkoutData.paymentMethod === "alipay";
+
+  const netUsdAmount =
+    totalAmount - (promoDiscount?.discountAmount ?? 0);
+
+  const usdDisplayCharge = useMemo(() => {
+    if (netUsdAmount <= 0) {
+      return { fee: 0, total: 0 };
+    }
+    return calculatePaySolutionsFee(
+      netUsdAmount,
+      checkoutData.paymentMethod,
+      isThaiPayment,
+    );
+  }, [netUsdAmount, checkoutData.paymentMethod, isThaiPayment]);
+
+  const displayFee = isAlipayPayment ? usdDisplayCharge.fee : feeAmount;
+  const displayTotal = isAlipayPayment ? usdDisplayCharge.total : chargeTotal;
+  const approximateThbTotal = isAlipayPayment ? chargeTotal : null;
 
   // Refresh detection and warning
   useEffect(() => {
@@ -375,6 +415,9 @@ export default function Payment() {
         setOrderId(data.data.orderId);
         setFeeAmount(data.data.fee || 0);
         setChargeTotal(data.data.total || totalAmount);
+        setChargeCurrency(
+          data.data.chargeCurrency === "THB" ? "THB" : currency,
+        );
 
         if (data.data.refno) {
           sessionStorage.setItem(PAY_SOLUTIONS_REFNO_STORAGE_KEY, data.data.refno);
@@ -592,7 +635,7 @@ export default function Payment() {
                       )}
 
                       {/* Fee Breakdown */}
-                      {feeAmount > 0 && (
+                      {displayFee > 0 && (
                         <div
                           style={{
                             padding: "16px",
@@ -634,7 +677,7 @@ export default function Payment() {
                             </span>
                             <span>
                               {isThaiPayment ? "฿" : "$"}
-                              {feeAmount.toLocaleString()}
+                              {displayFee.toLocaleString()}
                               {!isThaiPayment ? " USD" : ""}
                             </span>
                           </div>
@@ -653,10 +696,24 @@ export default function Payment() {
                             </span>
                             <span style={{ color: "#00C853" }}>
                               {isThaiPayment ? "฿" : "$"}
-                              {chargeTotal.toLocaleString()}
+                              {displayTotal.toLocaleString()}
                               {!isThaiPayment ? " USD" : ""}
                             </span>
                           </div>
+                          {approximateThbTotal != null && (
+                            <div
+                              style={{
+                                marginTop: "10px",
+                                fontSize: "12px",
+                                color: "#888",
+                                textAlign: "right",
+                              }}
+                            >
+                              {tCheckout("alipayApproxThb", {
+                                amount: approximateThbTotal.toLocaleString(),
+                              })}
+                            </div>
+                          )}
                         </div>
                       )}
 
@@ -720,6 +777,7 @@ export default function Payment() {
                     addOns={orderAddOns}
                     isThai={isThaiPayment}
                     paymentMethod={checkoutData.paymentMethod}
+                    thbChargeSubtotal={thbChargeSubtotal}
                     promoDiscount={promoDiscount}
                   />
                 </div>

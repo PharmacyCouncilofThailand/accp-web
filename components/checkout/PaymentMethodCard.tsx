@@ -15,19 +15,23 @@ interface PaymentMethodCardProps {
 
 const PAYMENT_ICONS: Record<
   string,
-  { src: string; href: string; maxWidth: number; maxHeight: number }
+  { src: string; maxWidth: number; maxHeight: number; noLink?: boolean }
 > = {
   qr: {
     src: "https://s3-payso-images.s3.ap-southeast-1.amazonaws.com/image-logocode/PromptPay-3.png",
-    href: "https://www.paysolutions.asia",
     maxWidth: 160,
     maxHeight: 40,
   },
   card: {
     src: "https://s3-payso-images.s3.ap-southeast-1.amazonaws.com/image-logocode/credit-3.png",
-    href: "https://www.paysolutions.asia",
     maxWidth: 240,
     maxHeight: 90,
+  },
+  alipay: {
+    src: "https://s3-payso-images.s3.ap-southeast-1.amazonaws.com/image-logocode/Alipay-1.png",
+    maxWidth: 160,
+    maxHeight: 50,
+    noLink: true,
   },
 };
 
@@ -36,6 +40,7 @@ const FEE_LABEL: Record<string, string> = {
   qr: "Fee 1.35%",
   card_thb: "Fee 2.8%",
   card_usd: "Fee 3%",
+  alipay: "Fee 2.5%",
 };
 
 export default function PaymentMethodCard({
@@ -50,9 +55,11 @@ export default function PaymentMethodCard({
   const feeLabel =
     id === "qr"
       ? FEE_LABEL.qr
-      : currency === "USD"
-        ? FEE_LABEL.card_usd
-        : FEE_LABEL.card_thb;
+      : id === "alipay"
+        ? FEE_LABEL.alipay
+        : currency === "USD"
+          ? FEE_LABEL.card_usd
+          : FEE_LABEL.card_thb;
 
   return (
     <div

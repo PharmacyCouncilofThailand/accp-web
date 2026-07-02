@@ -1,6 +1,11 @@
 "use client";
 import React from "react";
 import { useTranslations } from "next-intl";
+import {
+  calculatePaySolutionsFee,
+  type PaySolutionsPaymentMethod,
+} from "@/utils/paySolutionsFee";
+import { convertUsdDiscountToThb } from "@/utils/alipayCharge";
 
 interface OrderItem {
   id: string;
@@ -23,80 +28,8 @@ interface OrderSummaryProps {
   discount?: number;
   promoDiscount?: PromoDiscount | null;
   onRemoveAddOn?: (id: string) => void;
-  paymentMethod?: "qr" | "card";
-}
-
-// Fee config matching backend paySolutionsFee.ts
-const FEE_CONFIG = {
-  promptpay: { rate: 0.0135, vat: 0.07, minFee: 5 },
-  card: { rate: 0.028, vat: 0.07, minFee: 0 },
-  usd_card: { rate: 0.03, vat: 0.07, minFee: 0 },
-} as const;
-
-type FeeMethod = keyof typeof FEE_CONFIG;
-
-function round2(value: number): number {
-  return Math.round((value + Number.EPSILON) * 100) / 100;
-}
-
-function toSatang(value: number): number {
-  return Math.round(round2(value) * 100);
-}
-
-function calculateNetFromGross(grossSatang: number, method: FeeMethod) {
-  const cfg = FEE_CONFIG[method];
-  const gross = grossSatang / 100;
-  const rawFee = round2(gross * cfg.rate);
-  const processingFee = cfg.minFee > 0 ? Math.max(rawFee, cfg.minFee) : rawFee;
-  const processingVat = round2(processingFee * cfg.vat);
-  const net = round2(gross - processingFee - processingVat);
-
-  return {
-    netSatang: toSatang(net),
-    total: gross,
-    fee: round2(processingFee + processingVat),
-  };
-}
-
-function calculateFee(
-  netAmount: number,
-  isThai: boolean,
-  paymentMethod: "qr" | "card",
-) {
-  let method: FeeMethod;
-  if (!isThai) method = "usd_card";
-  else if (paymentMethod === "qr") method = "promptpay";
-  else method = "card";
-
-  const targetNetSatang = toSatang(netAmount);
-  if (targetNetSatang <= 0) {
-    return { fee: 0, total: 0 };
-  }
-
-  const cfg = FEE_CONFIG[method];
-  const approxGross = Math.ceil(
-    (targetNetSatang / 100) / (1 - cfg.rate * (1 + cfg.vat)) * 100,
-  );
-
-  const minGross = Math.max(1, approxGross - 10000);
-  const maxGross = approxGross + 10000;
-
-  for (let grossSatang = minGross; grossSatang <= maxGross; grossSatang++) {
-    const calc = calculateNetFromGross(grossSatang, method);
-    if (calc.netSatang === targetNetSatang) {
-      return { fee: calc.fee, total: calc.total };
-    }
-  }
-
-  for (let grossSatang = approxGross; grossSatang <= maxGross; grossSatang++) {
-    const calc = calculateNetFromGross(grossSatang, method);
-    if (calc.netSatang >= targetNetSatang) {
-      return { fee: calc.fee, total: calc.total };
-    }
-  }
-
-  const fallback = calculateNetFromGross(maxGross, method);
-  return { fee: fallback.fee, total: fallback.total };
+  paymentMethod?: PaySolutionsPaymentMethod;
+  thbChargeSubtotal?: number;
 }
 
 export default function OrderSummary({
@@ -107,15 +40,15 @@ export default function OrderSummary({
   promoDiscount,
   onRemoveAddOn,
   paymentMethod = "card",
+  thbChargeSubtotal,
 }: OrderSummaryProps) {
   const t = useTranslations("checkout");
+  const isAlipay = paymentMethod === "alipay";
   const currency = isThai ? "฿" : "$";
-  const currencyLabel = isThai ? "THB" : "USD";
 
   const subtotal =
     packageItem.price + addOns.reduce((sum, addon) => sum + addon.price, 0);
 
-  // Promo discount takes priority over legacy percentage discount
   let discountAmount: number;
   if (promoDiscount) {
     discountAmount = promoDiscount.discountAmount;
@@ -124,11 +57,23 @@ export default function OrderSummary({
   }
 
   const netAmount = subtotal - discountAmount;
-  const { fee, total: totalWithFee } =
-    netAmount > 0
-      ? calculateFee(netAmount, isThai, paymentMethod)
-      : { fee: 0, total: 0 };
-  const total = totalWithFee;
+
+  let fee = 0;
+  let total = netAmount;
+  let approximateThbTotal: number | null = null;
+
+  if (netAmount > 0) {
+    const charge = calculatePaySolutionsFee(netAmount, paymentMethod, isThai);
+    fee = charge.fee;
+    total = charge.total;
+  }
+
+  if (isAlipay && thbChargeSubtotal != null) {
+    const thbDiscount = convertUsdDiscountToThb(discountAmount);
+    const thbNet = thbChargeSubtotal - thbDiscount;
+    const thbCharge = calculatePaySolutionsFee(thbNet, "alipay", false);
+    approximateThbTotal = thbCharge.total;
+  }
 
   return (
     <div
@@ -429,15 +374,19 @@ export default function OrderSummary({
               {currency}
               {total.toLocaleString()}
             </div>
-            <div
-              style={{
-                fontSize: "12px",
-                color: "#666",
-                marginTop: "4px",
-              }}
-            >
-              {currencyLabel}
-            </div>
+            {isAlipay && approximateThbTotal != null && (
+              <div
+                style={{
+                  fontSize: "12px",
+                  color: "#888",
+                  marginTop: "6px",
+                }}
+              >
+                {t("alipayApproxThb", {
+                  amount: approximateThbTotal.toLocaleString(),
+                })}
+              </div>
+            )}
           </div>
           <i
             className="fa-solid fa-circle-check"
