@@ -30,7 +30,7 @@ export const programDays = [
             { time: "14:45 - 16:45", titleKey: "borderlessPharmacySession", type: "oral", icon: "fa-chalkboard-user" },
             { time: "16:15 - 16:45", titleKey: "posterTakeDown1", type: "poster", icon: "fa-image" },
             { time: "16:45 - 17:15", titleKey: "posterPutUp2", type: "poster", icon: "fa-image" },
-            { time: "17:30 - 20:30", titleKey: "galaDinner", type: "social", icon: "fa-champagne-glasses" },
+            { time: "17:45 - 20:45", titleKey: "galaDinner", type: "social", icon: "fa-champagne-glasses" },
         ]
     },
     {

@@ -292,7 +292,22 @@
     "guidelines": "Presentation Guidelines",
     "researchPresentations": "Research Presentations",
     "oralAndPosterTitle": "Oral & Poster Sessions",
-    "oralAndPosterDesc": "Discover cutting-edge research from clinical pharmacists and pharmaceutical scientists across Asia through our oral presentation and e-poster sessions."
+    "oralAndPosterDesc": "Discover cutting-edge research from clinical pharmacists and pharmaceutical scientists across Asia through our oral presentation and e-poster sessions.",
+    "room": "Room",
+    "date": "Date",
+    "time": "Time",
+    "posterBoard": "Poster Board",
+    "presentationTime": "Presentation",
+    "installation": "Installation",
+    "removal": "Removal",
+    "scheduleDownloadsKicker": "Official Schedules",
+    "scheduleDownloadsTitle": "Download presentation schedules",
+    "scheduleDownloadsDesc": "Get the full oral and poster presentation schedules with room assignments, poster board numbers, and session times.",
+    "downloadOralSchedule": "Oral Presentation Schedule",
+    "downloadOralScheduleDesc": "Room assignments and time slots for all oral sessions",
+    "downloadPosterSchedule": "Poster Presentation Schedule",
+    "downloadPosterScheduleDesc": "Poster board numbers, dates, and presentation times",
+    "downloadSchedulePdf": "Download PDF"
   },
   "workshops": {
     "pageTitle": "Pre-Conference Workshops",

@@ -35,22 +35,30 @@ export function SponsorLogoItem({
             data-aos-delay={Math.min(index * 60, 360)}
             title={sponsor.name}
         >
-            <Image
-                src={sponsor.logo}
-                alt={sponsor.name}
-                width={featured ? 260 : 220}
-                height={featured ? 100 : 88}
-                sizes={
-                    featured
-                        ? '(max-width: 576px) 80vw, (max-width: 992px) 40vw, 260px'
-                        : '(max-width: 576px) 44vw, (max-width: 992px) 28vw, 200px'
-                }
+            <div
                 className={
                     featured
-                        ? 'sponsors-showcase__featured-logo-img'
-                        : 'sponsors-showcase__logo-img'
+                        ? 'sponsors-showcase__featured-logo-frame'
+                        : 'sponsors-showcase__logo-frame'
                 }
-            />
+            >
+                <Image
+                    src={sponsor.logo}
+                    alt={sponsor.name}
+                    width={featured ? 240 : 220}
+                    height={featured ? 88 : 76}
+                    sizes={
+                        featured
+                            ? '(max-width: 576px) 80vw, (max-width: 992px) 40vw, 240px'
+                            : '(max-width: 576px) 44vw, (max-width: 992px) 28vw, 220px'
+                    }
+                    className={
+                        featured
+                            ? 'sponsors-showcase__featured-logo-img'
+                            : 'sponsors-showcase__logo-img'
+                    }
+                />
+            </div>
         </div>
     )
 }

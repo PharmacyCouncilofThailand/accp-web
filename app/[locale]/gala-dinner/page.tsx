@@ -106,7 +106,7 @@ export default function GalaDinner() {
                                                 </div>
                                                 <div style={{ textAlign: 'left' }}>
                                                     <span style={{ fontSize: '13px', display: 'block', marginBottom: '2px', color: 'rgba(255, 255, 255, 0.8)' }}>{tCommon('hours')}</span>
-                                                    <p style={{ margin: 0, fontWeight: '600', fontSize: '16px', color: '#ffffff' }}>19:00 - 21:30</p>
+                                                    <p style={{ margin: 0, fontWeight: '600', fontSize: '16px', color: '#ffffff' }}>17:45 - 20:45</p>
                                                 </div>
                                             </div>
                                         </div>

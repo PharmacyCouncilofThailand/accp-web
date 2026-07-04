@@ -77,15 +77,15 @@ export default function ProgramSchedule() {
 
   const handleDownload = (dayIndex: number) => {
     const pdfFiles = [
-      "/assets/documents/agenda-day1.pdf",
-      "/assets/documents/agenda_day2.pdf",
-      "/assets/documents/agenda_day3.pdf",
+      "/assets/documents/agenda/9July26.pdf",
+      "/assets/documents/agenda/10July26.pdf",
+      "/assets/documents/agenda/11July26.pdf",
       "/assets/documents/agenda_all_day.pdf",
     ];
     const downloadNames = [
-      "ACCP2026_Agenda_Day1.pdf",
-      "ACCP2026_Agenda_Day2.pdf",
-      "ACCP2026_Agenda_Day3.pdf",
+      "9July26.pdf",
+      "10July26.pdf",
+      "11July26.pdf",
       "ACCP2026_Agenda_All_Day.pdf",
     ];
 

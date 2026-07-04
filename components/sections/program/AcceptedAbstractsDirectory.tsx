@@ -2,9 +2,25 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 type PresentationType = 'oral' | 'poster';
+
+type TimeRange = {
+    start: string;
+    end: string;
+};
+
+type PresentationSchedule = {
+    date: string | null;
+    room?: string | null;
+    startTime?: string | null;
+    endTime?: string | null;
+    boardNumber?: string | null;
+    installation?: TimeRange | null;
+    presentation?: TimeRange | null;
+    removal?: TimeRange | null;
+};
 
 type AcceptedAbstract = {
     id: number;
@@ -15,6 +31,7 @@ type AcceptedAbstract = {
     presenterName: string;
     institution: string | null;
     country: string | null;
+    schedule: PresentationSchedule | null;
 };
 
 type AcceptedAbstractsResponse = {
@@ -48,16 +65,118 @@ const normalize = (value: string | null | undefined) =>
         .trim()
         .toLowerCase();
 
-function AbstractCard({ item, index }: { item: AcceptedAbstract; index: number }) {
+const formatScheduleDate = (value: string | null | undefined, locale: string) => {
+    if (!value) return null;
+    const date = new Date(`${value}T00:00:00`);
+    if (Number.isNaN(date.getTime())) return value;
+    return new Intl.DateTimeFormat(locale === 'th' ? 'th-TH' : 'en-GB', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+    }).format(date);
+};
+
+const formatTimeRange = (start?: string | null, end?: string | null) => {
+    if (!start || !end) return null;
+    return `${start} – ${end}`;
+};
+
+function ScheduleChip({
+    label,
+    value,
+}: {
+    label: string;
+    value: string;
+}) {
+    return (
+        <div className="accepted-schedule-chip">
+            <span className="accepted-schedule-label">{label}</span>
+            <span className="accepted-schedule-value">{value}</span>
+        </div>
+    );
+}
+
+function ScheduleDetails({
+    item,
+    locale,
+}: {
+    item: AcceptedAbstract;
+    locale: string;
+}) {
+    const tOralPoster = useTranslations('oralPoster');
+    const schedule = item.schedule;
+
+    if (!schedule) return null;
+
+    const presentationTime =
+        formatTimeRange(
+            schedule.presentation?.start ?? schedule.startTime,
+            schedule.presentation?.end ?? schedule.endTime,
+        ) ?? null;
+    const formattedDate = formatScheduleDate(schedule.date, locale);
+    const scheduleClass =
+        item.presentationType === 'oral'
+            ? 'accepted-schedule-details accepted-schedule-oral'
+            : 'accepted-schedule-details accepted-schedule-poster';
+
+    if (item.presentationType === 'oral') {
+        if (!schedule.room && !presentationTime && !formattedDate) return null;
+
+        return (
+            <div className={scheduleClass}>
+                <div className="accepted-schedule-chips">
+                    {schedule.room && (
+                        <ScheduleChip label={tOralPoster('room')} value={schedule.room} />
+                    )}
+                    {presentationTime && (
+                        <ScheduleChip label={tOralPoster('time')} value={presentationTime} />
+                    )}
+                    {formattedDate && (
+                        <ScheduleChip label={tOralPoster('date')} value={formattedDate} />
+                    )}
+                </div>
+            </div>
+        );
+    }
+
+    if (!schedule.boardNumber && !formattedDate && !presentationTime) return null;
+
+    return (
+        <div className={scheduleClass}>
+            <div className="accepted-schedule-chips">
+                {schedule.boardNumber && (
+                    <ScheduleChip
+                        label={tOralPoster('posterBoard')}
+                        value={`#${schedule.boardNumber}`}
+                    />
+                )}
+                {formattedDate && (
+                    <ScheduleChip label={tOralPoster('date')} value={formattedDate} />
+                )}
+                {presentationTime && (
+                    <ScheduleChip
+                        label={tOralPoster('presentationTime')}
+                        value={presentationTime}
+                    />
+                )}
+            </div>
+        </div>
+    );
+}
+
+function AbstractCard({ item, index, locale }: { item: AcceptedAbstract; index: number; locale: string }) {
     const code = item.trackingId || `${item.presentationType === 'oral' ? 'O' : 'P'}-${String(index + 1).padStart(3, '0')}`;
 
     return (
         <article className="accepted-abstract-card">
-            <div className="accepted-abstract-code-wrap">
-                <div className="accepted-abstract-code">{code}</div>
-                <span className={`accepted-type-badge accepted-type-${item.presentationType}`}>
-                    {item.presentationType === 'oral' ? 'Oral' : 'Poster'}
-                </span>
+            <div className="accepted-card-sidebar">
+                <div className="accepted-card-identity">
+                    <div className="accepted-abstract-code">{code}</div>
+                    <span className={`accepted-type-badge accepted-type-${item.presentationType}`}>
+                        {item.presentationType === 'oral' ? 'Oral' : 'Poster'}
+                    </span>
+                </div>
+                <ScheduleDetails item={item} locale={locale} />
             </div>
             <div className="accepted-abstract-content">
                 <div className="accepted-abstract-meta">
@@ -74,13 +193,13 @@ function AbstractCard({ item, index }: { item: AcceptedAbstract; index: number }
     );
 }
 
-function AbstractList({ items }: { items: AcceptedAbstract[] }) {
+function AbstractList({ items, locale }: { items: AcceptedAbstract[]; locale: string }) {
     return (
         <section className="accepted-abstract-list-panel" aria-live="polite">
             {items.length > 0 ? (
                 <div className="accepted-abstract-list">
                     {items.map((item, index) => (
-                        <AbstractCard key={`${item.presentationType}-${item.id}`} item={item} index={index} />
+                        <AbstractCard key={`${item.presentationType}-${item.id}`} item={item} index={index} locale={locale} />
                     ))}
                 </div>
             ) : (
@@ -93,7 +212,11 @@ function AbstractList({ items }: { items: AcceptedAbstract[] }) {
     );
 }
 
-export default function AcceptedAbstractsDirectory() {
+export default function AcceptedAbstractsDirectory({
+    scheduledOnly = false,
+}: {
+    scheduledOnly?: boolean;
+}) {
     const locale = useLocale();
     const [abstracts, setAbstracts] = useState<AcceptedAbstract[]>([]);
     const [search, setSearch] = useState('');
@@ -109,7 +232,8 @@ export default function AcceptedAbstractsDirectory() {
             setError(null);
 
             try {
-                const response = await fetch(`${API_URL}/api/abstracts/accepted`, {
+                const query = scheduledOnly ? '?scheduledOnly=true' : '';
+                const response = await fetch(`${API_URL}/api/abstracts/accepted${query}`, {
                     headers: { Accept: 'application/json' },
                 });
 
@@ -139,7 +263,7 @@ export default function AcceptedAbstractsDirectory() {
         return () => {
             ignore = true;
         };
-    }, []);
+    }, [scheduledOnly]);
 
     const filteredAbstracts = useMemo(() => {
         const keyword = normalize(search);
@@ -256,7 +380,7 @@ export default function AcceptedAbstractsDirectory() {
                             <span>{error}</span>
                         </div>
                     ) : (
-                        <AbstractList items={filteredAbstracts} />
+                        <AbstractList items={filteredAbstracts} locale={locale} />
                     )}
                 </div>
             </div>
@@ -570,10 +694,10 @@ export default function AcceptedAbstractsDirectory() {
                 }
 
                 .accepted-abstract-card {
-                    align-items: center;
+                    align-items: start;
                     display: grid;
-                    gap: 22px;
-                    grid-template-columns: 154px minmax(0, 1fr);
+                    gap: 24px;
+                    grid-template-columns: 196px minmax(0, 1fr);
                     padding: 26px 32px;
                     transition: background-color 0.2s ease;
                 }
@@ -586,11 +710,15 @@ export default function AcceptedAbstractsDirectory() {
                     border-top: 1px solid #edf1f7;
                 }
 
-                .accepted-abstract-code-wrap {
-                    align-self: center;
+                .accepted-card-sidebar {
                     display: grid;
-                    gap: 10px;
-                    justify-items: stretch;
+                    gap: 12px;
+                    min-width: 0;
+                }
+
+                .accepted-card-identity {
+                    display: grid;
+                    gap: 8px;
                 }
 
                 .accepted-abstract-code {
@@ -600,25 +728,25 @@ export default function AcceptedAbstractsDirectory() {
                     border-radius: 8px;
                     color: #1a237e;
                     display: flex;
-                    font-size: 14px;
+                    font-size: 13px;
                     font-weight: 900;
-                    min-height: 46px;
                     justify-content: center;
-                    line-height: 1;
-                    padding: 8px;
+                    letter-spacing: -0.2px;
+                    line-height: 1.2;
+                    min-height: 44px;
+                    padding: 10px 12px;
                     text-align: center;
-                    white-space: nowrap;
-                    overflow-wrap: anywhere;
+                    word-break: break-all;
                 }
 
                 .accepted-type-badge {
                     border-radius: 8px;
                     display: block;
-                    font-size: 12px;
+                    font-size: 11px;
                     font-weight: 900;
-                    letter-spacing: 0.8px;
+                    letter-spacing: 0.9px;
                     line-height: 1;
-                    padding: 10px 12px;
+                    padding: 9px 12px;
                     text-align: center;
                     text-transform: uppercase;
                 }
@@ -631,6 +759,61 @@ export default function AcceptedAbstractsDirectory() {
                 .accepted-type-poster {
                     background: #fff7e0;
                     color: #a15c00;
+                }
+
+                .accepted-schedule-details {
+                    border-radius: 10px;
+                    min-width: 0;
+                    overflow: hidden;
+                }
+
+                .accepted-schedule-oral {
+                    background: linear-gradient(180deg, #f3faf6 0%, #eef8f2 100%);
+                    border: 1px solid #cce8d8;
+                }
+
+                .accepted-schedule-poster {
+                    background: linear-gradient(180deg, #fff9eb 0%, #fff4dc 100%);
+                    border: 1px solid #f2ddb0;
+                }
+
+                .accepted-schedule-chips {
+                    display: grid;
+                    gap: 1px;
+                    background: rgba(16, 24, 40, 0.06);
+                }
+
+                .accepted-schedule-chip {
+                    background: inherit;
+                    display: grid;
+                    gap: 3px;
+                    min-width: 0;
+                    padding: 10px 12px;
+                }
+
+                .accepted-schedule-oral .accepted-schedule-chip {
+                    background: #f3faf6;
+                }
+
+                .accepted-schedule-poster .accepted-schedule-chip {
+                    background: #fff9eb;
+                }
+
+                .accepted-schedule-label {
+                    color: #667085;
+                    font-size: 10px;
+                    font-weight: 900;
+                    letter-spacing: 0.7px;
+                    line-height: 1.2;
+                    text-transform: uppercase;
+                }
+
+                .accepted-schedule-value {
+                    color: #101828;
+                    font-size: 12px;
+                    font-weight: 800;
+                    line-height: 1.35;
+                    overflow-wrap: anywhere;
                 }
 
                 .accepted-abstract-meta {
@@ -766,6 +949,64 @@ export default function AcceptedAbstractsDirectory() {
                     .accepted-filter-tabs {
                         max-width: none;
                     }
+
+                    .accepted-abstract-card {
+                        gap: 18px;
+                        grid-template-columns: 1fr;
+                        padding: 22px 24px;
+                    }
+
+                    .accepted-card-sidebar {
+                        gap: 14px;
+                    }
+
+                    .accepted-card-identity {
+                        align-items: center;
+                        grid-template-columns: minmax(0, 1fr) auto;
+                        grid-template-rows: none;
+                        display: grid;
+                        gap: 10px;
+                    }
+
+                    .accepted-abstract-code {
+                        font-size: 14px;
+                        justify-content: flex-start;
+                        min-height: 42px;
+                        text-align: left;
+                        width: 100%;
+                    }
+
+                    .accepted-type-badge {
+                        min-width: 72px;
+                        padding: 10px 14px;
+                        white-space: nowrap;
+                    }
+
+                    .accepted-schedule-chips {
+                        grid-template-columns: repeat(2, minmax(0, 1fr));
+                    }
+
+                    .accepted-schedule-chip {
+                        padding: 12px 14px;
+                    }
+
+                    .accepted-schedule-chip:first-child {
+                        grid-column: 1 / -1;
+                    }
+
+                    .accepted-abstract-content h4 {
+                        font-size: 20px;
+                    }
+                }
+
+                @media (max-width: 767px) {
+                    .accepted-abstract-list-panel {
+                        max-height: none;
+                    }
+
+                    .accepted-abstract-card {
+                        padding: 20px 18px;
+                    }
                 }
 
                 @media (max-width: 575px) {
@@ -832,24 +1073,70 @@ export default function AcceptedAbstractsDirectory() {
                     }
 
                     .accepted-abstract-card {
-                        padding-left: 20px;
-                        padding-right: 20px;
+                        gap: 12px;
+                        padding: 18px 16px;
                     }
 
-                    .accepted-abstract-card {
-                        grid-template-columns: 1fr;
+                    .accepted-card-sidebar {
+                        gap: 10px;
+                        width: 100%;
                     }
 
-                    .accepted-abstract-code-wrap {
-                        align-items: center;
-                        display: flex;
-                        flex-wrap: wrap;
-                        justify-content: flex-start;
+                    .accepted-card-identity {
+                        gap: 8px;
+                        grid-template-columns: 1fr 1fr;
                     }
 
                     .accepted-abstract-code,
                     .accepted-type-badge {
-                        width: fit-content;
+                        align-items: center;
+                        display: flex;
+                        justify-content: center;
+                        min-height: 48px;
+                        width: 100%;
+                    }
+
+                    .accepted-abstract-code {
+                        font-size: 12px;
+                        padding: 8px 10px;
+                        text-align: center;
+                    }
+
+                    .accepted-type-badge {
+                        min-width: 0;
+                    }
+
+                    .accepted-schedule-details {
+                        border-radius: 8px;
+                        width: 100%;
+                    }
+
+                    .accepted-schedule-chips {
+                        grid-template-columns: repeat(3, minmax(0, 1fr));
+                    }
+
+                    .accepted-schedule-chip {
+                        align-content: center;
+                        min-height: 52px;
+                        padding: 10px 8px;
+                        text-align: center;
+                    }
+
+                    .accepted-schedule-chip:first-child {
+                        grid-column: auto;
+                    }
+
+                    .accepted-schedule-label {
+                        font-size: 9px;
+                        letter-spacing: 0.5px;
+                    }
+
+                    .accepted-schedule-value {
+                        font-size: 11px;
+                    }
+
+                    .accepted-abstract-content h4 {
+                        font-size: 18px;
                     }
                 }
             `}</style>
