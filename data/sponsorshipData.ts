@@ -113,6 +113,14 @@ export const sponsorCategories: SponsorCategory[] = [
                 name: 'China Pharmacy Online',
                 logo: sponsorLogo('logo_pharmaceutical company', '5787524E-74D3-4710-998A-5815D813A82B.png'),
             },
+            {
+                name: 'McGraw Hill',
+                logo: sponsorLogo('logo_pharmaceutical company', 'MGH_Logo_RGB_clear_space.png'),
+            },
+            {
+                name: 'Thailand Convention & Exhibition Bureau',
+                logo: sponsorLogo('logo_pharmaceutical company', 'TCEB Logotype-Master Colour.png'),
+            },
         ],
     },
     {
@@ -130,6 +138,14 @@ export const sponsorCategories: SponsorCategory[] = [
             {
                 name: 'Hospital Pharmacy Association of Thailand',
                 logo: sponsorLogo('Logo_association', 'สมาคมเภสัชกรรมโรงพยาบาล.png'),
+            },
+            {
+                name: 'Pharmacy Practice Research',
+                logo: sponsorLogo('Logo_association', 'Chinese Logo-1.png'),
+            },
+            {
+                name: 'Community Pharmacy Association (Thailand)',
+                logo: sponsorLogo('Logo_association', 'สำเนาของ Gemini_Generated_Image_qmsgimqmsgimqmsg.png'),
             },
         ],
     },

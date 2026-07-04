@@ -63,9 +63,8 @@ export default function PreconferenceWorkshops() {
       try {
         setIsLoading(true);
         const response = await api.workshops.list();
-        // เรียงตาม sessionId น้อยสุดก่อน
-        const sortedWorkshops = response.workshops.sort(
-          (a, b) => a.sessionId - b.sessionId,
+        const sortedWorkshops = response.workshops.sort((a, b) =>
+          a.id.localeCompare(b.id),
         );
         setWorkshops(sortedWorkshops);
       } catch (err) {
