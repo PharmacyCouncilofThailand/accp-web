@@ -3,6 +3,7 @@ import Layout from "@/components/layout/Layout"
 import Link from "next/link"
 import { useTranslations, useLocale } from 'next-intl';
 import AcceptedAbstractsDirectory from '@/components/sections/program/AcceptedAbstractsDirectory';
+import PresentationScheduleDownloads from '@/components/sections/program/PresentationScheduleDownloads';
 
 export default function OralPoster() {
     const tCommon = useTranslations('common');
@@ -29,7 +30,8 @@ export default function OralPoster() {
                         </div>
                     </div>
 
-                    <AcceptedAbstractsDirectory />
+                    <PresentationScheduleDownloads />
+                    <AcceptedAbstractsDirectory scheduledOnly />
                 </div>
             </Layout>
         </>
