@@ -197,6 +197,9 @@ export default function MyTickets() {
     orderNumber: r.orderNumber,
     paidOn: formatDate(r.paidAt || r.purchasedAt),
     amount: formatAmount(r.totalAmount, r.currency),
+    chargeNote: r.charge
+      ? `(${formatAmount(r.charge.amount, r.charge.currency)} via Alipay)`
+      : null,
     url: r.receiptUrl,
   }));
 
@@ -754,6 +757,11 @@ export default function MyTickets() {
                           />
                           {receipt.amount}
                         </span>
+                        {receipt.chargeNote && (
+                          <span style={{ color: "#999", fontWeight: "400" }}>
+                            {receipt.chargeNote}
+                          </span>
+                        )}
                       </div>
                     </div>
                     <a
