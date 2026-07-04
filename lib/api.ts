@@ -165,6 +165,8 @@ export interface MyTicketItem {
         orderNumber: string;
         totalAmount: string;
         currency: string;
+        /** Actual charge when made in a different currency (Alipay = THB) */
+        charge?: { currency: string; amount: string } | null;
         purchasedAt: string | null;
         paidAt: string | null;
         receiptUrl: string;

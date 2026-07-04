@@ -40,7 +40,13 @@ interface PaymentData {
   receiptDownloadUrl?: string | null;
   items?: OrderItem[];
   subtotal?: string;
+  discount?: string;
+  promoCode?: string | null;
   fee?: string;
+  /** Total paid expressed in the order currency (Alipay THB charges converted back to USD) */
+  totalPaid?: string;
+  /** Actual charge when made in a different currency (Alipay = THB) */
+  charge?: { currency: string; amount: string } | null;
 }
 
 export default function PaymentResult() {
@@ -159,8 +165,19 @@ export default function PaymentResult() {
   const paymentChannelText = (() => {
     const channel = (paymentData?.payment?.paymentChannel || "").toLowerCase();
     if (channel === "promptpay") return "PromptPay (QR)";
+    if (channel === "alipay") return "Alipay";
     return "Credit / Debit Card";
   })();
+
+  // Total in the order currency (API converts Alipay THB charges back to USD)
+  const totalPaidDisplay = Number(
+    paymentData?.totalPaid ?? paymentData?.payment?.amount ?? 0,
+  );
+  const chargeNoteText = paymentData?.charge
+    ? locale === "th"
+      ? `เรียกเก็บจริงเป็นเงินบาท ฿${Number(paymentData.charge.amount).toLocaleString()} ผ่าน Alipay`
+      : `Charged as ฿${Number(paymentData.charge.amount).toLocaleString()} THB via Alipay`
+    : null;
 
   const sortedItems = [...(paymentData?.items || [])].sort((a, b) => {
     const aRank = a.type === "ticket" ? 0 : 1;
@@ -298,6 +315,16 @@ export default function PaymentResult() {
                               <span>{locale === "th" ? "ราคารวม" : "Subtotal"}</span>
                               <span>{currencySymbol}{Number(paymentData?.subtotal ?? 0).toLocaleString()}</span>
                             </div>
+                            {/* Discount */}
+                            {Number(paymentData?.discount ?? 0) > 0 && (
+                              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px", fontSize: "14px", color: "#00A344" }}>
+                                <span>
+                                  {locale === "th" ? "ส่วนลด" : "Discount"}
+                                  {paymentData?.promoCode ? ` (${paymentData.promoCode})` : ""}
+                                </span>
+                                <span>-{currencySymbol}{Number(paymentData?.discount ?? 0).toLocaleString()}</span>
+                              </div>
+                            )}
                             {/* Fee */}
                             {Number(paymentData?.fee ?? 0) > 0 && (
                               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px", fontSize: "14px", color: "#666" }}>
@@ -311,9 +338,14 @@ export default function PaymentResult() {
                                 {locale === "th" ? "ยอดชำระทั้งหมด" : "Total Paid"}
                               </span>
                               <span style={{ fontSize: "20px", fontWeight: "bold", color: "#00C853" }}>
-                                {currencySymbol}{Number(paymentData?.payment?.amount ?? 0).toLocaleString()}
+                                {currencySymbol}{totalPaidDisplay.toLocaleString()}
                               </span>
                             </div>
+                            {chargeNoteText && (
+                              <div style={{ textAlign: "right", marginTop: "6px", fontSize: "12px", color: "#888" }}>
+                                {chargeNoteText}
+                              </div>
+                            )}
                           </div>
                         </>
                       )}
@@ -325,7 +357,7 @@ export default function PaymentResult() {
                             {locale === "th" ? "ยอดชำระทั้งหมด" : "Total Paid"}
                           </span>
                           <span style={{ fontSize: "20px", fontWeight: "bold", color: "#00C853" }}>
-                            {currencySymbol}{Number(paymentData.payment.amount).toLocaleString()}
+                            {currencySymbol}{totalPaidDisplay.toLocaleString()}
                           </span>
                         </div>
                       )}
