@@ -59,6 +59,14 @@ export const sponsorCategories: SponsorCategory[] = [
                 name: 'Faculty of Pharmaceutical Sciences, Chulalongkorn University',
                 logo: sponsorLogo('logo_university', 'สำเนาของ Pharm Chula logo new ENG.png'),
             },
+            {
+                name: 'Faculty of Pharmaceutical Sciences, Khon Kaen University',
+                logo: sponsorLogo('logo_university', 'คณะเภสัชศาสตร์ มหาวิทยาลัยขอนแก่น.png'),
+            },
+            {
+                name: 'Faculty of Pharmaceutical Sciences, Burapha University',
+                logo: sponsorLogo('logo_university', 'คณะเภสัชศาสตร์ มหาวิทยาลัยบูรพา.jpg'),
+            },
         ],
     },
     {
@@ -117,10 +125,6 @@ export const sponsorCategories: SponsorCategory[] = [
                 name: 'McGraw Hill',
                 logo: sponsorLogo('logo_pharmaceutical company', 'MGH_Logo_RGB_clear_space.png'),
             },
-            {
-                name: 'Thailand Convention & Exhibition Bureau',
-                logo: sponsorLogo('logo_pharmaceutical company', 'TCEB Logotype-Master Colour.png'),
-            },
         ],
     },
     {
@@ -146,6 +150,10 @@ export const sponsorCategories: SponsorCategory[] = [
             {
                 name: 'Community Pharmacy Association (Thailand)',
                 logo: sponsorLogo('Logo_association', 'สำเนาของ Gemini_Generated_Image_qmsgimqmsgimqmsg.png'),
+            },
+            {
+                name: 'Thailand Convention & Exhibition Bureau',
+                logo: sponsorLogo('Logo_association', 'TCEB Logotype-Master Colour.png'),
             },
         ],
     },
