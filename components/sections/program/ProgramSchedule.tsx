@@ -75,18 +75,21 @@ function EventContent({ text }: { text: string }) {
 export default function ProgramSchedule() {
   const t = useTranslations("program");
 
+  const fullAgendaPdf = {
+    href: "/assets/documents/agenda/agenda_ACCP9-11July2026.pdf",
+    filename: "agenda_ACCP9-11July2026.pdf",
+  };
+
   const handleDownload = (dayIndex: number) => {
     const pdfFiles = [
       "/assets/documents/agenda/9July26.pdf",
       "/assets/documents/agenda/10July26.pdf",
       "/assets/documents/agenda/11July26.pdf",
-      "/assets/documents/agenda_all_day.pdf",
     ];
     const downloadNames = [
       "9July26.pdf",
       "10July26.pdf",
       "11July26.pdf",
-      "ACCP2026_Agenda_All_Day.pdf",
     ];
 
     const pdfUrl = pdfFiles[dayIndex] || pdfFiles[0];
@@ -95,6 +98,15 @@ export default function ProgramSchedule() {
     const link = document.createElement("a");
     link.href = pdfUrl;
     link.download = downloadName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleDownloadFullAgenda = () => {
+    const link = document.createElement("a");
+    link.href = fullAgendaPdf.href;
+    link.download = fullAgendaPdf.filename;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -154,7 +166,7 @@ export default function ProgramSchedule() {
               <button
                 type="button"
                 className="program-schedule__download-all"
-                onClick={() => handleDownload(3)}
+                onClick={handleDownloadFullAgenda}
               >
                 <i className="fa-solid fa-download" aria-hidden="true" />
                 <span>{t("downloadPdf")}</span>
