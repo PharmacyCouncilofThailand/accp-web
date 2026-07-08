@@ -16,7 +16,7 @@ const SCHEDULE_FILES = [
     },
     {
         id: 'poster',
-        href: '/assets/documents/schedule/poster presentation schedule ACCP 2026.pdf',
+        href: '/assets/documents/schedule/poster_presentation_schedule_ACCP 2026.pdf',
         downloadName: 'poster-presentation-schedule-ACCP-2026.pdf',
         labelKey: 'downloadPosterSchedule',
         descriptionKey: 'downloadPosterScheduleDesc',
