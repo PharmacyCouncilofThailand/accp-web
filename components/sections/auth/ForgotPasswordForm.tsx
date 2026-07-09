@@ -5,15 +5,13 @@ import Image from "next/image";
 import { useLocale } from "next-intl";
 import toast from "react-hot-toast";
 import { Hourglass } from "react-loader-spinner";
-import { Turnstile } from "@marsidev/react-turnstile";
 
 export default function ForgotPasswordForm() {
   const locale = useLocale();
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
-  const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,15 +23,7 @@ export default function ForgotPasswordForm() {
       return;
     }
 
-    // Check reCAPTCHA if site key is configured
-    if (siteKey && !recaptchaToken) {
-      toast.error(
-        locale === "th"
-          ? "กรุณายืนยันว่าคุณไม่ใช่หุ่นยนต์"
-          : "Please complete the reCAPTCHA verification",
-      );
-      return;
-    }
+
 
     setIsLoading(true);
 
@@ -47,7 +37,7 @@ export default function ForgotPasswordForm() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, recaptchaToken: recaptchaToken || "" }),
+        body: JSON.stringify({ email }),
       });
 
       const data = await response.json();
@@ -71,7 +61,7 @@ export default function ForgotPasswordForm() {
           ? "ส่งลิงก์รีเซ็ตรหัสผ่านแล้ว"
           : "Password reset link sent!",
       );
-      setRecaptchaToken(null);
+
     } catch (error) {
       console.error("Forgot password error:", error);
       toast.error(
@@ -209,17 +199,7 @@ export default function ForgotPasswordForm() {
               />
             </div>
 
-            {/* Cloudflare Turnstile */}
-            {siteKey && (
-              <div style={{ marginBottom: "20px" }}>
-                <Turnstile
-                  siteKey={siteKey}
-                  onSuccess={(token) => setRecaptchaToken(token)}
-                  onExpire={() => setRecaptchaToken(null)}
-                  onError={() => setRecaptchaToken(null)}
-                />
-              </div>
-            )}
+
 
             {/* Submit Button */}
             <button
