@@ -13,7 +13,6 @@ import '@/styles/signup-form.css';
 import { logger } from '@/utils/logger';
 import { CountrySelect } from 'react-country-state-city';
 import 'react-country-state-city/dist/react-country-state-city.css';
-import { Turnstile } from '@marsidev/react-turnstile';
 
 type TabType = 'thaiStudent' | 'internationalStudent' | 'thaiProfessional' | 'internationalProfessional';
 
@@ -44,8 +43,7 @@ export default function SignupForm() {
     const [isPending, setIsPending] = useState(false);
     const [step, setStep] = useState(1);
     const [passportSpecialCharError, setPassportSpecialCharError] = useState(false);
-    const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
-    const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+
 
     // Handle file selection (store in state only, no upload yet)
     const handleFileSelect = (file: File) => {
@@ -95,12 +93,7 @@ export default function SignupForm() {
                 setIsLoading(false);
                 return;
             }
-            // Check reCAPTCHA if site key is configured
-            if (siteKey && !recaptchaToken) {
-                toast.error(locale === 'th' ? 'กรุณายืนยันว่าคุณไม่ใช่หุ่นยนต์' : 'Please complete the reCAPTCHA verification');
-                setIsLoading(false);
-                return;
-            }
+
             if (activeTab === 'thaiStudent' || activeTab === 'thaiProfessional') {
                 if (!idCard) {
                     toast.error(locale === 'th' ? 'กรุณากรอกเลขบัตรประชาชน' : 'Please enter Thai ID card');
@@ -150,10 +143,7 @@ export default function SignupForm() {
             if (studentDocument) {
                 formDataToSend.append('verificationDoc', studentDocument);
             }
-            // Add reCAPTCHA token if available
-            if (recaptchaToken) {
-                formDataToSend.append('recaptchaToken', recaptchaToken);
-            }
+
             // Call Registration API
             const API_URL = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
             const response = await fetch(`${API_URL}/auth/register`, {
@@ -701,17 +691,7 @@ export default function SignupForm() {
                             </div>
                         )}
 
-                        {/* Cloudflare Turnstile */}
-                        {siteKey && (
-                            <div style={{ marginBottom: '16px' }}>
-                                <Turnstile
-                                    siteKey={siteKey}
-                                    onSuccess={(token) => setRecaptchaToken(token)}
-                                    onExpire={() => setRecaptchaToken(null)}
-                                    onError={() => setRecaptchaToken(null)}
-                                />
-                            </div>
-                        )}
+
 
                         {/* Terms */}
                         <div style={{ marginBottom: '20px' }}>

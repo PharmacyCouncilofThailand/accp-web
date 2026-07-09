@@ -6,7 +6,6 @@ import { useTranslations, useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { logger } from "@/utils/logger";
-import { Turnstile } from "@marsidev/react-turnstile";
 
 export default function LoginForm() {
   const t = useTranslations("login");
@@ -20,8 +19,7 @@ export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [showPendingModal, setShowPendingModal] = useState(false);
-  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
-  const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,16 +38,7 @@ export default function LoginForm() {
         return;
       }
 
-      // Check reCAPTCHA if site key is configured
-      if (siteKey && !recaptchaToken) {
-        setError(
-          locale === "th"
-            ? "กรุณายืนยันว่าคุณไม่ใช่หุ่นยนต์"
-            : "Please complete the reCAPTCHA verification",
-        );
-        setIsLoading(false);
-        return;
-      }
+
 
       // Real API Call
       const API_URL = (process.env.NEXT_PUBLIC_API_URL || "").replace(
@@ -62,7 +51,6 @@ export default function LoginForm() {
         body: JSON.stringify({
           email,
           password,
-          recaptchaToken: recaptchaToken || "",
         }),
       });
 
@@ -408,17 +396,7 @@ export default function LoginForm() {
             </Link>
           </div>
 
-          {/* Cloudflare Turnstile */}
-          {siteKey && (
-            <div style={{ marginBottom: "20px" }}>
-              <Turnstile
-                siteKey={siteKey}
-                onSuccess={(token) => setRecaptchaToken(token)}
-                onExpire={() => setRecaptchaToken(null)}
-                onError={() => setRecaptchaToken(null)}
-              />
-            </div>
-          )}
+
 
           {/* Submit Button */}
           <button

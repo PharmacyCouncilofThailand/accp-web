@@ -1,7 +1,6 @@
 'use client'
 import { useState } from 'react'
 import { useTranslations } from 'next-intl';
-import { Turnstile } from '@marsidev/react-turnstile';
 
 interface FormData {
     name: string;
@@ -14,7 +13,6 @@ interface FormData {
 export default function ContactForm() {
     const t = useTranslations('contact');
     const tCommon = useTranslations('common');
-    const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
     const [formData, setFormData] = useState<FormData>({
         name: '',
@@ -25,7 +23,6 @@ export default function ContactForm() {
     });
     const [isLoading, setIsLoading] = useState(false);
     const [status, setStatus] = useState<{ type: 'success' | 'error', message: string } | null>(null);
-    const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -49,12 +46,7 @@ export default function ContactForm() {
             return;
         }
 
-        // Check reCAPTCHA if site key is configured
-        if (siteKey && !recaptchaToken) {
-            setStatus({ type: 'error', message: 'Please complete the reCAPTCHA verification.' });
-            setIsLoading(false);
-            return;
-        }
+
 
         try {
             const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
@@ -65,7 +57,6 @@ export default function ContactForm() {
                 },
                 body: JSON.stringify({
                     ...formData,
-                    recaptchaToken: recaptchaToken || ''
                 }),
             });
 
@@ -81,14 +72,11 @@ export default function ContactForm() {
                     subject: '',
                     message: ''
                 });
-                setRecaptchaToken(null);
             } else {
                 setStatus({ type: 'error', message: data.error || 'Failed to send message. Please try again.' });
-                setRecaptchaToken(null);
             }
         } catch {
             setStatus({ type: 'error', message: 'Network error. Please check your connection and try again.' });
-            setRecaptchaToken(null);
         } finally {
             setIsLoading(false);
         }
@@ -176,19 +164,7 @@ export default function ContactForm() {
                         </div>
                     </div>
                     
-                    {/* Cloudflare Turnstile */}
-                    {siteKey && (
-                        <div className="col-lg-12">
-                            <div style={{ marginTop: '16px', marginBottom: '8px' }}>
-                                <Turnstile
-                                    siteKey={siteKey}
-                                    onSuccess={(token) => setRecaptchaToken(token)}
-                                    onExpire={() => setRecaptchaToken(null)}
-                                    onError={() => setRecaptchaToken(null)}
-                                />
-                            </div>
-                        </div>
-                    )}
+
                     
                     <div className="col-lg-12">
                         <div className="space24" />
@@ -196,8 +172,8 @@ export default function ContactForm() {
                             <button 
                                 type="submit" 
                                 className="vl-btn1"
-                                disabled={isLoading || (!!siteKey && !recaptchaToken)}
-                                style={{ opacity: (isLoading || (!!siteKey && !recaptchaToken)) ? 0.7 : 1 }}
+                                disabled={isLoading}
+                                style={{ opacity: isLoading ? 0.7 : 1 }}
                             >
                                 {isLoading ? 'Sending...' : t('send')}
                             </button>
